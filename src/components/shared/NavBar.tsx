@@ -156,6 +156,34 @@ export function NavBar() {
     };
   }, []);
 
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const path = location.pathname;
 
   // Detect Active Top Domain
@@ -212,16 +240,20 @@ export function NavBar() {
   return (
     <>
       <nav className="sticky top-0 z-50 bg-bg-primary border-b-2 border-text-primary">
-        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           
           {/* Logo & Primary Domain Switcher */}
-          <div className="flex items-center gap-8 h-full">
-            <Link to="/life" className="flex items-center gap-3 group">
+          <div className="flex items-center gap-4 lg:gap-8 h-full">
+            <Link 
+              to="/life" 
+              className="flex items-center gap-2.5 sm:gap-3 group"
+              onClick={() => setMobileMenuOpen(false)}
+            >
               <div className="w-3 h-3 bg-text-primary group-hover:bg-accent transition-colors" />
               <span className="text-xl font-black uppercase tracking-tighter text-text-primary">JARVIS</span>
             </Link>
 
-            {/* Top Domain Switcher Tabs */}
+            {/* Top Domain Switcher Tabs (Desktop lg+) */}
             <div className="hidden lg:flex items-center gap-1 bg-bg-tertiary p-1 border border-border-strong rounded-none">
               {topDomainTabs.map(tab => (
                 <Link
@@ -238,10 +270,17 @@ export function NavBar() {
                 </Link>
               ))}
             </div>
+
+            {/* Active Domain Indicator (Mobile & Tablet < lg) */}
+            <div className="flex lg:hidden items-center gap-2 font-mono text-2xs uppercase tracking-widest text-text-secondary border-l border-border-strong pl-3">
+              <span className="text-text-primary font-bold">{topDomainTabs.find(t => t.active)?.name || 'Domain'}</span>
+              <span className="text-accent">•</span>
+              <span className="text-accent font-bold">{activeRank}</span>
+            </div>
           </div>
 
-          {/* Sub-Nav for Current Domain */}
-          <div className="hidden md:flex items-center gap-6 h-full">
+          {/* Sub-Nav for Current Domain (Desktop lg+) */}
+          <div className="hidden lg:flex items-center gap-6 h-full">
             {currentSubLinks.map(link => (
               <Link 
                 key={link.name}
@@ -258,8 +297,8 @@ export function NavBar() {
             ))}
           </div>
 
-          {/* Domain-specific User Actions */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Domain-specific User Actions (Desktop lg+) */}
+          <div className="hidden lg:flex items-center gap-6">
             <div className="text-right flex items-center gap-2 border-r-2 border-border-strong pr-6">
               <span className="label">Streak</span>
               <span className="text-sm font-bold text-text-primary font-mono">{activeStreak > 0 ? activeStreak : '—'}</span>
@@ -277,63 +316,149 @@ export function NavBar() {
             </button>
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-text-primary hover:bg-bg-tertiary border border-border-strong"
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          {/* Mobile & Tablet Controls (< lg) */}
+          <div className="flex lg:hidden items-center gap-3">
+            {/* Quick Streak badge on mobile/tablet */}
+            {activeStreak > 0 && (
+              <div className="flex items-center gap-1 font-mono text-2xs font-bold uppercase tracking-wider px-2 py-1 bg-bg-tertiary border border-border-strong">
+                <span className="text-accent font-mono">STREAK</span>
+                <span className="text-text-primary">{activeStreak}D</span>
+              </div>
+            )}
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`p-2 transition-colors border ${
+                mobileMenuOpen 
+                  ? 'bg-text-primary text-bg-primary border-text-primary' 
+                  : 'text-text-primary hover:bg-bg-tertiary border-border-strong'
+              }`}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav-drawer"
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* Mobile Navigation Drawer & Backdrop (< lg) */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-bg-secondary border-b-2 border-text-primary px-6 py-4 flex flex-col gap-4">
-            <div className="label text-accent">Switch Domain</div>
-            <div className="grid grid-cols-2 gap-2">
-              {topDomainTabs.map(tab => (
-                <Link
-                  key={tab.name}
-                  to={tab.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`p-2.5 text-xs font-mono font-bold uppercase flex items-center gap-2 border ${
-                    tab.active ? 'bg-text-primary text-bg-primary border-text-primary' : 'border-border-strong text-text-secondary'
-                  }`}
-                >
-                  <tab.icon size={13} />
-                  <span>{tab.name}</span>
-                </Link>
-              ))}
-            </div>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 top-16 bg-black/50 backdrop-blur-xs z-40 lg:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
 
-            <div className="label text-text-muted mt-2 border-t border-border-subtle pt-3">Navigation</div>
-            <div className="flex flex-col gap-2">
-              {currentSubLinks.map(link => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`py-2 px-3 text-xs font-mono font-bold uppercase flex items-center gap-2 ${
-                    link.active ? 'bg-bg-tertiary text-text-primary' : 'text-text-secondary'
-                  }`}
-                >
-                  <link.icon size={14} className={link.active ? 'text-accent' : ''} />
-                  <span>{link.name}</span>
-                </Link>
-              ))}
-            </div>
+            {/* Drawer Overlay */}
+            <div 
+              id="mobile-nav-drawer"
+              className="fixed top-16 left-0 right-0 max-h-[calc(100vh-4rem)] overflow-y-auto bg-bg-secondary border-b-2 border-text-primary shadow-2xl z-50 lg:hidden px-6 py-6 flex flex-col gap-6"
+            >
+              {/* 1. DOMAIN SELECTOR */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="label text-accent">Select Domain</span>
+                  <span className="text-3xs font-mono uppercase text-text-muted">4 Independent Domains</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {topDomainTabs.map(tab => {
+                    const tabStreak = tab.name === 'Health' ? healthStreak : tab.name === 'Personal' ? personalStreak : tab.name === 'Career' ? careerStreak : 0;
+                    const tabRank = tab.name === 'Health' ? healthRank : tab.name === 'Personal' ? personalRank : tab.name === 'Career' ? careerRank : null;
 
-            <div className="flex items-center justify-between border-t border-border-subtle pt-3 text-xs font-mono">
-              <span className="text-text-secondary">Active Rank: <strong className="text-accent">{activeRank}</strong></span>
-              <button
-                onClick={handleLogout}
-                className="text-xs font-mono font-bold uppercase text-accent hover:underline flex items-center gap-1"
-              >
-                <LogOut size={12} /> Disconnect
-              </button>
+                    return (
+                      <Link
+                        key={tab.name}
+                        to={tab.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`p-3 text-xs font-mono font-bold uppercase flex flex-col justify-between gap-2 border transition-all ${
+                          tab.active 
+                            ? 'bg-text-primary text-bg-primary border-text-primary shadow-sm' 
+                            : 'bg-bg-primary border-border-strong text-text-secondary hover:text-text-primary hover:border-text-primary'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <tab.icon size={14} className={tab.active ? 'text-accent' : ''} />
+                            <span className="font-sans font-bold text-sm tracking-tight">{tab.name}</span>
+                          </div>
+                          {tab.active && (
+                            <span className="w-1.5 h-1.5 bg-accent" />
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-2xs opacity-80 pt-1 border-t border-current/10">
+                          <span>{tabRank ? `RANK ${tabRank}` : 'OVERVIEW'}</span>
+                          {tabStreak > 0 && <span>{tabStreak}D</span>}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. ACTIVE DOMAIN NAVIGATION */}
+              <div>
+                <div className="flex items-center justify-between mb-3 border-t border-border-subtle pt-4">
+                  <span className="label text-text-muted">
+                    {topDomainTabs.find(t => t.active)?.name} Operations
+                  </span>
+                  <span className="text-3xs font-mono uppercase text-text-muted font-bold">
+                    {currentSubLinks.length} Views
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {currentSubLinks.map(link => (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`py-3 px-4 text-xs font-mono font-bold uppercase flex items-center justify-between border transition-colors ${
+                        link.active 
+                          ? 'bg-bg-tertiary text-text-primary border-text-primary' 
+                          : 'bg-bg-primary/50 text-text-secondary border-border-subtle hover:text-text-primary hover:border-border-strong'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <link.icon size={15} className={link.active ? 'text-accent' : 'text-text-muted'} />
+                        <span className="tracking-wider">{link.name}</span>
+                      </div>
+                      <span className="text-2xs text-text-muted">→</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. TELEMETRY & DISCONNECT */}
+              <div className="border-t border-border-subtle pt-4 flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-bg-primary border border-border-strong text-xs font-mono">
+                  <div>
+                    <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Rank</span>
+                    <span className="text-sm font-bold text-accent">{activeRankLabel} • {activeRank}</span>
+                  </div>
+                  <div className="text-right border-l border-border-subtle pl-3">
+                    <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Streak</span>
+                    <span className="text-sm font-bold text-text-primary">{activeStreak > 0 ? `${activeStreak} DAYS` : '0 DAYS'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-3xs font-mono text-text-muted uppercase tracking-widest">Operator Session</span>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="btn-secondary text-xs font-mono font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white flex items-center gap-2 px-3 py-1.5"
+                  >
+                    <LogOut size={13} /> Disconnect
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </nav>
     </>

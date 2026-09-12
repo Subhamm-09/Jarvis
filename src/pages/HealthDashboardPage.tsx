@@ -8,13 +8,15 @@ import {
   getHealthExpOnTask,
   calculateHealthAttributes,
   checkHealthSGate,
-  getHealthRank
+  getHealthRank,
+  calculateCalendarStreak
 } from '../lib/healthRanking';
 import { RankCard } from '../components/dashboard/RankCard';
 import { ActivityGrid } from '../components/dashboard/ActivityGrid';
 import { TactileLevelUpModal } from '../components/shared/TactileLevelUpModal';
 import { NewHealthTaskModal } from '../components/health/NewHealthTaskModal';
 import { HealthTrackerPanel } from '../components/health/HealthTrackerPanel';
+import { triggerTactileFeedback, resolveTaskAttribute } from '../lib/tactileFeedback';
 
 export function HealthDashboardPage() {
   const [tasks, setTasks] = useState<HealthTask[]>([]);
@@ -70,11 +72,15 @@ export function HealthDashboardPage() {
   const pendingTasks = tasks.filter(t => t.status !== 'done');
   const attributes = calculateHealthAttributes(tasks, expLogs);
   
-  // Sleep streak calculation from recovery tasks
-  const recoveryTasks = completedTasks.filter(t => t.pillar === 'recovery');
-  const sleepStreak = Math.min(14, recoveryTasks.length); // Simplified streak
+  // Active Health Streak calculation from all health exp logs
+  const healthStreak = calculateCalendarStreak(expLogs.map(l => l.awarded_at));
   
-  const sGate = checkHealthSGate(attributes, completedTasks, sleepStreak);
+  // Rolling 7-day protocol count (active weekly maintenance)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const recent7DayCount = expLogs.filter(l => new Date(l.awarded_at) >= sevenDaysAgo).length;
+
+  const sGate = checkHealthSGate(attributes, completedTasks, healthStreak, recent7DayCount);
   const healthRank = getHealthRank(attributes, sGate.isSReady);
 
   // Compute 7-day Activity Grid data for this week (Mon-Sun)
@@ -128,6 +134,7 @@ export function HealthDashboardPage() {
 
     const expAwarded = getHealthExpOnTask(difficulty);
     const oldLevel = healthLevel;
+    const task = tasks.find(t => t.id === taskId);
 
     // 1. Mark task done
     await supabase
@@ -160,18 +167,24 @@ export function HealthDashboardPage() {
 
     window.dispatchEvent(new CustomEvent('health-exp-awarded'));
 
-    // 4. Check for Level-Up trigger
+    // 4. Trigger Tactile Mechanical Feedback HUD
     const newTotalExp = totalHealthExp + expAwarded;
-    const { level: newLevel } = getHealthLevel(newTotalExp);
-    if (newLevel > oldLevel) {
-      setLevelUpData({
-        isOpen: true,
-        level: newLevel,
-        rank: healthRank.rank,
-        rankTitle: healthRank.title,
-        expGained: expAwarded,
-      });
-    }
+    const { level: newLevel, currentLevelExp: newLevelExp, expToNext: newExpToNext } = getHealthLevel(newTotalExp);
+    const attr = resolveTaskAttribute('health', taskPillar);
+
+    triggerTactileFeedback({
+      domain: 'health',
+      questTitle: task?.title || 'Physical Protocol',
+      expGained: expAwarded,
+      attributeName: attr.name,
+      attributeDelta: attr.delta,
+      oldLevel: oldLevel,
+      newLevel: newLevel,
+      currentLevelExp: newLevelExp,
+      expToNext: newExpToNext,
+      rank: healthRank.rank,
+      rankTitle: healthRank.title
+    });
   };
 
   const filteredTasks = tasks.filter(t => {
@@ -185,8 +198,11 @@ export function HealthDashboardPage() {
 
   // S-Tier progress calculations
   const sTierWorkoutPct = Math.min(100, Math.round((sGate.totalWorkouts / sGate.requiredWorkouts) * 100));
-  const sTierStreakPct = Math.min(100, Math.round((sGate.recoveryStreakDays / sGate.requiredSleepStreak) * 100));
-  const sTierProgressOverall = Math.round((sTierWorkoutPct + sTierStreakPct + (sGate.allPillarsBalanced ? 100 : 30)) / 3);
+  const sTierStreakPct = Math.min(100, Math.round((sGate.activeStreak / sGate.requiredStreak) * 100));
+  const sTierCadencePct = Math.min(100, Math.round((sGate.recent7DayCount / sGate.requiredRecentCount) * 100));
+  const sTierProgressOverall = Math.round(
+    (sTierWorkoutPct + sTierStreakPct + sTierCadencePct + (sGate.allPillarsBalanced ? 100 : 30)) / 4
+  );
 
   if (loading) return null;
 
@@ -201,8 +217,9 @@ export function HealthDashboardPage() {
           <RankCard 
             rank={healthRank.rank} 
             status={healthRank.title} 
-            currentExp={totalHealthExp} 
-            maxExp={totalHealthExp + (expToNext - currentLevelExp)} 
+            level={healthLevel}
+            currentExp={currentLevelExp} 
+            maxExp={expToNext} 
           />
 
           {/* Physical Pillars */}
@@ -236,7 +253,7 @@ export function HealthDashboardPage() {
             <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-2">
               {[
                 { value: pendingTasks.length.toString(), label: 'Pending' },
-                { value: sleepStreak.toString() + 'D', label: 'Streak' },
+                { value: healthStreak.toString() + 'D', label: 'Streak' },
                 { value: completedTasks.length.toString(), label: 'Completed' },
                 { value: totalHealthExp.toLocaleString(), label: 'Total EXP' },
               ].map(stat => (
@@ -248,7 +265,7 @@ export function HealthDashboardPage() {
             </div>
           </section>
 
-          {/* S-Tier Iron Gate Clearance */}
+          {/* S-Tier Iron Gate Clearance (Dynamic Biological Maintenance) */}
           <section className="panel p-4 border border-border-strong bg-bg-secondary">
             <div className="flex items-center justify-between mb-3 border-b border-border-subtle pb-2">
               <span className="label text-text-primary flex items-center gap-1.5">
@@ -259,6 +276,25 @@ export function HealthDashboardPage() {
                 {sTierProgressOverall}%
               </span>
             </div>
+
+            {/* Dynamic Status Banner */}
+            {healthRank.rank === 'S' ? (
+              <div className="bg-text-primary text-bg-primary p-2 text-2xs font-mono font-bold uppercase mb-3 flex items-center justify-between border border-border-strong">
+                <span className="text-accent font-bold">● APEX TITAN</span>
+                <span>MAINTAINED</span>
+              </div>
+            ) : sGate.isSuspended ? (
+              <div className="bg-accent/10 border border-accent p-2.5 text-2xs font-mono mb-3">
+                <div className="font-bold text-accent uppercase flex items-center justify-between">
+                  <span>S-TIER SUSPENDED</span>
+                  <span>ATROPHY</span>
+                </div>
+                <div className="text-3xs text-text-secondary mt-1">
+                  Active streak broken. Re-awaken Titan by maintaining an unbroken 14D cadence.
+                </div>
+              </div>
+            ) : null}
+
             <div className="flex flex-col gap-2 text-2xs font-mono text-text-secondary">
               <div className="flex justify-between">
                 <span>Workouts ({sGate.totalWorkouts}/{sGate.requiredWorkouts})</span>
@@ -267,15 +303,21 @@ export function HealthDashboardPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Sleep Streak ({sGate.recoveryStreakDays}/{sGate.requiredSleepStreak}d)</span>
-                <span className={sGate.recoveryStreakDays >= sGate.requiredSleepStreak ? 'text-success font-bold' : ''}>
+                <span>Balanced Biometrics</span>
+                <span className={sGate.allPillarsBalanced ? 'text-success font-bold' : ''}>
+                  {sGate.allPillarsBalanced ? 'CLEARED' : 'PENDING'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Maintenance Streak ({sGate.activeStreak}/{sGate.requiredStreak}d)</span>
+                <span className={sGate.activeStreak >= sGate.requiredStreak ? 'text-success font-bold' : 'text-accent'}>
                   {sTierStreakPct}%
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Balanced Attributes</span>
-                <span className={sGate.allPillarsBalanced ? 'text-success font-bold' : ''}>
-                  {sGate.allPillarsBalanced ? 'CLEARED' : 'PENDING'}
+                <span>7-Day Cadence ({sGate.recent7DayCount}/{sGate.requiredRecentCount})</span>
+                <span className={sGate.recent7DayCount >= sGate.requiredRecentCount ? 'text-success font-bold' : ''}>
+                  {sTierCadencePct}%
                 </span>
               </div>
             </div>

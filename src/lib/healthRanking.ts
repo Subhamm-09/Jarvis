@@ -104,47 +104,102 @@ export function calculateHealthAttributes(tasks: HealthTask[], expLogs: HealthEx
   };
 }
 
+export function calculateCalendarStreak(dateStrings: string[]): number {
+  if (!dateStrings || dateStrings.length === 0) return 0;
+
+  const distinctDates = Array.from(new Set(
+    dateStrings.map(ds => {
+      const d = new Date(ds);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    })
+  ));
+
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
+
+  let checkDate = today;
+  let checkDateStr = todayStr;
+  let streak = 0;
+
+  if (!distinctDates.includes(todayStr) && distinctDates.includes(yesterdayStr)) {
+    checkDate = yesterday;
+    checkDateStr = yesterdayStr;
+  }
+
+  while (distinctDates.includes(checkDateStr)) {
+    streak++;
+    checkDate.setDate(checkDate.getDate() - 1);
+    checkDateStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+  }
+  return streak;
+}
+
 export interface HealthSGateStatus {
   isSReady: boolean;
+  isSuspended: boolean;
   totalWorkouts: number;
   requiredWorkouts: number;
   allPillarsBalanced: boolean;
-  recoveryStreakDays: number;
-  requiredSleepStreak: number;
+  activeStreak: number;
+  requiredStreak: number;
+  recent7DayCount: number;
+  requiredRecentCount: number;
   missingRequirements: string[];
 }
 
 export function checkHealthSGate(
   attributes: HealthAttributeScores,
   completedTasks: HealthTask[],
-  sleepStreak: number
+  activeStreak: number,
+  recent7DayCount: number = 4
 ): HealthSGateStatus {
   const totalWorkouts = completedTasks.filter(t => t.pillar === 'strength' || t.pillar === 'endurance').length;
   const requiredWorkouts = 60;
-  const requiredSleepStreak = 14;
+  const requiredStreak = 14;
+  const requiredRecentCount = 4;
 
   const missing: string[] = [];
+
+  // 1. Foundational Workouts Baseline (Permanent)
   if (totalWorkouts < requiredWorkouts) {
-    missing.push(`Log ${requiredWorkouts - totalWorkouts} more physical training protocols (${totalWorkouts}/${requiredWorkouts})`);
-  }
-  if (sleepStreak < requiredSleepStreak) {
-    missing.push(`Maintain circadian sleep schedule for ${requiredSleepStreak - sleepStreak} more consecutive days (${sleepStreak}/${requiredSleepStreak})`);
+    missing.push(`Log ${requiredWorkouts - totalWorkouts} more physical training workouts (${totalWorkouts}/${requiredWorkouts})`);
   }
 
+  // 2. Foundational Biometric Equilibrium (Permanent)
   const lowPillars = Object.entries(attributes).filter(([_, score]) => score < 70);
   if (lowPillars.length > 0) {
     missing.push(`Raise all 5 biometrics to at least 70/100 (Lagging: ${lowPillars.map(([k]) => k).join(', ')})`);
   }
 
-  const isSReady = missing.length === 0;
+  // 3. Dynamic Active Maintenance Streak (Ephemeral: resets if inactive)
+  if (activeStreak < requiredStreak) {
+    missing.push(`Maintain unbroken protocol streak for ${requiredStreak - activeStreak} more consecutive days (${activeStreak}/${requiredStreak}D)`);
+  }
+
+  // 4. Dynamic Rolling 7-Day Cadence (Ephemeral: requires weekly volume)
+  if (recent7DayCount < requiredRecentCount) {
+    missing.push(`Execute ${requiredRecentCount - recent7DayCount} more protocols in rolling 7-day window (${recent7DayCount}/${requiredRecentCount})`);
+  }
+
+  const foundationalMet = totalWorkouts >= requiredWorkouts && lowPillars.length === 0;
+  const dynamicMet = activeStreak >= requiredStreak && recent7DayCount >= requiredRecentCount;
+  const isSReady = foundationalMet && dynamicMet;
+  const isSuspended = foundationalMet && !dynamicMet;
 
   return {
     isSReady,
+    isSuspended,
     totalWorkouts,
     requiredWorkouts,
     allPillarsBalanced: lowPillars.length === 0,
-    recoveryStreakDays: sleepStreak,
-    requiredSleepStreak,
+    activeStreak,
+    requiredStreak,
+    recent7DayCount,
+    requiredRecentCount,
     missingRequirements: missing,
   };
 }

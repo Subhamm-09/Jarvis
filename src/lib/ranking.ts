@@ -282,3 +282,23 @@ export const placement = {
     return true;
   }
 };
+
+// ---------------------------------------------------------
+// 8. CAREER LEVEL PROGRESSION
+// ---------------------------------------------------------
+export function getCareerLevel(totalExp: number): { level: number; currentLevelExp: number; expToNext: number; progress: number } {
+  let level = 1;
+  let accumulated = 0;
+
+  while (true) {
+    const requiredForThisLevel = Math.floor(100 * Math.pow(level, 1.5));
+    if (totalExp < accumulated + requiredForThisLevel) {
+      const currentLevelExp = Math.max(0, totalExp - accumulated);
+      const progress = Math.min(100, Math.max(0, (currentLevelExp / requiredForThisLevel) * 100));
+      return { level, currentLevelExp, expToNext: requiredForThisLevel, progress };
+    }
+    accumulated += requiredForThisLevel;
+    level++;
+  }
+}
+

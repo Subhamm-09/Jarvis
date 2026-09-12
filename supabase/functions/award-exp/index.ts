@@ -139,11 +139,15 @@ serve(async (req) => {
         let rating = meta.ai_evaluation?.overall_score || meta.rating || 0;
         if (!rating && (meta.url || task.title)) {
           const { data: raterData, error: raterError } = await supabaseAdmin.functions.invoke('project-rater', {
-            body: { description: meta.description || task.title, url: meta.url }
+            body: { 
+              description: meta.description || task.title, 
+              repo_link: meta.url,
+              url: meta.url 
+            }
           });
           
           if (!raterError && raterData) {
-            rating = raterData.overall_score || 0;
+            rating = raterData.overall_score ?? raterData.rating ?? 7.0;
             statsMeta.last_rating_justification = raterData.justification;
             await supabaseAdmin.from('tasks').update({ 
               metadata: { ...meta, ai_evaluation: raterData } 

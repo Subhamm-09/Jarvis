@@ -30,7 +30,8 @@ import { supabase } from '../lib/supabaseClient';
 import { AddToCollectionModal } from '../components/collections/AddToCollectionModal';
 import { HackathonTrackerPanel } from '../components/dashboard/HackathonTrackerPanel';
 import { ProjectTrackerPanel } from '../components/dashboard/ProjectTrackerPanel';
-import { projects as rankingProjects } from '../lib/ranking';
+import { projects as rankingProjects, leetcode as rankingLeetcode, getCareerLevel } from '../lib/ranking';
+import { triggerTactileFeedback, resolveTaskAttribute } from '../lib/tactileFeedback';
 
 const ALL_DOMAINS = [
   { id: 'leetcode', name: 'LeetCode', color: 'bg-rust' },
@@ -375,11 +376,11 @@ export function DashboardPage() {
   const getOptimisticExp = (t: Task): number => {
     const meta = (t.metadata || {}) as Record<string, any>;
     if (t.domain === 'leetcode') {
-      const diff = (meta.difficulty || 'medium').toLowerCase();
+      const diff = (meta.difficulty || 'easy').toLowerCase();
       if (meta.is_revision) {
-        return diff === 'hard' ? 60 : diff === 'medium' ? 30 : 15;
+        return rankingLeetcode.getExpOnRevision(diff);
       }
-      return diff === 'hard' ? 100 : diff === 'medium' ? 50 : 25;
+      return rankingLeetcode.getExpOnSolve(diff);
     }
     if (t.domain === 'hackathon') {
       if (meta.action === 'entered') return 30;
@@ -422,6 +423,24 @@ export function DashboardPage() {
     // Remove task from active queue immediately
     setTasks(prev => prev.filter(t => t.id !== taskId));
     
+    // Tactile Physical Completion Trigger
+    const oldProg = getCareerLevel(totalExp);
+    const newProg = getCareerLevel(totalExp + estimatedExp);
+    const attr = resolveTaskAttribute('career', task.domain);
+    triggerTactileFeedback({
+      domain: 'career',
+      questTitle: task.title,
+      expGained: estimatedExp,
+      attributeName: attr.name,
+      attributeDelta: attr.delta,
+      oldLevel: oldProg.level,
+      newLevel: newProg.level,
+      currentLevelExp: newProg.currentLevelExp,
+      expToNext: newProg.expToNext,
+      rank: highestRank,
+      rankTitle: `Clearance Level ${newProg.level}`
+    });
+
     // Increment total EXP and completed counter immediately
     setTotalExp(prev => prev + estimatedExp);
     setCompletedCount(prev => prev + 1);
@@ -503,13 +522,21 @@ export function DashboardPage() {
 
   if (loading) return null; // Or a sleek loader
 
+  const { level: careerLevel, currentLevelExp, expToNext } = getCareerLevel(totalExp);
+
   return (
     <div className="px-8 py-10 max-w-[1600px] mx-auto w-full">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-12">
         
         {/* LEFT COLUMN: OVERVIEW */}
         <div className="flex flex-col gap-10">
-          <RankCard rank={highestRank} status="Awakened" currentExp={totalExp} maxExp={totalExp + 100} />
+          <RankCard 
+            rank={highestRank} 
+            status="Awakened" 
+            level={careerLevel}
+            currentExp={currentLevelExp} 
+            maxExp={expToNext} 
+          />
 
           {/* Domains */}
           <section>

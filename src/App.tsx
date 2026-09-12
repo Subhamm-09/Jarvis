@@ -10,6 +10,7 @@ import { LifeMapPage } from './pages/LifeMapPage';
 import { HealthDashboardPage } from './pages/HealthDashboardPage';
 import { PersonalDashboardPage } from './pages/PersonalDashboardPage';
 import { NavBar } from './components/shared/NavBar';
+import { TactileFeedbackHUD } from './components/shared/TactileFeedbackHUD';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
@@ -47,6 +48,7 @@ function App() {
     <Router>
       <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
         {isAuthenticated && <NavBar />}
+        <TactileFeedbackHUD />
         
         <main className="flex-1 flex flex-col pt-[60px]">
           <Routes>

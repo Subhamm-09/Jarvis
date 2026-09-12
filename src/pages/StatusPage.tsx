@@ -9,7 +9,8 @@ import {
   learning,
   projects,
   coursework,
-  placement
+  placement,
+  getCareerLevel
 } from '../lib/ranking';
 
 export function StatusPage() {
@@ -91,21 +92,7 @@ export function StatusPage() {
         setTasksCompleted(tasksData?.length || 0);
 
         // 3. Compute Overall Level
-        let lvl = 1;
-        let cumulativeThreshold = 0;
-        let nextThreshold = 100;
-        let lvlExp = calculatedTotalXp;
-
-        while (true) {
-          nextThreshold = Math.floor(100 * Math.pow(lvl, 1.5));
-          if (calculatedTotalXp >= cumulativeThreshold + nextThreshold) {
-            cumulativeThreshold += nextThreshold;
-            lvl++;
-          } else {
-            lvlExp = calculatedTotalXp - cumulativeThreshold;
-            break;
-          }
-        }
+        const { level: lvl, currentLevelExp: lvlExp, expToNext: nextThreshold } = getCareerLevel(calculatedTotalXp);
         setOverallLevel(lvl);
         setExpToNext(nextThreshold);
         setCurrentLevelExp(lvlExp);

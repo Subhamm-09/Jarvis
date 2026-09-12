@@ -44,6 +44,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, initialDomain }: NewTa
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiVerdict, setAiVerdict] = useState<{rating: number, justification: string} | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -86,6 +87,7 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, initialDomain }: NewTa
     setErrorMessage(null);
     setSubmitting(false);
     setAiVerdict(null);
+    setAiError(null);
 
     const fetchHackathons = async () => {
       try {
@@ -639,16 +641,53 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, initialDomain }: NewTa
                 <button
                   type="button"
                   onClick={async () => {
+                    const desc = (
+                      form.notes || 
+                      form.title || 
+                      (projectMode === 'new' ? projectName : selectedProject) || 
+                      ''
+                    ).trim();
+
+                    const repoLink = projectRepoUrl.trim() || (form.metadata.url as string) || '';
+
+                    if (!desc) {
+                      setAiError("Enter a project name, milestone title, or notes before running verdict.");
+                      return;
+                    }
+
+                    setAiError(null);
                     setAiLoading(true);
-                    const { data, error } = await supabase.functions.invoke('project-rater', {
-                      body: { 
-                        description: form.notes || form.title || projectName, 
-                        url: projectRepoUrl || (form.metadata.url as string) || undefined 
+
+                    try {
+                      const { data, error } = await supabase.functions.invoke('project-rater', {
+                        body: { 
+                          description: desc,
+                          repo_link: repoLink || undefined,
+                          url: repoLink || undefined 
+                        }
+                      });
+
+                      if (error) {
+                        console.error("AI verdict error:", error);
+                        let msg = error.message || "Failed to analyze project.";
+                        try {
+                          if (error.context && typeof error.context.json === 'function') {
+                            const errBody = await error.context.json();
+                            if (errBody?.error) msg = errBody.error;
+                          }
+                        } catch {}
+                        setAiError(msg);
+                      } else if (data) {
+                        const score = data.overall_score ?? data.rating ?? 7.0;
+                        setAiVerdict({ rating: score, justification: data.justification || "Quality analysis completed." });
+                      } else {
+                        setAiError("No response received from evaluation engine.");
                       }
-                    });
-                    setAiLoading(false);
-                    if (!error && data) {
-                      setAiVerdict({ rating: data.overall_score, justification: data.justification });
+                    } catch (err: any) {
+                      console.error("AI verdict unexpected error:", err);
+                      setAiError(err?.message || "Failed to contact AI evaluation service.");
+                    } finally {
+                      setAiLoading(false);
                     }
                   }}
                   disabled={aiLoading}
@@ -657,6 +696,13 @@ export function NewTaskModal({ isOpen, onClose, onSubmit, initialDomain }: NewTa
                   {aiLoading ? 'ANALYZING...' : 'RUN VERDICT'}
                 </button>
               </div>
+
+              {aiError && (
+                <div className="mb-3 p-2.5 bg-accent/10 border border-accent text-accent font-mono text-xs flex items-center gap-2">
+                  <span className="font-bold">⚠</span>
+                  <span>{aiError}</span>
+                </div>
+              )}
 
               {aiVerdict ? (
                 <div className="flex flex-col gap-2 border-t border-border-strong pt-4">

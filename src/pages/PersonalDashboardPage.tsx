@@ -15,6 +15,7 @@ import { ActivityGrid } from '../components/dashboard/ActivityGrid';
 import { TactileLevelUpModal } from '../components/shared/TactileLevelUpModal';
 import { NewPersonalTaskModal } from '../components/personal/NewPersonalTaskModal';
 import { PersonalTrackerPanel } from '../components/personal/PersonalTrackerPanel';
+import { triggerTactileFeedback, resolveTaskAttribute } from '../lib/tactileFeedback';
 
 export function PersonalDashboardPage() {
   const [tasks, setTasks] = useState<PersonalTask[]>([]);
@@ -157,6 +158,7 @@ export function PersonalDashboardPage() {
 
     const expAwarded = getPersonalExpOnTask(difficulty);
     const oldLevel = personalLevel;
+    const task = tasks.find(t => t.id === taskId);
 
     // 1. Mark task done
     await supabase
@@ -189,18 +191,24 @@ export function PersonalDashboardPage() {
 
     window.dispatchEvent(new CustomEvent('personal-exp-awarded'));
 
-    // 4. Check for Level-Up trigger
+    // 4. Trigger Tactile Mechanical Feedback HUD
     const newTotalExp = totalPersonalExp + expAwarded;
-    const { level: newLevel } = getPersonalLevel(newTotalExp);
-    if (newLevel > oldLevel) {
-      setLevelUpData({
-        isOpen: true,
-        level: newLevel,
-        rank: personalRank.rank,
-        rankTitle: personalRank.title,
-        expGained: expAwarded,
-      });
-    }
+    const { level: newLevel, currentLevelExp: newLevelExp, expToNext: newExpToNext } = getPersonalLevel(newTotalExp);
+    const attr = resolveTaskAttribute('personal', taskPillar);
+
+    triggerTactileFeedback({
+      domain: 'personal',
+      questTitle: task?.title || 'Personal Quest',
+      expGained: expAwarded,
+      attributeName: attr.name,
+      attributeDelta: attr.delta,
+      oldLevel: oldLevel,
+      newLevel: newLevel,
+      currentLevelExp: newLevelExp,
+      expToNext: newExpToNext,
+      rank: personalRank.rank,
+      rankTitle: personalRank.title
+    });
   };
 
   const filteredTasks = tasks.filter(t => {
@@ -231,8 +239,9 @@ export function PersonalDashboardPage() {
           <RankCard 
             rank={personalRank.rank} 
             status={personalRank.title} 
-            currentExp={totalPersonalExp} 
-            maxExp={totalPersonalExp + (expToNext - currentLevelExp)} 
+            level={personalLevel}
+            currentExp={currentLevelExp} 
+            maxExp={expToNext} 
           />
 
           {/* Growth Pillars */}

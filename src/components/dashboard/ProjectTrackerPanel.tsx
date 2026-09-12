@@ -123,13 +123,14 @@ export function ProjectTrackerPanel({ onOpenNewTask }: ProjectTrackerPanelProps)
         const { data: raterData, error: raterError } = await supabase.functions.invoke('project-rater', {
           body: {
             description: meta.description || activeProject.title,
+            repo_link: finalUrl || undefined,
             url: finalUrl || undefined
           }
         });
 
         if (!raterError && raterData) {
           aiEvaluation = raterData;
-          const rating = raterData.overall_score || 7.0;
+          const rating = raterData.overall_score ?? raterData.rating ?? 7.0;
           awardedExp = rankingProjects.getExpFromRating(rating) || 100;
         } else {
           console.warn("AI evaluation fallback to baseline:", raterError);

@@ -3,17 +3,25 @@ interface RankCardProps {
   status: string;
   currentExp: number;
   maxExp: number;
+  level?: number;
 }
 
-export function RankCard({ rank, status, currentExp, maxExp }: RankCardProps) {
-  const progress = maxExp > 0 ? (currentExp / maxExp) * 100 : 0;
+export function RankCard({ rank, status, currentExp, maxExp, level }: RankCardProps) {
+  const progress = maxExp > 0 ? Math.min(100, Math.max(0, (currentExp / maxExp) * 100)) : 0;
 
   return (
     <section>
       <h2 className="label mb-4 border-b border-border-strong pb-2">Clearance Level</h2>
       <div className="flex items-baseline gap-4 pt-2">
         <span className="text-7xl font-black font-sans leading-none tracking-tighter text-text-primary">{rank}</span>
-        <span className="text-sm font-bold uppercase tracking-widest text-text-secondary">{status}</span>
+        <div className="flex flex-col">
+          {level !== undefined && (
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-primary">
+              LVL {level}
+            </span>
+          )}
+          <span className="text-sm font-bold uppercase tracking-widest text-text-secondary">{status}</span>
+        </div>
       </div>
 
       <div className="mt-8">
@@ -31,3 +39,4 @@ export function RankCard({ rank, status, currentExp, maxExp }: RankCardProps) {
     </section>
   );
 }
+

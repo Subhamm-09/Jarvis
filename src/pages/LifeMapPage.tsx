@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Terminal, HeartPulse, Brain, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { calculateLifeEquilibrium, type LifeBalanceState } from '../lib/lifeBalance';
+import { getCareerLevel } from '../lib/ranking';
 import { getHealthLevel, calculateHealthAttributes, getHealthRank, checkHealthSGate } from '../lib/healthRanking';
 import { getPersonalLevel, calculatePersonalAttributes, getPersonalRank, checkPersonalSGate } from '../lib/personalRanking';
 import type { Task, HealthTask, HealthExpLog, PersonalTask, PersonalExpLog } from '../types';
@@ -186,12 +187,10 @@ export function LifeMapPage() {
       careerHighestRank = s.rank;
     }
   });
-  const careerLevel = Math.max(1, Math.floor(Math.pow(totalCareerExp / 100, 1 / 1.5)) || 1);
-  const currentLevelThreshold = Math.floor(100 * Math.pow(careerLevel, 1.5));
-  const nextLevelThreshold = Math.floor(100 * Math.pow(careerLevel + 1, 1.5));
-  const careerExpInLevel = Math.max(0, totalCareerExp - currentLevelThreshold);
-  const careerExpNeeded = Math.max(1, nextLevelThreshold - currentLevelThreshold);
-  const careerProgress = Math.min(100, Math.round((careerExpInLevel / careerExpNeeded) * 100));
+  const { 
+    level: careerLevel, 
+    progress: careerProgress 
+  } = getCareerLevel(totalCareerExp);
   const careerDoneCount = careerTasks.filter(t => t.status === 'done').length;
 
   // 2. HEALTH METRICS
@@ -199,7 +198,10 @@ export function LifeMapPage() {
   const { level: healthLevel, progress: healthProgress } = getHealthLevel(totalHealthExp);
   const healthAttrs = calculateHealthAttributes(healthTasks, healthExpLogs);
   const healthCompleted = healthTasks.filter(t => t.status === 'done');
-  const healthSGate = checkHealthSGate(healthAttrs, healthCompleted, 7);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const recentHealth7Day = healthExpLogs.filter(l => new Date(l.awarded_at) >= sevenDaysAgo).length;
+  const healthSGate = checkHealthSGate(healthAttrs, healthCompleted, healthStreak, recentHealth7Day);
   const healthRank = getHealthRank(healthAttrs, healthSGate.isSReady);
 
   // 3. PERSONAL METRICS
