@@ -8,32 +8,65 @@ interface RankCardProps {
 
 export function RankCard({ rank, status, currentExp, maxExp, level }: RankCardProps) {
   const progress = maxExp > 0 ? Math.min(100, Math.max(0, (currentExp / maxExp) * 100)) : 0;
+  const isSRank = rank === 'S';
 
   return (
-    <section>
-      <h2 className="label mb-4 border-b border-border-strong pb-2">Clearance Level</h2>
-      <div className="flex items-baseline gap-4 pt-2">
-        <span className="text-7xl font-black font-sans leading-none tracking-tighter text-text-primary">{rank}</span>
-        <div className="flex flex-col">
-          {level !== undefined && (
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-primary">
-              LVL {level}
+    <section className="relative overflow-hidden bg-bg-secondary border border-border-strong p-5 group hover:border-rpg-gold/40 transition-colors">
+      {/* Corner notch accents */}
+      <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-rpg-gold" />
+      <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-border-strong" />
+      <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-rpg-gold" />
+      <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-border-strong" />
+
+      {/* Header bar */}
+      <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-4">
+        <span className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+          <span>CLASSIFICATION</span>
+        </span>
+        {level !== undefined && (
+          <span className="text-3xs font-mono font-black uppercase tracking-widest px-2 py-0.5 bg-rpg-gold/10 border border-rpg-gold/30 text-rpg-gold">
+            LVL {level}
+          </span>
+        )}
+      </div>
+
+      {/* Rank Monument */}
+      <div className="flex items-baseline justify-between pt-1">
+        <div className="flex items-baseline gap-3">
+          <span className={`text-6xl font-black font-cinzel leading-none tracking-tight ${
+            isSRank ? 'text-rpg-gold drop-shadow-[0_0_12px_rgba(216,168,78,0.4)]' : 'text-text-primary'
+          }`}>
+            {rank}
+          </span>
+          <div className="flex flex-col">
+            <span className="text-2xs font-mono uppercase tracking-widest text-rpg-gold font-bold">
+              {isSRank ? 'APEX HUNTER' : 'PROTOCOL OPERATOR'}
             </span>
-          )}
-          <span className="text-sm font-bold uppercase tracking-widest text-text-secondary">{status}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-text-secondary mt-0.5">
+              {status}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="mt-8">
-        <div className="flex justify-between text-xs font-mono uppercase text-text-secondary mb-2">
-          <span>Progress</span>
-          <span className="text-text-primary font-bold">{currentExp.toLocaleString()} / {maxExp.toLocaleString()} XP</span>
+      {/* Progress to Next Tier */}
+      <div className="mt-5 pt-3 border-t border-border-subtle">
+        <div className="flex justify-between text-3xs font-mono uppercase text-text-secondary mb-1.5">
+          <span className="tracking-widest">Ascent Progress</span>
+          <span className="text-text-primary font-bold">
+            {currentExp.toLocaleString()} <span className="text-text-muted">/</span> {maxExp.toLocaleString()} XP
+          </span>
         </div>
-        <div className="h-1 bg-border-subtle w-full overflow-hidden">
+        <div className="h-1.5 bg-bg-primary w-full overflow-hidden border border-border-subtle p-[1px]">
           <div 
-            className="h-full bg-text-primary transition-all duration-700"
+            className="h-full bg-gradient-to-r from-rpg-gold/80 to-rpg-gold transition-all duration-700 shadow-[0_0_8px_rgba(216,168,78,0.3)]"
             style={{ width: `${progress}%` }}
           />
+        </div>
+        <div className="flex justify-between text-3xs font-mono text-text-muted mt-1">
+          <span>TIER {rank}</span>
+          <span>{Math.round(progress)}% TO NEXT</span>
         </div>
       </div>
     </section>

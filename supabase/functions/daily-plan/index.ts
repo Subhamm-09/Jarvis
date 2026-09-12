@@ -87,8 +87,11 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .neq('status', 'done')
 
-    // Overarching hackathon containers are tracked in the bottom-right widget; only plan actionable sprint tasks
-    const tasks = (allTasks || []).filter(t => !(t.domain === 'hackathon' && (t.metadata?.is_primary_entry === true || t.metadata?.action === 'entered')))
+    // Overarching hackathon containers and LeetCode spaced-repetition revisions are isolated from AI daily operation planning
+    const tasks = (allTasks || []).filter(t => 
+      !(t.domain === 'hackathon' && (t.metadata?.is_primary_entry === true || t.metadata?.action === 'entered')) &&
+      !(t.metadata?.is_revision === true)
+    );
 
     // Fetch Task Companies
     const taskIds = tasks?.map(t => t.id) || [];

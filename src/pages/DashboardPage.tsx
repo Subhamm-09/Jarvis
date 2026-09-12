@@ -25,7 +25,7 @@ import { NewTaskModal } from '../components/dashboard/NewTaskModal';
 import { RevisionRecallModal } from '../components/dashboard/RevisionRecallModal';
 import type { TaskFormData } from '../components/dashboard/NewTaskModal';
 import type { Task, Domain } from '../types';
-import { Plus, Activity, Bot, User as UserIcon, Trophy, X, FolderGit2 } from 'lucide-react';
+import { Plus, Activity, Bot, User as UserIcon, Trophy, X, FolderGit2, GripVertical, RotateCcw, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { AddToCollectionModal } from '../components/collections/AddToCollectionModal';
 import { HackathonTrackerPanel } from '../components/dashboard/HackathonTrackerPanel';
@@ -62,6 +62,7 @@ export function DashboardPage() {
   const [isPlanning, setIsPlanning] = useState(false);
   
   const [planMode, setPlanMode] = useState<'ai' | 'manual'>('ai');
+  const [activeQueueTab, setActiveQueueTab] = useState<'operations' | 'revisions'>('operations');
   const [actionToast, setActionToast] = useState<{ show: boolean; title: string; subtitle?: string; icon: 'hackathon' | 'projects' } | null>(null);
   const rankUpdateTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -75,6 +76,9 @@ export function DashboardPage() {
     const { data: planData, error: planError } = await supabase.functions.invoke('daily-plan');
     if (!planError && planData && Array.isArray(planData)) {
       setTasks(prev => prev.map(t => {
+        if (t.metadata?.is_revision === true) {
+          return { ...t, ai_rank: null, ai_score: null, ai_reason: null };
+        }
         const p = planData.find((x: any) => x.task_id === t.id);
         if (p) {
           return { ...t, ai_rank: planData.indexOf(p) + 1, ai_score: p.ai_score, ai_reason: p.reason };
@@ -223,7 +227,11 @@ export function DashboardPage() {
     !(t.domain === 'projects' && (t.metadata?.is_primary_entry === true || t.metadata?.action === 'created'))
   );
 
-  const sortedTasks = [...queueableTasks].sort((a, b) => {
+  // Separate regular operations from LeetCode spaced-repetition revisions
+  const operationTasks = queueableTasks.filter(t => t.metadata?.is_revision !== true);
+  const revisionTasks = queueableTasks.filter(t => t.metadata?.is_revision === true);
+
+  const sortedOperationTasks = [...operationTasks].sort((a, b) => {
     if (planMode === 'ai') {
       const aRank = a.ai_rank ?? Number.MAX_SAFE_INTEGER;
       const bRank = b.ai_rank ?? Number.MAX_SAFE_INTEGER;
@@ -237,20 +245,36 @@ export function DashboardPage() {
     }
   });
 
-  const topPriority = sortedTasks[0] || null;
+  const sortedRevisionTasks = [...revisionTasks].sort((a, b) => {
+    // Sort revisions primarily by review deadline (due soonest first)
+    if (a.deadline && b.deadline) {
+      const diff = new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      if (diff !== 0) return diff;
+    }
+    if (a.deadline) return -1;
+    if (b.deadline) return 1;
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
+
+  // Top priority is strictly an operation task, never a revision
+  const topPriority = sortedOperationTasks[0] || null;
   const topReason = planMode === 'ai' ? topPriority?.ai_reason : null;
   const topAiScore = topPriority?.ai_score;
-  const queueTasks = sortedTasks.slice(1);
+  const queueTasks = sortedOperationTasks.slice(1);
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id || planMode !== 'manual') return;
 
-    const oldIndex = sortedTasks.findIndex(t => t.id === active.id);
-    const newIndex = sortedTasks.findIndex(t => t.id === over.id);
+    // Drag-and-drop reordering is enabled for the manual Operation Queue
+    if (activeQueueTab !== 'operations') return;
+
+    const oldIndex = sortedOperationTasks.findIndex(t => t.id === active.id);
+    const newIndex = sortedOperationTasks.findIndex(t => t.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
 
     // Optimistic reorder
-    const newTasks = arrayMove(sortedTasks, oldIndex, newIndex);
+    const newTasks = arrayMove(sortedOperationTasks, oldIndex, newIndex);
     
     // Calculate new manual_rank
     let newRank = 0;
@@ -524,22 +548,39 @@ export function DashboardPage() {
           />
 
           {/* Domains */}
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Active Domains</h2>
-            <div className="flex flex-col gap-2 pt-2">
+          <section className="bg-bg-secondary border border-border-strong p-5 relative overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
+              <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span>ACTIVE DOMAINS</span>
+              </h2>
+              <span className="text-3xs font-mono text-text-muted">TIER STATUS</span>
+            </div>
+            <div className="flex flex-col gap-1.5 pt-1">
               {ALL_DOMAINS.map(d => {
                 const rank = domainRanks[d.id];
                 const isLocked = !rank;
+                const isS = rank === 'S';
                 return (
                   <div 
                     key={d.name}
-                    className={`flex items-center justify-between py-1 transition-opacity ${isLocked ? 'opacity-40' : 'hover:opacity-80'}`}
+                    className={`flex items-center justify-between py-1.5 px-2 rounded-xs transition-colors ${
+                      isLocked ? 'opacity-40 bg-bg-tertiary/20' : 'hover:bg-bg-tertiary/50'
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-1 h-3 ${isLocked ? 'bg-border-strong' : 'bg-text-primary'}`} />
-                      <span className="text-sm font-semibold">{d.name}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-1 h-3 ${isLocked ? 'bg-border-strong' : isS ? 'bg-rpg-gold shadow-[0_0_6px_rgba(216,168,78,0.5)]' : 'bg-text-primary'}`} />
+                      <span className="text-xs font-semibold tracking-wide">{d.name}</span>
                     </div>
-                    <span className="text-xs font-mono text-text-secondary">{rank || 'LOCKED'}</span>
+                    <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-xs ${
+                      isS 
+                        ? 'text-rpg-gold bg-rpg-gold/10 border border-rpg-gold/30 shadow-[0_0_8px_rgba(216,168,78,0.2)]' 
+                        : isLocked 
+                          ? 'text-text-muted border border-border-subtle' 
+                          : 'text-text-primary bg-bg-tertiary border border-border-strong'
+                    }`}>
+                      {rank || 'LOCKED'}
+                    </span>
                   </div>
                 );
               })}
@@ -547,18 +588,24 @@ export function DashboardPage() {
           </section>
 
           {/* Quick Stats */}
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Tactical Summary</h2>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-2">
+          <section className="bg-bg-secondary border border-border-strong p-5">
+            <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-4">
+              <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span>TACTICAL SUMMARY</span>
+              </h2>
+              <span className="text-3xs font-mono text-text-muted">CAREER</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-1">
               {[
-                { value: tasks.length.toString(), label: 'Pending' },
-                { value: tasks.filter(t => t.priority >= 4).length.toString(), label: 'Critical' },
-                { value: completedCount.toString(), label: 'Completed' },
-                { value: totalExp.toString(), label: 'Total EXP' },
+                { value: tasks.length.toString(), label: 'Pending', color: 'text-text-primary' },
+                { value: tasks.filter(t => t.priority >= 4).length.toString(), label: 'Critical / Boss', color: 'text-rpg-crimson' },
+                { value: completedCount.toString(), label: 'Completed', color: 'text-rpg-green' },
+                { value: totalExp.toLocaleString(), label: 'Total EXP', color: 'text-rpg-gold' },
               ].map(stat => (
-                <div key={stat.label} className="flex flex-col">
-                  <span className="text-2xl font-black font-mono leading-none tracking-tight">{stat.value}</span>
-                  <span className="text-xs text-text-secondary mt-1 uppercase tracking-wider">{stat.label}</span>
+                <div key={stat.label} className="flex flex-col bg-bg-primary/50 p-3 border border-border-subtle">
+                  <span className={`text-xl font-black font-mono leading-none tracking-tight ${stat.color}`}>{stat.value}</span>
+                  <span className="text-3xs text-text-secondary mt-1.5 uppercase tracking-wider font-mono">{stat.label}</span>
                 </div>
               ))}
             </div>
@@ -568,11 +615,15 @@ export function DashboardPage() {
         {/* CENTER COLUMN: OPERATIONS */}
         <div className="flex flex-col gap-10">
           {/* Header */}
-          <header className="flex items-end justify-between border-b-2 border-text-primary pb-4">
+          <header className="flex items-end justify-between border-b-2 border-border-strong pb-4">
             <div>
-              <h1 className="text-4xl font-black tracking-tight uppercase leading-none">Today</h1>
-              <div className="text-sm text-text-secondary mt-2 font-mono">
-                Operational Focus // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">CAREER PROTOCOL // ACTIVE MATRIX</span>
+              </div>
+              <h1 className="text-4xl font-black tracking-tight uppercase leading-none font-cinzel text-text-primary">Career Quests</h1>
+              <div className="text-xs text-text-secondary mt-2 font-mono">
+                OPERATIONAL FOCUS // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
               </div>
             </div>
             <button 
@@ -582,7 +633,7 @@ export function DashboardPage() {
               }}
               className="btn-primary"
             >
-              <Plus size={14} /> New Task
+              <Plus size={14} /> New Quest
             </button>
           </header>
 
@@ -595,12 +646,12 @@ export function DashboardPage() {
             onDragEnd={handleDragEnd}
           >
             <SortableContext 
-              items={sortedTasks.map(t => t.id)}
+              items={sortedOperationTasks.map(t => t.id)}
               strategy={verticalListSortingStrategy}
             >
               {/* Priority Panel */}
               <section>
-                <h2 className="label mb-4">Highest Priority</h2>
+                <h2 className="label mb-4">Highest Priority Directive</h2>
                 {planMode === 'ai' ? (
                   <PriorityPanel 
                     task={topPriority}
@@ -634,44 +685,144 @@ export function DashboardPage() {
                 )}
               </section>
 
-              {/* Operation Queue */}
+              {/* Queue Section (Operation Queue & Revision Queue Tabs) */}
               <section>
-                <div className="flex items-center justify-between mb-4 border-b border-border-strong pb-2">
-                  <h2 className="label">Operation Queue</h2>
-                  <div className="flex bg-bg-tertiary p-1 rounded border border-border-subtle">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-border-strong pb-2">
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setPlanMode('ai')}
-                      className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 rounded-sm ${planMode === 'ai' ? 'bg-accent text-bg-primary' : 'text-text-muted hover:text-text-primary'}`}
+                      type="button"
+                      onClick={() => setActiveQueueTab('operations')}
+                      className={`label pb-1 border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+                        activeQueueTab === 'operations'
+                          ? 'border-rpg-gold text-rpg-gold font-bold'
+                          : 'border-transparent text-text-secondary hover:text-text-primary'
+                      }`}
                     >
-                      <Bot size={12} /> AI Plan
+                      <span>Operation Quests</span>
+                      <span className={`text-3xs font-mono px-1.5 py-0.5 rounded-xs border ${
+                        activeQueueTab === 'operations'
+                          ? 'bg-rpg-gold/15 border-rpg-gold/40 text-rpg-gold font-bold'
+                          : 'bg-bg-tertiary border-border-subtle text-text-muted'
+                      }`}>
+                        {queueTasks.length}
+                      </span>
                     </button>
+
                     <button
-                      onClick={() => setPlanMode('manual')}
-                      className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 rounded-sm ${planMode === 'manual' ? 'bg-text-primary text-bg-primary' : 'text-text-muted hover:text-text-primary'}`}
+                      type="button"
+                      onClick={() => setActiveQueueTab('revisions')}
+                      className={`label pb-1 border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+                        activeQueueTab === 'revisions'
+                          ? 'border-rpg-gold text-rpg-gold font-bold'
+                          : 'border-transparent text-text-secondary hover:text-text-primary'
+                      }`}
                     >
-                      <UserIcon size={12} /> Manual Plan
+                      <RotateCcw size={12} className={activeQueueTab === 'revisions' ? 'text-rpg-gold' : 'text-text-muted'} />
+                      <span>Revision Recall</span>
+                      <span className={`text-3xs font-mono px-1.5 py-0.5 rounded-xs border ${
+                        activeQueueTab === 'revisions'
+                          ? 'bg-rpg-gold/15 border-rpg-gold/40 text-rpg-gold font-bold'
+                          : 'bg-bg-tertiary border-border-subtle text-text-muted'
+                      }`}>
+                        {sortedRevisionTasks.length}
+                      </span>
                     </button>
                   </div>
-                </div>
-                
-                <div className="flex flex-col">
-                  {queueTasks.length > 0 ? (
-                    queueTasks.map(task => (
-                      <TaskRow 
-                        key={task.id} 
-                        task={task} 
-                        reason={planMode === 'ai' ? task.ai_reason : undefined}
-                        aiScore={planMode === 'ai' ? task.ai_score : undefined}
-                        isManualMode={planMode === 'manual'}
-                        onAddToCollection={setAddToCollectionTaskId}
-                      />
-                    ))
+
+                  {activeQueueTab === 'operations' ? (
+                    <div className="flex bg-bg-tertiary p-1 border border-border-subtle shrink-0 self-start sm:self-auto">
+                      <button
+                        onClick={() => setPlanMode('ai')}
+                        className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 rounded-xs ${planMode === 'ai' ? 'bg-rpg-gold text-bg-primary font-black shadow-xs' : 'text-text-muted hover:text-text-primary'}`}
+                      >
+                        <Bot size={12} /> AI Director
+                      </button>
+                      <button
+                        onClick={() => setPlanMode('manual')}
+                        className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 rounded-xs ${planMode === 'manual' ? 'bg-text-primary text-bg-primary font-black' : 'text-text-muted hover:text-text-primary'}`}
+                      >
+                        <UserIcon size={12} /> Manual Order
+                      </button>
+                    </div>
                   ) : (
-                    <div className="empty-state">
-                      <span className="text-sm font-medium text-text-secondary">No operations in queue</span>
+                    <div className="flex items-center gap-1.5 text-3xs font-mono uppercase tracking-widest text-text-secondary px-2.5 py-1 bg-bg-secondary border border-border-subtle shrink-0 self-start sm:self-auto">
+                      <Clock size={11} className="text-rpg-gold" /> Spaced Repetition Protocol
                     </div>
                   )}
                 </div>
+
+                {activeQueueTab === 'operations' ? (
+                  <>
+                    {planMode === 'manual' && (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3.5 py-2.5 bg-bg-secondary border border-rpg-gold/40 mb-3 text-xs font-mono gap-2 shadow-xs">
+                        <div className="flex items-center gap-2">
+                          <GripVertical size={14} className="text-rpg-gold shrink-0 animate-pulse" />
+                          <span className="font-bold text-text-primary uppercase tracking-wide">Manual Plan Active:</span>
+                          <span className="text-text-secondary">Double-click & drag tasks to slide and reorder priority.</span>
+                        </div>
+                        <span className="text-3xs font-mono uppercase tracking-widest text-rpg-gold border border-rpg-gold/40 bg-rpg-gold/10 px-2 py-0.5 self-start sm:self-auto">
+                          DRAG & SLIDE
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col">
+                      {queueTasks.length > 0 ? (
+                        queueTasks.map(task => (
+                          <TaskRow 
+                            key={task.id} 
+                            task={task} 
+                            reason={planMode === 'ai' ? task.ai_reason : undefined}
+                            aiScore={planMode === 'ai' ? task.ai_score : undefined}
+                            isManualMode={planMode === 'manual'}
+                            onAddToCollection={setAddToCollectionTaskId}
+                          />
+                        ))
+                      ) : (
+                        <div className="empty-state">
+                          <span className="text-sm font-medium text-text-secondary">No operations in queue</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3.5 py-2.5 bg-bg-secondary border border-border-strong mb-3 text-xs font-mono gap-2 shadow-xs">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw size={14} className="text-rpg-gold shrink-0" />
+                        <span className="font-bold text-text-primary uppercase tracking-wide">Recall Protocol:</span>
+                        <span className="text-text-secondary">Click any revision task to trigger recall verification & score EXP.</span>
+                      </div>
+                      <span className="text-3xs font-mono uppercase tracking-widest text-rpg-gold border border-rpg-gold/40 bg-rpg-gold/10 px-2 py-0.5 self-start sm:self-auto">
+                        INTERVAL-BASED
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col">
+                      {sortedRevisionTasks.length > 0 ? (
+                        sortedRevisionTasks.map(task => (
+                          <TaskRow 
+                            key={task.id} 
+                            task={task} 
+                            reason={undefined}
+                            aiScore={undefined}
+                            isManualMode={false}
+                            onClick={() => handleCompleteTask(task.id)}
+                            onAddToCollection={setAddToCollectionTaskId}
+                          />
+                        ))
+                      ) : (
+                        <div className="empty-state py-12 text-center flex flex-col items-center justify-center border border-dashed border-border-strong bg-bg-secondary/30">
+                          <RotateCcw size={24} className="text-text-muted mb-2 opacity-50" />
+                          <span className="text-sm font-bold text-text-primary uppercase tracking-wider mb-1">Revision Queue Empty</span>
+                          <span className="text-xs text-text-secondary max-w-sm">
+                            Solved LeetCode operations will automatically schedule spaced repetition reviews here.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </section>
             </SortableContext>
           </DndContext>
@@ -679,8 +830,11 @@ export function DashboardPage() {
 
         {/* RIGHT COLUMN: ANALYTICS & HISTORY */}
         <div className="flex flex-col gap-10">
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Activity Grid</h2>
+          <section className="bg-bg-secondary border border-border-strong p-5">
+            <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5 border-b border-border-subtle pb-2 mb-3">
+              <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+              <span>ACTIVITY MATRIX</span>
+            </h2>
             <div className="pt-2">
               <ActivityGrid data={activityData} />
             </div>
@@ -690,21 +844,24 @@ export function DashboardPage() {
           <section className="flex flex-col gap-3">
              <button 
               onClick={() => setIsAnalysisModalOpen(true)}
-              className="panel flex items-center justify-between p-4 hover:border-text-primary transition-colors text-left"
+              className="bg-bg-secondary border border-border-strong flex items-center justify-between p-4 hover:border-rpg-gold/50 transition-colors text-left group"
             >
               <div>
-                <div className="text-sm font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
-                  <Activity size={14} /> Metrics Review
+                <div className="text-xs font-mono font-bold uppercase tracking-wider mb-1 flex items-center gap-2 text-text-primary group-hover:text-rpg-gold transition-colors">
+                  <Activity size={14} className="text-rpg-gold" /> Metrics Review
                 </div>
                 <div className="text-xs text-text-secondary">Analyze LeetCode recall data</div>
               </div>
-              <div className="text-text-secondary">&rarr;</div>
+              <div className="text-rpg-gold font-mono">&rarr;</div>
             </button>
           </section>
 
           {/* Recent Completions */}
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Recent Log</h2>
+          <section className="bg-bg-secondary border border-border-strong p-5">
+            <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5 border-b border-border-subtle pb-2 mb-3">
+              <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+              <span>RECENT DISPATCH LOG</span>
+            </h2>
             <div className="flex flex-col gap-0">
               {recentLogs.length > 0 ? (
                 recentLogs.map(log => (
@@ -713,13 +870,13 @@ export function DashboardPage() {
                       <span className="text-sm font-semibold truncate text-text-primary leading-tight">
                         {log.tasks?.title || 'Unknown Operation'}
                       </span>
-                      <span className="text-xs font-bold font-mono text-text-primary shrink-0">
+                      <span className="text-xs font-bold font-mono text-rpg-gold shrink-0">
                         +{log.exp_awarded} XP
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-xs text-text-secondary">
-                      <span className="uppercase tracking-wider">{log.tasks?.domain || 'general'}</span>
-                      <span className="font-mono">
+                      <span className="uppercase tracking-wider font-mono text-3xs text-text-muted">{log.tasks?.domain || 'general'}</span>
+                      <span className="font-mono text-3xs">
                         {new Date(log.awarded_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }).toUpperCase()}
                       </span>
                     </div>

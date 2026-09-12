@@ -1,34 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Cinzel', serif;
+  --font-serif: 'Cormorant Garamond', serif;
 
-  --color-bg-primary: #faf9f5;
-  --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #f0eee6;
+  --color-bg-primary: #08090C;
+  --color-bg-secondary: #0D1015;
+  --color-bg-tertiary: #12151C;
+  --color-bg-elevated: #181C26;
   
-  --color-text-primary: #111111;
-  --color-text-secondary: #555555;
-  --color-text-muted: #888888;
+  --color-text-primary: #F2F0E8;
+  --color-text-secondary: #A0A5B5;
+  --color-text-muted: #656A7B;
   
-  --color-border-subtle: #e5e5e5;
-  --color-border-strong: #cccccc;
+  --color-border-subtle: #1E2330;
+  --color-border-strong: #2D3446;
   
-  --color-accent: #c25934;
-  --color-accent-hover: #a64b2b;
-  --color-accent-muted: rgba(194, 89, 52, 0.1);
+  --color-accent: #D8A84E;
+  --color-accent-hover: #E5B860;
+  --color-accent-muted: rgba(216, 168, 78, 0.12);
   
-  --color-success: #2d5a27;
-  --color-success-muted: rgba(45, 90, 39, 0.1);
+  --color-gold: #D8A84E;
+  --color-gold-hover: #E5B860;
+  --color-gold-muted: rgba(216, 168, 78, 0.15);
+  
+  --color-danger: #B83A45;
+  --color-crimson: #B83A45;
+  --color-crimson-hover: #CF4450;
+  --color-crimson-muted: rgba(184, 58, 69, 0.15);
+  
+  --color-success: #6F9B72;
+  --color-success-hover: #83B386;
+  --color-success-muted: rgba(111, 155, 114, 0.15);
+
+  --color-rarity-common: #656A7B;
+  --color-rarity-rare: #5A8FC2;
+  --color-rarity-epic: #D8A84E;
+  --color-rarity-legendary: #E8B958;
 
   --radius-system: 0px;
   
-  --shadow-panel: none;
-  --shadow-glow-rust: none;
-  --shadow-glow-olive: none;
-
   --text-3xs: 0.5625rem;
   --text-3xs--line-height: 0.75rem;
   --text-3xs--letter-spacing: 0.05em;
@@ -43,12 +57,19 @@
 
 @layer base {
   :root {
-    --color-bg-primary: #faf9f5;
-    --color-bg-secondary: #ffffff;
-    --color-text-primary: #111111;
-    --color-text-secondary: #555555;
-    --color-border-subtle: #e5e5e5;
-    --color-accent: #c25934;
+    --color-bg-primary: #08090C;
+    --color-bg-secondary: #0D1015;
+    --color-bg-tertiary: #12151C;
+    --color-bg-elevated: #181C26;
+    --color-text-primary: #F2F0E8;
+    --color-text-secondary: #A0A5B5;
+    --color-text-muted: #656A7B;
+    --color-border-subtle: #1E2330;
+    --color-border-strong: #2D3446;
+    --color-accent: #D8A84E;
+    --color-gold: #D8A84E;
+    --color-crimson: #B83A45;
+    --color-success: #6F9B72;
 
     /* Spacing System */
     --space-xs: 4px;
@@ -61,7 +82,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-border-strong) transparent;
+    scrollbar-color: #2D3446 transparent;
   }
 
   *::-webkit-scrollbar {
@@ -73,13 +94,16 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: var(--color-border-strong);
+    background: #2D3446;
     border-radius: 0px;
   }
 
   body {
-    @apply bg-bg-primary text-text-primary font-sans antialiased;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
     letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -88,24 +112,47 @@
 }
 
 @layer components {
-  /* Minimalist Section / Panel */
+  /* Minimalist Section / Panel with Disciplined RPG Depth */
   .panel {
-    @apply bg-bg-secondary border border-border-subtle;
+    @apply bg-bg-secondary border border-border-strong;
     border-radius: var(--radius-system);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
   }
 
-  /* Academic Accents */
   .panel-accent {
-    @apply bg-bg-secondary border-l-2 border-l-accent;
+    @apply bg-bg-secondary border-l-2 border-l-accent border border-border-strong;
     border-radius: var(--radius-system);
+    box-shadow: 0 4px 24px -2px rgba(216, 168, 78, 0.08), inset 0 1px 0 0 rgba(216, 168, 78, 0.15);
+  }
+
+  .panel-crimson {
+    @apply bg-bg-secondary border-l-2 border-l-crimson border border-border-strong;
+    border-radius: var(--radius-system);
+    box-shadow: 0 4px 24px -2px rgba(184, 58, 69, 0.12), inset 0 1px 0 0 rgba(184, 58, 69, 0.2);
   }
 
   .panel-success {
-    @apply bg-bg-secondary border-l-2 border-l-success;
+    @apply bg-bg-secondary border-l-2 border-l-success border border-border-strong;
     border-radius: var(--radius-system);
   }
 
-  /* Editorial Typography */
+  /* RPG Panel Classes */
+  .rpg-panel {
+    @apply bg-bg-secondary border border-border-strong;
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .rpg-panel-gold {
+    @apply bg-bg-secondary border border-accent/40;
+    box-shadow: 0 8px 32px -4px rgba(216, 168, 78, 0.1), inset 0 1px 0 0 rgba(216, 168, 78, 0.2);
+  }
+
+  .rpg-panel-crimson {
+    @apply bg-bg-secondary border border-crimson/50;
+    box-shadow: 0 8px 32px -4px rgba(184, 58, 69, 0.15), inset 0 1px 0 0 rgba(184, 58, 69, 0.25);
+  }
+
+  /* Editorial & RPG Telemetry Typography */
   .label {
     @apply text-2xs uppercase tracking-ultra font-semibold text-text-secondary font-mono;
   }
@@ -114,26 +161,35 @@
     @apply text-2xs uppercase tracking-ultra font-semibold text-accent font-mono;
   }
 
+  .label-crimson {
+    @apply text-2xs uppercase tracking-ultra font-semibold text-crimson font-mono;
+  }
+
   .heading-display {
     @apply font-black tracking-widest text-text-primary uppercase;
+    font-family: var(--font-display);
   }
 
   /* Structural Badges */
   .badge-pending {
-    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-text-secondary border border-border-strong;
+    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-text-secondary border border-border-strong bg-bg-tertiary;
   }
 
   .badge-active {
-    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-accent border border-accent bg-accent-muted;
+    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-accent border border-accent/40 bg-accent/10;
   }
 
   .badge-success {
-    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-success border border-success bg-success-muted;
+    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-success border border-success/40 bg-success/10;
+  }
+
+  .badge-crimson {
+    @apply px-2 py-0.5 text-3xs uppercase tracking-wider font-semibold text-crimson border border-crimson/50 bg-crimson/15;
   }
 
   /* Clean Input Forms */
   .input-system {
-    @apply w-full bg-bg-secondary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent font-mono;
+    @apply w-full bg-bg-tertiary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent font-mono;
     border-radius: var(--radius-system);
   }
   
@@ -142,36 +198,41 @@
   }
 
   .select-system {
-    @apply w-full bg-bg-secondary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent appearance-none font-mono cursor-pointer;
+    @apply w-full bg-bg-tertiary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent appearance-none font-mono cursor-pointer;
     border-radius: var(--radius-system);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A0A5B5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
   }
 
   .select-system:focus {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c25934' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D8A84E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   }
 
-  /* Primary Button - Editorial */
+  /* Primary Button - RPG Gold */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-text-primary text-bg-primary text-xs font-semibold uppercase tracking-wider px-5 py-2.5 hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center justify-center gap-2 bg-accent text-bg-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(216,168,78,0.25)];
     border-radius: var(--radius-system);
   }
 
   .btn-secondary {
-    @apply flex items-center justify-center gap-2 bg-bg-secondary border border-border-strong text-text-primary text-xs font-semibold uppercase tracking-wider px-5 py-2.5 hover:border-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center justify-center gap-2 bg-bg-secondary border border-border-strong text-text-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:border-accent hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+    border-radius: var(--radius-system);
+  }
+
+  .btn-crimson {
+    @apply flex items-center justify-center gap-2 bg-crimson text-text-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.3)];
     border-radius: var(--radius-system);
   }
 
   .btn-ghost {
-    @apply flex items-center justify-center gap-2 text-text-secondary text-xs font-semibold uppercase tracking-wider px-3 py-2 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center justify-center gap-2 text-text-secondary text-xs font-mono font-bold uppercase tracking-wider px-3 py-2 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   /* Data Table/List rows */
   .data-row {
-    @apply grid items-center border-b border-border-subtle py-3 hover:bg-bg-tertiary transition-colors cursor-pointer px-2;
+    @apply grid items-center border-b border-border-subtle py-3 hover:bg-bg-tertiary/70 transition-colors cursor-pointer px-3;
   }
   
   .data-row:last-child {
@@ -180,25 +241,32 @@
 
   /* Empty state */
   .empty-state {
-    @apply flex flex-col items-center justify-center text-center py-12 px-6 border border-dashed border-border-strong bg-bg-primary;
+    @apply flex flex-col items-center justify-center text-center py-12 px-6 border border-dashed border-border-strong bg-bg-secondary/40;
     border-radius: var(--radius-system);
+  }
+
+  /* Gold Line Sweep Keyframes */
+  @keyframes goldSweep {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(200%);
+      opacity: 0;
+    }
+  }
+
+  .animate-gold-sweep {
+    animation: goldSweep 1.8s ease-in-out infinite;
   }
 }
 
 @layer utilities {
   .rounded-system {
     border-radius: var(--radius-system);
-  }
-  
-  .shadow-glow-rust {
-    box-shadow: none;
-  }
-
-  .shadow-glow-olive {
-    box-shadow: none;
-  }
-
-  .animate-pulse-system {
-    animation: none;
   }
 }

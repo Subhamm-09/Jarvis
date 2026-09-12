@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Terminal, Activity, Target, Folder, Layers, HeartPulse, Brain, Menu, X } from 'lucide-react';
+import { LogOut, Activity, Target, Folder, Layers, HeartPulse, Brain, Menu, X, Compass, Trophy, Award } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { useState, useEffect } from 'react';
 import { calculateCalendarStreak } from '../../lib/domainTelemetry';
@@ -161,10 +161,11 @@ export function NavBar() {
   const isHuntLog = path === '/hunt-log';
 
   // Detect Active Top Domain
+  const isRewardsDomain = path.startsWith('/rewards');
   const isHealthDomain = path.startsWith('/health') || (isHuntLog && queryDomain === 'health');
   const isPersonalDomain = path.startsWith('/personal') || (isHuntLog && queryDomain === 'personal');
   const isLifeDomain = (path === '/life' || path === '/life-map' || path === '/') || (isHuntLog && (queryDomain === 'all' || queryDomain === 'life'));
-  const isCareerDomain = !isLifeDomain && !isHealthDomain && !isPersonalDomain;
+  const isCareerDomain = !isLifeDomain && !isHealthDomain && !isPersonalDomain && !isRewardsDomain;
 
   // Career Sub-routes
   const isDashboard = path === '/dashboard';
@@ -176,47 +177,52 @@ export function NavBar() {
     navigate('/landing');
   };
 
-  // Top Domain Switcher Tabs
+  // Top Domain Switcher Tabs (RPG Realms + Rewards)
   const topDomainTabs = [
-    { name: 'Life', path: '/life', active: isLifeDomain, icon: Layers },
-    { name: 'Career', path: '/dashboard', active: isCareerDomain, icon: Terminal },
+    { name: 'World', path: '/life', active: isLifeDomain, icon: Compass },
+    { name: 'Career', path: '/dashboard', active: isCareerDomain, icon: Target },
     { name: 'Health', path: '/health', active: isHealthDomain, icon: HeartPulse },
     { name: 'Personal', path: '/personal', active: isPersonalDomain, icon: Brain },
+    { name: 'Rewards', path: '/rewards', active: isRewardsDomain, icon: Trophy },
   ];
 
   // Current Sub-navigation links based on active domain
   let currentSubLinks = [
-    { name: 'Dashboard', path: '/dashboard', icon: Terminal, active: isDashboard },
-    { name: 'Status Report', path: '/status', icon: Activity, active: isStatus },
-    { name: 'Hunt Log', path: '/hunt-log?domain=career', icon: Target, active: isHuntLog && queryDomain === 'career' },
+    { name: 'Quests', path: '/dashboard', icon: Target, active: isDashboard },
+    { name: 'Trials & Rank', path: '/status', icon: Activity, active: isStatus },
+    { name: 'Quest Log', path: '/hunt-log?domain=career', icon: Award, active: isHuntLog && queryDomain === 'career' },
     { name: 'Collections', path: '/collections', icon: Folder, active: isCollections },
   ];
 
   if (isLifeDomain) {
     currentSubLinks = [
-      { name: 'Life Map', path: '/life', icon: Layers, active: !isHuntLog },
+      { name: 'Character & World', path: '/life', icon: Layers, active: !isHuntLog },
       { name: 'Unified Log', path: '/hunt-log?domain=all', icon: Target, active: isHuntLog && (!queryDomain || queryDomain === 'all' || queryDomain === 'life') },
     ];
   } else if (isHealthDomain) {
     currentSubLinks = [
-      { name: 'Health Protocols', path: '/health', icon: HeartPulse, active: !isHuntLog },
-      { name: 'Protocol Log', path: '/hunt-log?domain=health', icon: Target, active: isHuntLog && queryDomain === 'health' },
+      { name: 'Health Quests', path: '/health', icon: HeartPulse, active: !isHuntLog },
+      { name: 'Quest Log', path: '/hunt-log?domain=health', icon: Target, active: isHuntLog && queryDomain === 'health' },
     ];
   } else if (isPersonalDomain) {
     currentSubLinks = [
-      { name: 'Personal Mastery', path: '/personal', icon: Brain, active: !isHuntLog },
-      { name: 'Mastery Log', path: '/hunt-log?domain=personal', icon: Target, active: isHuntLog && queryDomain === 'personal' },
+      { name: 'Personal Quests', path: '/personal', icon: Brain, active: !isHuntLog },
+      { name: 'Quest Log', path: '/hunt-log?domain=personal', icon: Target, active: isHuntLog && queryDomain === 'personal' },
+    ];
+  } else if (isRewardsDomain) {
+    currentSubLinks = [
+      { name: 'Titles & Insignias', path: '/rewards', icon: Trophy, active: true },
     ];
   }
 
   // Active domain telemetry readout
   const activeStreak = isHealthDomain ? healthStreak : isPersonalDomain ? personalStreak : careerStreak;
   const activeRank = isHealthDomain ? healthRank : isPersonalDomain ? personalRank : careerRank;
-  const activeRankLabel = isHealthDomain ? 'Vanguard' : isPersonalDomain ? 'Polymath' : isLifeDomain ? 'Operator' : 'Hunter';
+  const activeRankLabel = isHealthDomain ? 'Vanguard' : isPersonalDomain ? 'Polymath' : isLifeDomain ? 'Hunter' : isRewardsDomain ? 'Glory' : 'Hunter';
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-bg-primary border-b-2 border-text-primary">
+      <nav className="sticky top-0 z-50 bg-bg-primary/95 backdrop-blur-md border-b-2 border-border-strong select-none">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           
           {/* Logo & Primary Domain Switcher */}
@@ -226,23 +232,25 @@ export function NavBar() {
               className="flex items-center gap-2.5 sm:gap-3 group"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <div className="w-3 h-3 bg-text-primary group-hover:bg-accent transition-colors" />
-              <span className="text-xl font-black uppercase tracking-tighter text-text-primary">JARVIS</span>
+              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(216,168,78,0.5)] group-hover:bg-accent-hover transition-colors rotate-45" />
+              <span className="text-xl font-black uppercase tracking-tighter text-text-primary">
+                JARVIS
+              </span>
             </Link>
 
             {/* Top Domain Switcher Tabs (Desktop lg+) */}
-            <div className="hidden lg:flex items-center gap-1 bg-bg-tertiary p-1 border border-border-strong rounded-none">
+            <div className="hidden lg:flex items-center gap-1 bg-bg-secondary p-1 border border-border-strong">
               {topDomainTabs.map(tab => (
                 <Link
                   key={tab.name}
                   to={tab.path}
-                  className={`px-3 py-1 text-2xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                  className={`px-3.5 py-1.5 text-2xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
                     tab.active
-                      ? 'bg-text-primary text-bg-primary shadow-sm'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+                      ? 'bg-accent text-bg-primary shadow-[0_2px_10px_rgba(216,168,78,0.3)]'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
                   }`}
                 >
-                  <tab.icon size={12} className={tab.active ? 'text-accent' : ''} />
+                  <tab.icon size={13} className={tab.active ? 'text-bg-primary' : 'text-accent'} />
                   <span>{tab.name}</span>
                 </Link>
               ))}
@@ -262,13 +270,13 @@ export function NavBar() {
               <Link 
                 key={link.name}
                 to={link.path}
-                className={`flex items-center gap-2 h-full px-2 border-b-4 transition-colors font-mono text-xs font-bold tracking-widest uppercase ${
+                className={`flex items-center gap-2 h-full px-2 border-b-2 transition-all font-mono text-xs font-bold tracking-widest uppercase ${
                   link.active 
-                    ? 'border-text-primary text-text-primary' 
-                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-text-muted'
+                    ? 'border-accent text-accent font-black shadow-[inset_0_-2px_0_0_var(--color-accent)]' 
+                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-strong'
                 }`}
               >
-                <link.icon size={13} className={link.active ? 'text-accent' : ''} />
+                <link.icon size={13} className={link.active ? 'text-accent' : 'text-text-muted'} />
                 {link.name}
               </Link>
             ))}
@@ -276,17 +284,21 @@ export function NavBar() {
 
           {/* Domain-specific User Actions (Desktop lg+) */}
           <div className="hidden lg:flex items-center gap-6">
-            <div className="text-right flex items-center gap-2 border-r-2 border-border-strong pr-6">
-              <span className="label">Streak</span>
-              <span className="text-sm font-bold text-text-primary font-mono">{activeStreak > 0 ? activeStreak : '—'}</span>
+            <div className="text-right flex items-center gap-2 border-r border-border-strong pr-6">
+              <span className="label text-text-muted">Streak</span>
+              <span className="text-sm font-bold text-text-primary font-mono">{activeStreak > 0 ? `${activeStreak}D` : '—'}</span>
             </div>
-            <div className="flex items-center gap-2 border-r-2 border-border-strong pr-6">
-              <span className="label">{activeRankLabel} Rank</span>
-              <span className="text-sm font-bold text-accent font-mono">{activeRank}</span>
+            
+            <div className="flex items-center gap-2 border-r border-border-strong pr-6">
+              <span className="label text-text-muted">{activeRankLabel} Rank</span>
+              <span className="text-sm font-black text-accent font-mono border border-accent/40 bg-accent/10 px-2 py-0.5 shadow-sm">
+                {activeRank}
+              </span>
             </div>
+
             <button 
               onClick={handleLogout}
-              className="text-xs font-mono font-bold uppercase tracking-widest text-text-secondary hover:text-accent transition-colors flex items-center gap-2"
+              className="text-xs font-mono font-bold uppercase tracking-widest text-text-muted hover:text-accent transition-colors flex items-center gap-2"
               title="End Session"
             >
               <LogOut size={14} /> Disconnect
@@ -295,21 +307,19 @@ export function NavBar() {
 
           {/* Mobile & Tablet Controls (< lg) */}
           <div className="flex lg:hidden items-center gap-3">
-            {/* Quick Streak badge on mobile/tablet */}
             {activeStreak > 0 && (
-              <div className="flex items-center gap-1 font-mono text-2xs font-bold uppercase tracking-wider px-2 py-1 bg-bg-tertiary border border-border-strong">
+              <div className="flex items-center gap-1 font-mono text-2xs font-bold uppercase tracking-wider px-2 py-1 bg-bg-secondary border border-border-strong">
                 <span className="text-accent font-mono">STREAK</span>
                 <span className="text-text-primary">{activeStreak}D</span>
               </div>
             )}
 
-            {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 transition-colors border ${
                 mobileMenuOpen 
-                  ? 'bg-text-primary text-bg-primary border-text-primary' 
-                  : 'text-text-primary hover:bg-bg-tertiary border-border-strong'
+                  ? 'bg-accent text-bg-primary border-accent' 
+                  : 'text-text-primary hover:bg-bg-secondary border-border-strong'
               }`}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
@@ -323,23 +333,21 @@ export function NavBar() {
         {/* Mobile Navigation Drawer & Backdrop (< lg) */}
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <div 
-              className="fixed inset-0 top-16 bg-black/50 backdrop-blur-xs z-40 lg:hidden"
+              className="fixed inset-0 top-16 bg-black/75 backdrop-blur-sm z-40 lg:hidden"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden="true"
             />
 
-            {/* Drawer Overlay */}
             <div 
               id="mobile-nav-drawer"
-              className="fixed top-16 left-0 right-0 max-h-[calc(100vh-4rem)] overflow-y-auto bg-bg-secondary border-b-2 border-text-primary shadow-2xl z-50 lg:hidden px-6 py-6 flex flex-col gap-6"
+              className="fixed top-16 left-0 right-0 max-h-[calc(100vh-4rem)] overflow-y-auto bg-bg-secondary border-b-2 border-border-strong shadow-2xl z-50 lg:hidden px-6 py-6 flex flex-col gap-6"
             >
-              {/* 1. DOMAIN SELECTOR */}
+              {/* 1. REALM SELECTOR */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="label text-accent">Select Domain</span>
-                  <span className="text-3xs font-mono uppercase text-text-muted">4 Independent Domains</span>
+                  <span className="label text-accent">Select Realm</span>
+                  <span className="text-3xs font-mono uppercase text-text-muted">3 Worlds • 1 Character</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2.5">
                   {topDomainTabs.map(tab => {
@@ -353,17 +361,17 @@ export function NavBar() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`p-3 text-xs font-mono font-bold uppercase flex flex-col justify-between gap-2 border transition-all ${
                           tab.active 
-                            ? 'bg-text-primary text-bg-primary border-text-primary shadow-sm' 
-                            : 'bg-bg-primary border-border-strong text-text-secondary hover:text-text-primary hover:border-text-primary'
+                            ? 'bg-accent text-bg-primary border-accent shadow-[0_2px_10px_rgba(216,168,78,0.25)]' 
+                            : 'bg-bg-tertiary border-border-strong text-text-secondary hover:text-text-primary hover:border-accent'
                         }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
-                            <tab.icon size={14} className={tab.active ? 'text-accent' : ''} />
+                            <tab.icon size={14} className={tab.active ? 'text-bg-primary' : 'text-accent'} />
                             <span className="font-sans font-bold text-sm tracking-tight">{tab.name}</span>
                           </div>
                           {tab.active && (
-                            <span className="w-1.5 h-1.5 bg-accent" />
+                            <span className="w-1.5 h-1.5 bg-bg-primary" />
                           )}
                         </div>
                         <div className="flex items-center justify-between text-2xs opacity-80 pt-1 border-t border-current/10">
@@ -376,11 +384,11 @@ export function NavBar() {
                 </div>
               </div>
 
-              {/* 2. ACTIVE DOMAIN NAVIGATION */}
+              {/* 2. ACTIVE REALM VIEWS */}
               <div>
-                <div className="flex items-center justify-between mb-3 border-t border-border-subtle pt-4">
+                <div className="flex items-center justify-between mb-3 border-t border-border-strong pt-4">
                   <span className="label text-text-muted">
-                    {topDomainTabs.find(t => t.active)?.name} Operations
+                    {topDomainTabs.find(t => t.active)?.name} Subsystems
                   </span>
                   <span className="text-3xs font-mono uppercase text-text-muted font-bold">
                     {currentSubLinks.length} Views
@@ -394,7 +402,7 @@ export function NavBar() {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`py-3 px-4 text-xs font-mono font-bold uppercase flex items-center justify-between border transition-colors ${
                         link.active 
-                          ? 'bg-bg-tertiary text-text-primary border-text-primary' 
+                          ? 'bg-bg-tertiary text-accent border-accent' 
                           : 'bg-bg-primary/50 text-text-secondary border-border-subtle hover:text-text-primary hover:border-border-strong'
                       }`}
                     >
@@ -409,8 +417,8 @@ export function NavBar() {
               </div>
 
               {/* 3. TELEMETRY & DISCONNECT */}
-              <div className="border-t border-border-subtle pt-4 flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-3 p-3 bg-bg-primary border border-border-strong text-xs font-mono">
+              <div className="border-t border-border-strong pt-4 flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3 p-3 bg-bg-tertiary border border-border-strong text-xs font-mono">
                   <div>
                     <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Rank</span>
                     <span className="text-sm font-bold text-accent">{activeRankLabel} • {activeRank}</span>
@@ -427,7 +435,7 @@ export function NavBar() {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="btn-secondary w-full text-xs font-mono font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white flex items-center justify-center gap-2 px-3 py-2"
+                    className="btn-secondary w-full text-xs font-mono font-bold uppercase tracking-widest text-crimson hover:border-crimson flex items-center justify-center gap-2 px-3 py-2"
                   >
                     <LogOut size={13} /> Disconnect
                   </button>

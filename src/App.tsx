@@ -16,6 +16,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ defaul
 const LifeMapPage = lazy(() => import('./pages/LifeMapPage').then(m => ({ default: m.LifeMapPage })));
 const HealthDashboardPage = lazy(() => import('./pages/HealthDashboardPage').then(m => ({ default: m.HealthDashboardPage })));
 const PersonalDashboardPage = lazy(() => import('./pages/PersonalDashboardPage').then(m => ({ default: m.PersonalDashboardPage })));
+const RewardsPage = lazy(() => import('./pages/RewardsPage').then(m => ({ default: m.RewardsPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -89,6 +90,9 @@ function App() {
 
               {/* Personal Domain (ISOLATED RPG DOMAIN) */}
               <Route path="/personal" element={isAuthenticated ? <PersonalDashboardPage /> : <Navigate to="/auth" />} />
+
+              {/* Rewards Domain */}
+              <Route path="/rewards" element={isAuthenticated ? <RewardsPage /> : <Navigate to="/auth" />} />
               
               <Route path="*" element={<Navigate to="/life" />} />
             </Routes>

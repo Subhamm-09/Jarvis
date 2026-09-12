@@ -1,29 +1,37 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Terminal, HeartPulse, Brain, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { 
+  Compass, 
+  Zap, 
+  Swords, 
+  Bot
+} from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { calculateLifeEquilibrium, type LifeBalanceState } from '../lib/lifeBalance';
-import { getCareerLevel } from '../lib/ranking';
-import { getHealthLevel, calculateHealthAttributes, getHealthRank, checkHealthSGate } from '../lib/healthRanking';
-import { getPersonalLevel, calculatePersonalAttributes, getPersonalRank, checkPersonalSGate } from '../lib/personalRanking';
+import { getCareerLevel, leetcode as rankingLeetcode } from '../lib/ranking';
+import { getHealthLevel, calculateHealthAttributes, getHealthRank } from '../lib/healthRanking';
+import { getPersonalLevel, calculatePersonalAttributes, getPersonalRank } from '../lib/personalRanking';
+import { resolveTaskAttribute } from '../lib/tactileFeedback';
 import type { Task, HealthTask, HealthExpLog, PersonalTask, PersonalExpLog } from '../types';
 
-interface RecentActivity {
+interface ActiveQuestItem {
   id: string;
-  domain: 'Career' | 'Health' | 'Personal';
+  domain: 'career' | 'health' | 'personal';
   title: string;
   exp: number;
-  awarded_at: string;
+  attributeText: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'BOSS';
+  rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
+  durationMins: number;
 }
 
 export function LifeMapPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string>('PROTAGONIST');
 
   // Career Telemetry
   const [careerTasks, setCareerTasks] = useState<Task[]>([]);
   const [careerStats, setCareerStats] = useState<any[]>([]);
-  const [careerExpLogs, setCareerExpLogs] = useState<any[]>([]);
   const [careerStreak, setCareerStreak] = useState(0);
 
   // Health Telemetry
@@ -34,11 +42,10 @@ export function LifeMapPage() {
   // Personal Telemetry
   const [personalTasks, setPersonalTasks] = useState<PersonalTask[]>([]);
   const [personalExpLogs, setPersonalExpLogs] = useState<PersonalExpLog[]>([]);
-  const [personalStreak, setPersonalStreak] = useState(0);
+  const [, setPersonalStreak] = useState(0);
 
-  // Transmission & Activity Ticker
+  // Transmission
   const [advisorAdvice, setAdvisorAdvice] = useState<string | null>(null);
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
 
   const calcStreak = (dateStrings: string[]): number => {
     const distinctDates = Array.from(new Set(
@@ -77,6 +84,9 @@ export function LifeMapPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const name = user.user_metadata?.full_name || user.email?.split('@')[0]?.toUpperCase() || 'PROTAGONIST';
+      setUserName(name);
+
       const [
         cTasksRes, cStatsRes, cExpRes,
         hTasksRes, hExpRes,
@@ -94,7 +104,6 @@ export function LifeMapPage() {
       if (cTasksRes.data) setCareerTasks(cTasksRes.data as Task[]);
       if (cStatsRes.data) setCareerStats(cStatsRes.data);
       if (cExpRes.data) {
-        setCareerExpLogs(cExpRes.data);
         setCareerStreak(calcStreak(cExpRes.data.map((l: any) => l.awarded_at)));
       }
 
@@ -110,64 +119,21 @@ export function LifeMapPage() {
         setPersonalStreak(calcStreak(pExpRes.data.map((l: any) => l.awarded_at)));
       }
 
-      // Build recent cross-domain activity strip
-      const recents: RecentActivity[] = [];
-      (cExpRes.data || []).slice(0, 3).forEach((l: any) => {
-        recents.push({
-          id: l.id,
-          domain: 'Career',
-          title: l.domain || 'Career Operation',
-          exp: l.exp_awarded,
-          awarded_at: l.awarded_at
-        });
-      });
-      (hExpRes.data || []).slice(0, 3).forEach((l: any) => {
-        recents.push({
-          id: l.id,
-          domain: 'Health',
-          title: l.pillar || 'Health Protocol',
-          exp: l.exp_awarded,
-          awarded_at: l.awarded_at
-        });
-      });
-      (pExpRes.data || []).slice(0, 3).forEach((l: any) => {
-        recents.push({
-          id: l.id,
-          domain: 'Personal',
-          title: l.pillar || 'Personal Quest',
-          exp: l.exp_awarded,
-          awarded_at: l.awarded_at
-        });
-      });
-      recents.sort((a, b) => new Date(b.awarded_at).getTime() - new Date(a.awarded_at).getTime());
-      setRecentActivities(recents.slice(0, 4));
+      // Generate intelligent contextual transmission based on actual deficits
+      const cCount = (cTasksRes.data || []).filter((t: any) => t.status === 'done').length;
+      const hCount = ((hTasksRes.data as HealthTask[]) || []).filter(t => t.status === 'done').length;
+      const pCount = ((pTasksRes.data as PersonalTask[]) || []).filter(t => t.status === 'done').length;
 
-      // Non-blocking Advisor Call
-      try {
-        const cCount = (cTasksRes.data || []).filter((t: any) => t.status === 'done').length;
-        const hDone = ((hTasksRes.data as HealthTask[]) || []).filter(t => t.status === 'done').length;
-        const pDone = ((pTasksRes.data as PersonalTask[]) || []).filter(t => t.status === 'done').length;
-        const eq = calculateLifeEquilibrium(cCount, hDone, pDone);
-
-        const { data: edgeData } = await supabase.functions.invoke('life-advisor', {
-          body: {
-            careerCount: cCount,
-            healthCount: hDone,
-            personalCount: pDone,
-            harmonyIndex: eq.harmonyIndex,
-            dominantDomain: eq.dominantDomain,
-            neglectedDomain: eq.neglectedDomain
-          }
-        });
-        if (edgeData?.advice) {
-          setAdvisorAdvice(edgeData.advice);
-        }
-      } catch {
-        // Fallback gracefully
+      if (hCount === 0 || calcStreak(hExpRes.data?.map((l: any) => l.awarded_at) || []) === 0) {
+        setAdvisorAdvice("Career progression is actively advancing. Health consistency requires immediate reinforcement. Complete a 30-minute physical recovery quest today.");
+      } else if (pCount < cCount / 3) {
+        setAdvisorAdvice("High technical momentum detected. Balance cognitive stamina with deliberate reading or strategic synthesis in the Personal realm.");
+      } else {
+        setAdvisorAdvice("Tri-realm equilibrium is strong. System telemetry indicates optimal conditions to engage S-Tier trial objectives.");
       }
 
     } catch (err) {
-      console.error('Life map error:', err);
+      console.error('LifeMapPage fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -175,285 +141,469 @@ export function LifeMapPage() {
 
   useEffect(() => {
     fetchTelemetry();
+    const handleUpdate = () => fetchTelemetry();
+    window.addEventListener('exp-awarded', handleUpdate);
+    window.addEventListener('health-exp-awarded', handleUpdate);
+    window.addEventListener('personal-exp-awarded', handleUpdate);
+    return () => {
+      window.removeEventListener('exp-awarded', handleUpdate);
+      window.removeEventListener('health-exp-awarded', handleUpdate);
+      window.removeEventListener('personal-exp-awarded', handleUpdate);
+    };
   }, []);
 
-  // 1. CAREER METRICS
-  let careerHighestRank = 'E';
-  let totalCareerExp = 0;
-  careerExpLogs.forEach(l => { totalCareerExp += l.exp_awarded; });
+  // Time-aware greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'GOOD MORNING' : hour < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
+
+  // 1. Career Realm Calculations
+  const totalCareerExp = careerStats.reduce((sum, s) => sum + (s.current_exp || 0), 0);
+  const careerProg = getCareerLevel(totalCareerExp);
+  let careerRank = 'E';
+  const ranks = ['E', 'D', 'C', 'B', 'A', 'S'];
   careerStats.forEach(s => {
-    const ranks = ['E', 'D', 'C', 'B', 'A', 'S'];
-    if (s.rank && ranks.indexOf(s.rank) > ranks.indexOf(careerHighestRank)) {
-      careerHighestRank = s.rank;
+    if (s.rank && ranks.indexOf(s.rank) > ranks.indexOf(careerRank)) {
+      careerRank = s.rank;
     }
   });
-  const { 
-    level: careerLevel, 
-    progress: careerProgress 
-  } = getCareerLevel(totalCareerExp);
-  const careerDoneCount = careerTasks.filter(t => t.status === 'done').length;
 
-  // 2. HEALTH METRICS
-  const totalHealthExp = healthExpLogs.reduce((sum, l) => sum + l.exp_awarded, 0);
-  const { level: healthLevel, progress: healthProgress } = getHealthLevel(totalHealthExp);
+  // 2. Health Realm Calculations
+  const totalHealthExp = healthExpLogs.reduce((sum, l) => sum + (l.exp_awarded || 0), 0);
+  const healthProg = getHealthLevel(totalHealthExp);
   const healthAttrs = calculateHealthAttributes(healthTasks, healthExpLogs);
-  const healthCompleted = healthTasks.filter(t => t.status === 'done');
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const recentHealth7Day = healthExpLogs.filter(l => new Date(l.awarded_at) >= sevenDaysAgo).length;
-  const healthSGate = checkHealthSGate(healthAttrs, healthCompleted, healthStreak, recentHealth7Day);
-  const healthRank = getHealthRank(healthAttrs, healthSGate.isSReady);
+  const healthRank = getHealthRank(healthAttrs, false).rank;
 
-  // 3. PERSONAL METRICS
-  const totalPersonalExp = personalExpLogs.reduce((sum, l) => sum + l.exp_awarded, 0);
-  const { level: personalLevel, progress: personalProgress } = getPersonalLevel(totalPersonalExp);
+  // 3. Personal Realm Calculations
+  const totalPersonalExp = personalExpLogs.reduce((sum, l) => sum + (l.exp_awarded || 0), 0);
+  const personalProg = getPersonalLevel(totalPersonalExp);
   const personalAttrs = calculatePersonalAttributes(personalTasks, personalExpLogs);
-  const personalCompleted = personalTasks.filter(t => t.status === 'done');
-  const personalSGate = checkPersonalSGate(personalAttrs, personalCompleted);
-  const personalRank = getPersonalRank(personalAttrs, personalSGate.isSReady);
+  const personalRank = getPersonalRank(personalAttrs, false).rank;
 
-  // 4. EQUILIBRIUM
-  const equilibrium: LifeBalanceState = calculateLifeEquilibrium(
-    careerDoneCount,
-    healthCompleted.length,
-    personalCompleted.length
-  );
+  // Protagonist Level & XP Bar (Driven by Hunter / Primary Mastery)
+  const protagonistLevel = Math.max(careerProg.level, healthProg.level, personalProg.level, 1);
+  const currentLevelExp = careerProg.currentLevelExp;
+  const expToNext = careerProg.expToNext;
+  const progressPct = expToNext > 0 ? Math.min(100, Math.round((currentLevelExp / expToNext) * 100)) : 100;
 
-  if (loading) return null;
+  // Mathematical Attribute Computations (0 - 100)
+  const avgHealthScore = (healthAttrs.STR + healthAttrs.END + healthAttrs.VIT + healthAttrs.REC + healthAttrs.AGI) / 5;
+  const attributes = [
+    { name: 'INTELLECT', value: Math.min(99, Math.max(35, Math.round(40 + (careerProg.level * 2.2) + (personalAttrs.INT * 0.3)))), color: 'bg-[#5A8FC2]' },
+    { name: 'DISCIPLINE', value: Math.min(99, Math.max(30, Math.round(35 + (careerStreak * 4) + (healthStreak * 3)))), color: 'bg-accent' },
+    { name: 'EXECUTION', value: Math.min(99, Math.max(30, Math.round(30 + (careerProg.level * 2.5) + (careerTasks.filter(t => t.status === 'done').length * 0.4)))), color: 'bg-accent' },
+    { name: 'HEALTH', value: Math.min(99, Math.max(25, Math.round(20 + (avgHealthScore * 0.8)))), color: 'bg-success' },
+    { name: 'CREATIVITY', value: Math.min(99, Math.max(30, Math.round(35 + (personalAttrs.CRT * 0.6) + (careerTasks.filter(t => t.domain === 'projects').length * 6)))), color: 'bg-[#C2825A]' },
+    { name: 'SOCIAL', value: Math.min(99, Math.max(20, Math.round(25 + (personalAttrs.CHA * 0.5) + (careerTasks.filter(t => t.domain === 'hackathon').length * 8)))), color: 'bg-[#9B6FA2]' },
+  ];
+
+  // Active Cross-Domain Quests Feed
+  const activeQuests: ActiveQuestItem[] = [];
+
+  // Career Quest
+  const pendingCareer = careerTasks.find(t => t.status !== 'done' && !(t.domain === 'hackathon' && t.metadata?.is_primary_entry));
+  if (pendingCareer) {
+    let exp = pendingCareer.effort_estimate_mins || 30;
+    if (pendingCareer.domain === 'leetcode') {
+      const diff = (pendingCareer.metadata?.difficulty || 'easy').toLowerCase();
+      exp = pendingCareer.metadata?.is_revision ? rankingLeetcode.getExpOnRevision(diff) : rankingLeetcode.getExpOnSolve(diff);
+    }
+    const attr = resolveTaskAttribute('career', pendingCareer.domain);
+    activeQuests.push({
+      id: pendingCareer.id,
+      domain: 'career',
+      title: pendingCareer.title,
+      exp,
+      attributeText: `${attr.name} +${attr.delta}`,
+      difficulty: pendingCareer.priority >= 5 ? 'BOSS' : pendingCareer.priority === 4 ? 'HARD' : 'MEDIUM',
+      rarity: pendingCareer.priority >= 5 ? 'LEGENDARY' : pendingCareer.priority === 4 ? 'EPIC' : 'RARE',
+      durationMins: pendingCareer.effort_estimate_mins || 45,
+    });
+  }
+
+  // Health Quest
+  const pendingHealth = healthTasks.find(t => t.status !== 'done');
+  if (pendingHealth) {
+    activeQuests.push({
+      id: pendingHealth.id,
+      domain: 'health',
+      title: pendingHealth.title,
+      exp: (pendingHealth.effort_estimate_mins || 30) * 2,
+      attributeText: `${(pendingHealth.pillar || 'HEALTH').toUpperCase()} +4`,
+      difficulty: pendingHealth.priority >= 4 ? 'HARD' : 'MEDIUM',
+      rarity: pendingHealth.priority >= 4 ? 'EPIC' : 'RARE',
+      durationMins: pendingHealth.effort_estimate_mins || 30,
+    });
+  }
+
+  // Personal Quest
+  const pendingPersonal = personalTasks.find(t => t.status !== 'done');
+  if (pendingPersonal) {
+    activeQuests.push({
+      id: pendingPersonal.id,
+      domain: 'personal',
+      title: pendingPersonal.title,
+      exp: (pendingPersonal.effort_estimate_mins || 20) * 2,
+      attributeText: `${(pendingPersonal.pillar || 'INTELLECT').toUpperCase()} +3`,
+      difficulty: pendingPersonal.priority >= 4 ? 'HARD' : 'EASY',
+      rarity: pendingPersonal.priority >= 4 ? 'EPIC' : 'COMMON',
+      durationMins: pendingPersonal.effort_estimate_mins || 20,
+    });
+  }
+
+  const handleEngageQuest = (quest: ActiveQuestItem) => {
+    if (quest.domain === 'career') {
+      navigate('/dashboard');
+    } else if (quest.domain === 'health') {
+      navigate('/health');
+    } else {
+      navigate('/personal');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center font-mono">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-3 h-3 bg-accent animate-ping" />
+          <span className="text-2xs font-bold uppercase tracking-widest text-text-muted">
+            SYNCHRONIZING PROTAGONIST TELEMETRY...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="px-6 md:px-12 py-10 max-w-[1500px] mx-auto w-full flex flex-col gap-10">
+    <div className="min-h-screen bg-bg-primary text-text-primary px-4 sm:px-8 py-10 max-w-[1400px] mx-auto w-full font-sans">
       
-      {/* 1. HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b-2 border-text-primary pb-6 gap-4">
-        <div>
-          <span className="text-2xs font-mono font-bold uppercase tracking-widest text-accent block mb-1">
-            LIFE
-          </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary leading-none">
-            Life Map
-          </h1>
-          <p className="text-xs font-mono text-text-secondary mt-2">
-            Visual progression landscape across Career, Health and Personal.
-          </p>
-        </div>
-      </div>
-
-      {/* 2. UNDERSTATED USER STATUS STRIP */}
-      <div className="py-2.5 px-4 bg-bg-secondary border border-border-strong flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-text-secondary">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="font-bold text-text-primary uppercase tracking-wider">YOU</span>
-          <span>&bull;</span>
-          <span className="uppercase">Three Paths Active</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <span>CAREER <strong className="text-text-primary font-bold">{careerHighestRank}</strong></span>
-          <span>HEALTH <strong className="text-success font-bold">{healthRank.rank}</strong></span>
-          <span>PERSONAL <strong className="text-text-primary font-bold">{personalRank.rank}</strong></span>
-        </div>
-      </div>
-
-      {/* 3. VISUAL PROGRESSION LANDSCAPE (3 EXPANSIVE TERRITORIES) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* 1. CHARACTER HERO HEADER */}
+      <section className="rpg-panel border border-border-strong p-6 sm:p-8 mb-10 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-[#E8B958] to-transparent" />
         
-        {/* TERRITORY 1: CAREER */}
-        <div 
-          onClick={() => navigate('/dashboard')}
-          className="bg-bg-secondary border-2 border-text-primary p-8 sm:p-10 shadow-[6px_6px_0_0_var(--color-text-primary)] hover:border-accent hover:shadow-[8px_8px_0_0_var(--color-accent)] transition-all cursor-pointer flex flex-col justify-between group"
-        >
-          <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between border-b border-border-strong pb-3">
-              <span className="text-xs font-mono font-black uppercase tracking-widest text-text-primary">
-                CAREER
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          
+          {/* Protagonist Identity & Level */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5 text-2xs font-mono font-bold uppercase tracking-widest text-accent">
+              <span className="w-2 h-2 bg-accent shadow-[0_0_8px_rgba(216,168,78,0.6)] rotate-45" />
+              <span>JARVIS SYSTEM // PROTAGONIST CONSOLE</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display">
+              {greeting}, <span className="text-accent">{userName}</span>
+            </h1>
+
+            {/* Three Realms Tier Summary Strip */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 font-mono text-xs">
+              <span className="text-text-muted text-2xs uppercase tracking-wider">TIER STANDING:</span>
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
+                CAREER <span className="text-accent">{careerRank}</span>
               </span>
-              <Terminal size={16} className="text-accent" />
-            </div>
-
-            <div>
-              <span className="text-9xl font-black font-sans leading-none tracking-tighter text-text-primary block">
-                {careerHighestRank}
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
+                HEALTH <span className="text-success">{healthRank}</span>
               </span>
-              <div className="mt-3">
-                <span className="text-lg font-black font-mono uppercase text-text-primary block">
-                  LEVEL {careerLevel}
-                </span>
-                <span className="text-xs font-mono text-text-secondary">
-                  {totalCareerExp.toLocaleString()} XP {careerStreak > 0 ? `• STREAK ${careerStreak}D` : ''}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <div className="h-2.5 bg-border-subtle w-full overflow-hidden mb-2">
-                <div 
-                  className="h-full bg-accent transition-all duration-700" 
-                  style={{ width: `${careerProgress}%` }} 
-                />
-              </div>
-              <div className="text-xs font-mono text-text-secondary uppercase flex justify-between">
-                <span>Domain Progress</span>
-                <span className="font-bold text-text-primary">{careerProgress}%</span>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border-subtle text-xs font-mono text-text-secondary">
-              <span className="text-text-primary font-bold">{careerDoneCount}</span> Operations Completed
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
+                PERSONAL <span className="text-[#5A8FC2]">{personalRank}</span>
+              </span>
             </div>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-border-strong">
-            <div className="w-full py-3 px-4 bg-accent text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-accent-hover transition-colors">
-              <span>ENTER CAREER</span>
-              <ArrowRight size={14} />
+          {/* Character Level & Gold XP Progress Meter */}
+          <div className="w-full lg:w-96 flex flex-col gap-2.5 bg-bg-tertiary/70 border border-border-strong p-5">
+            <div className="flex items-center justify-between font-mono">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xs uppercase tracking-widest text-text-muted">CURRENT</span>
+                <span className="text-2xl font-black text-text-primary font-display">LEVEL {protagonistLevel}</span>
+              </div>
+              <span className="text-xs font-mono font-bold text-accent">
+                {currentLevelExp} / {expToNext} XP
+              </span>
+            </div>
+
+            {/* RPG XP Bar */}
+            <div className="w-full h-2.5 bg-bg-primary border border-border-strong relative overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-accent to-[#E8B958] transition-all duration-500 shadow-[0_0_12px_rgba(216,168,78,0.4)]"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+
+            <div className="flex justify-between items-center text-3xs font-mono text-text-muted uppercase tracking-widest">
+              <span>PROGRESS TO NEXT LEVEL</span>
+              <span className="font-bold text-text-secondary">{progressPct}%</span>
             </div>
           </div>
+
+        </div>
+      </section>
+
+      {/* 2. THE THREE WORLDS (ONE CHARACTER) */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-4 border-b border-border-strong pb-2 font-mono">
+          <div className="flex items-center gap-2">
+            <Compass size={14} className="text-accent" />
+            <span className="label text-text-primary">Three Worlds // Independent Progression</span>
+          </div>
+          <span className="text-3xs text-text-muted uppercase tracking-widest">ZERO XP CONTAMINATION</span>
         </div>
 
-        {/* TERRITORY 2: HEALTH */}
-        <div 
-          onClick={() => navigate('/health')}
-          className="bg-bg-secondary border-2 border-text-primary p-8 sm:p-10 shadow-[6px_6px_0_0_var(--color-text-primary)] hover:border-success hover:shadow-[8px_8px_0_0_var(--color-success)] transition-all cursor-pointer flex flex-col justify-between group"
-        >
-          <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between border-b border-border-strong pb-3">
-              <span className="text-xs font-mono font-black uppercase tracking-widest text-text-primary">
-                HEALTH
-              </span>
-              <HeartPulse size={16} className="text-success" />
-            </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* WORLD 01: CAREER */}
+          <div 
+            onClick={() => navigate('/dashboard')}
+            className="rpg-panel p-6 cursor-pointer hover:border-accent group transition-all relative overflow-hidden flex flex-col justify-between"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-accent/10 transition-colors" />
+            
             <div>
-              <span className="text-9xl font-black font-sans leading-none tracking-tighter text-text-primary block">
-                {healthRank.rank}
-              </span>
-              <div className="mt-3">
-                <span className="text-lg font-black font-mono uppercase text-text-primary block">
-                  LEVEL {healthLevel} &bull; {healthRank.title}
-                </span>
-                <span className="text-xs font-mono text-text-secondary">
-                  {totalHealthExp.toLocaleString()} XP {healthStreak > 0 ? `• STREAK ${healthStreak}D` : ''}
+              <div className="flex items-center justify-between mb-4">
+                <span className="label text-accent">WORLD 01 // CAREER</span>
+                <span className="text-3xs font-mono font-bold text-accent border border-accent/40 px-2 py-0.5 bg-accent/10">
+                  HUNTER
                 </span>
               </div>
+
+              <div className="flex items-baseline justify-between mb-1">
+                <span className="text-4xl font-black font-display text-text-primary group-hover:text-accent transition-colors">
+                  RANK {careerRank}
+                </span>
+                <span className="font-mono text-sm font-bold text-text-secondary">
+                  LVL {careerProg.level}
+                </span>
+              </div>
+
+              <p className="text-xs font-mono text-text-muted mb-6">
+                {careerTasks.filter(t => t.status === 'done').length} Operations Cleared • {totalCareerExp} Total EXP
+              </p>
             </div>
 
-            <div>
-              <div className="h-2.5 bg-border-subtle w-full overflow-hidden mb-2">
-                <div 
-                  className="h-full bg-success transition-all duration-700" 
-                  style={{ width: `${healthProgress}%` }} 
-                />
-              </div>
-              <div className="text-xs font-mono text-text-secondary uppercase flex justify-between">
-                <span>Domain Progress</span>
-                <span className="font-bold text-text-primary">{healthProgress}%</span>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border-subtle text-xs font-mono text-text-secondary">
-              <span className="text-text-primary font-bold">{healthCompleted.length}</span> Protocols Logged
+            <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-accent font-bold">
+              <span>ENTER CAREER REALM</span>
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-border-strong">
-            <div className="w-full py-3 px-4 bg-success text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-success/90 transition-colors">
-              <span>ENTER HEALTH</span>
-              <ArrowRight size={14} />
+          {/* WORLD 02: HEALTH */}
+          <div 
+            onClick={() => navigate('/health')}
+            className="rpg-panel p-6 cursor-pointer hover:border-success group transition-all relative overflow-hidden flex flex-col justify-between"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-success/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-success/10 transition-colors" />
+            
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="label text-success">WORLD 02 // HEALTH</span>
+                <span className="text-3xs font-mono font-bold text-success border border-success/40 px-2 py-0.5 bg-success/10">
+                  VANGUARD
+                </span>
+              </div>
+
+              <div className="flex items-baseline justify-between mb-1">
+                <span className="text-4xl font-black font-display text-text-primary group-hover:text-success transition-colors">
+                  RANK {healthRank}
+                </span>
+                <span className="font-mono text-sm font-bold text-text-secondary">
+                  LVL {healthProg.level}
+                </span>
+              </div>
+
+              <p className="text-xs font-mono text-text-muted mb-6">
+                {healthTasks.filter(t => t.status === 'done').length} Protocols Cleared • {totalHealthExp} Total EXP
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-success font-bold">
+              <span>ENTER HEALTH REALM</span>
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
           </div>
+
+          {/* WORLD 03: PERSONAL */}
+          <div 
+            onClick={() => navigate('/personal')}
+            className="rpg-panel p-6 cursor-pointer hover:border-[#5A8FC2] group transition-all relative overflow-hidden flex flex-col justify-between"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#5A8FC2]/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-[#5A8FC2]/10 transition-colors" />
+            
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="label text-[#5A8FC2]">WORLD 03 // PERSONAL</span>
+                <span className="text-3xs font-mono font-bold text-[#5A8FC2] border border-[#5A8FC2]/40 px-2 py-0.5 bg-[#5A8FC2]/10">
+                  POLYMATH
+                </span>
+              </div>
+
+              <div className="flex items-baseline justify-between mb-1">
+                <span className="text-4xl font-black font-display text-text-primary group-hover:text-[#5A8FC2] transition-colors">
+                  RANK {personalRank}
+                </span>
+                <span className="font-mono text-sm font-bold text-text-secondary">
+                  LVL {personalProg.level}
+                </span>
+              </div>
+
+              <p className="text-xs font-mono text-text-muted mb-6">
+                {personalTasks.filter(t => t.status === 'done').length} Quests Cleared • {totalPersonalExp} Total EXP
+              </p>
+            </div>
+
+            <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-[#5A8FC2] font-bold">
+              <span>ENTER PERSONAL REALM</span>
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </div>
+
         </div>
+      </section>
 
-        {/* TERRITORY 3: PERSONAL */}
-        <div 
-          onClick={() => navigate('/personal')}
-          className="bg-bg-secondary border-2 border-text-primary p-8 sm:p-10 shadow-[6px_6px_0_0_var(--color-text-primary)] hover:border-text-primary hover:shadow-[8px_8px_0_0_var(--color-text-primary)] transition-all cursor-pointer flex flex-col justify-between group"
-        >
-          <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between border-b border-border-strong pb-3">
-              <span className="text-xs font-mono font-black uppercase tracking-widest text-text-primary">
-                PERSONAL
-              </span>
-              <Brain size={16} className="text-text-primary" />
+      {/* 3. SPLIT GRID: CHARACTER ATTRIBUTES & ACTIVE QUESTS */}
+      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 mb-12">
+        
+        {/* LEFT COLUMN: CHARACTER ATTRIBUTES */}
+        <section className="rpg-panel p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-border-strong font-mono">
+              <span className="label text-accent">CHARACTER ATTRIBUTES</span>
+              <span className="text-3xs text-text-muted uppercase">6 STAT VECTORS</span>
             </div>
 
-            <div>
-              <span className="text-9xl font-black font-sans leading-none tracking-tighter text-text-primary block">
-                {personalRank.rank}
-              </span>
-              <div className="mt-3">
-                <span className="text-lg font-black font-mono uppercase text-text-primary block">
-                  LEVEL {personalLevel} &bull; {personalRank.title}
-                </span>
-                <span className="text-xs font-mono text-text-secondary">
-                  {totalPersonalExp.toLocaleString()} XP {personalStreak > 0 ? `• STREAK ${personalStreak}D` : ''}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <div className="h-2.5 bg-border-subtle w-full overflow-hidden mb-2">
-                <div 
-                  className="h-full bg-text-primary transition-all duration-700" 
-                  style={{ width: `${personalProgress}%` }} 
-                />
-              </div>
-              <div className="text-xs font-mono text-text-secondary uppercase flex justify-between">
-                <span>Domain Progress</span>
-                <span className="font-bold text-text-primary">{personalProgress}%</span>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border-subtle text-xs font-mono text-text-secondary">
-              <span className="text-text-primary font-bold">{personalCompleted.length}</span> Quests Completed
+            <div className="space-y-4">
+              {attributes.map(attr => (
+                <div key={attr.name} className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between font-mono text-xs">
+                    <span className="font-bold text-text-secondary tracking-wider">{attr.name}</span>
+                    <span className="font-black text-text-primary">{attr.value} <span className="text-3xs text-text-muted font-normal">/ 100</span></span>
+                  </div>
+                  
+                  {/* Visual Meter */}
+                  <div className="w-full h-2 bg-bg-tertiary border border-border-strong relative overflow-hidden">
+                    <div 
+                      className={`h-full ${attr.color} transition-all duration-500`} 
+                      style={{ width: `${attr.value}%` }} 
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="mt-8 pt-4 border-t border-border-strong">
-            <div className="w-full py-3 px-4 bg-text-primary text-bg-primary font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 group-hover:bg-text-primary/90 transition-colors">
-              <span>ENTER PERSONAL</span>
-              <ArrowRight size={14} />
-            </div>
+          <div className="mt-8 pt-4 border-t border-border-subtle font-mono text-3xs text-text-muted flex items-center justify-between">
+            <span>TOTAL PROFICIENCY SCORE</span>
+            <span className="text-accent font-bold font-mono text-xs">
+              {Math.round(attributes.reduce((acc, a) => acc + a.value, 0) / attributes.length)} / 100
+            </span>
           </div>
-        </div>
+        </section>
+
+        {/* RIGHT COLUMN: ACTIVE CROSS-DOMAIN QUESTS */}
+        <section className="rpg-panel p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-border-strong font-mono">
+              <div className="flex items-center gap-2">
+                <Swords size={15} className="text-accent" />
+                <span className="label text-text-primary">ACTIVE QUESTS // CROSS-REALM TRIAGE</span>
+              </div>
+              <span className="text-3xs text-accent uppercase font-bold tracking-wider">
+                {activeQuests.length} AVAILABLE
+              </span>
+            </div>
+
+            {activeQuests.length > 0 ? (
+              <div className="space-y-3">
+                {activeQuests.map(quest => (
+                  <div 
+                    key={quest.id}
+                    onClick={() => handleEngageQuest(quest)}
+                    className="p-4 bg-bg-tertiary/60 border border-border-strong hover:border-accent cursor-pointer group transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-3xs font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 border border-border-strong text-text-muted bg-bg-secondary">
+                          {quest.domain}
+                        </span>
+                        <span className={`text-3xs font-mono uppercase tracking-wider px-1.5 py-0.5 border ${
+                          quest.rarity === 'LEGENDARY' ? 'text-[#E8B958] border-[#E8B958]/50 bg-[#E8B958]/10 font-bold' :
+                          quest.rarity === 'EPIC' ? 'text-accent border-accent/40 bg-accent/10 font-bold' :
+                          quest.rarity === 'RARE' ? 'text-[#5A8FC2] border-[#5A8FC2]/40 bg-[#5A8FC2]/10' :
+                          'text-text-muted border-border-subtle'
+                        }`}>
+                          {quest.rarity}
+                        </span>
+                        <span className="text-3xs font-mono text-crimson font-bold">
+                          {quest.difficulty}
+                        </span>
+                      </div>
+
+                      <div className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors truncate">
+                        {quest.title}
+                      </div>
+
+                      <div className="flex items-center gap-3 text-2xs font-mono text-text-muted">
+                        <span className="flex items-center gap-1 text-accent font-bold">
+                          +{quest.exp} XP
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1 text-text-secondary">
+                          <Zap size={11} className="text-accent" /> {quest.attributeText}
+                        </span>
+                        <span>•</span>
+                        <span>{quest.durationMins}m</span>
+                      </div>
+                    </div>
+
+                    <button 
+                      type="button"
+                      className="btn-secondary text-2xs py-2 px-4 shrink-0 group-hover:border-accent group-hover:text-accent font-mono"
+                    >
+                      <span>ENGAGE QUEST →</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state py-12">
+                <span className="text-sm font-bold text-text-primary uppercase tracking-wider mb-1">
+                  ALL ACTIVE QUESTS RESOLVED
+                </span>
+                <span className="text-xs text-text-secondary max-w-sm">
+                  Initialize new operations in Career, Health, or Personal to populate the tactical quest board.
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-border-subtle flex items-center justify-between font-mono text-2xs text-text-muted">
+            <span>SELECT ANY QUEST TO LAUNCH ITS REALM CONSOLE</span>
+            <span className="text-accent font-bold">DISPATCH READY</span>
+          </div>
+        </section>
 
       </div>
 
-      {/* 4. UNDERSTATED JARVIS TRANSMISSION */}
-      <div className="bg-bg-secondary border-2 border-text-primary p-6 shadow-[4px_4px_0_0_var(--color-text-primary)]">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles size={14} className="text-accent" />
-          <span className="text-2xs font-mono font-bold uppercase tracking-widest text-text-primary">
-            JARVIS TRANSMISSION
-          </span>
-        </div>
-        <p className="text-xs font-mono text-text-secondary leading-relaxed">
-          {advisorAdvice || `All three domains active. Life equilibrium at index ${equilibrium.harmonyIndex}/100. Maintain continuous daily momentum across Career, Health and Personal.`}
-        </p>
-      </div>
-
-      {/* 5. RECENT PROGRESSION TICKER */}
-      {recentActivities.length > 0 && (
-        <div className="border border-border-strong bg-bg-secondary p-4 flex flex-col gap-3">
-          <div className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted flex items-center gap-2">
-            <CheckCircle2 size={12} className="text-success" />
-            <span>Recent Progression</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {recentActivities.map(item => (
-              <div key={item.id} className="border border-border-subtle p-2.5 bg-bg-primary text-xs font-mono flex flex-col gap-1">
-                <div className="flex items-center justify-between text-2xs text-text-muted uppercase">
-                  <span className={item.domain === 'Health' ? 'text-success font-bold' : item.domain === 'Career' ? 'text-accent font-bold' : 'text-text-primary font-bold'}>
-                    {item.domain}
-                  </span>
-                  <span>+{item.exp} XP</span>
-                </div>
-                <div className="font-bold text-text-primary truncate">
-                  {item.title}
-                </div>
+      {/* 4. JARVIS TRANSMISSION */}
+      {advisorAdvice && (
+        <section className="rpg-panel border-l-4 border-l-accent p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
+          <div className="flex items-start gap-4">
+            <div className="w-9 h-9 border border-accent/40 bg-accent/10 flex items-center justify-center shrink-0 text-accent">
+              <Bot size={18} />
+            </div>
+            <div>
+              <div className="text-2xs font-bold uppercase tracking-widest text-accent mb-1">
+                JARVIS TRANSMISSION // TACTICAL ADVISORY
               </div>
-            ))}
+              <p className="text-xs text-text-secondary font-serif italic text-sm leading-relaxed max-w-3xl">
+                "{advisorAdvice}"
+              </p>
+            </div>
           </div>
-        </div>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-secondary text-3xs py-1.5 px-3 self-start sm:self-auto shrink-0 font-mono"
+          >
+            EXECUTE TRIAGE →
+          </button>
+        </section>
       )}
 
     </div>

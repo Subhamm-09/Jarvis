@@ -200,77 +200,117 @@ export function PersonalDashboardPage() {
           />
 
           {/* Growth Pillars */}
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Growth Pillars</h2>
-            <div className="flex flex-col gap-2 pt-2">
+          <section className="bg-bg-secondary border border-border-strong p-5">
+            <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-3">
+              <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span>GROWTH ATTRIBUTES</span>
+              </h2>
+              <span className="text-3xs font-mono text-text-muted">MASTERY</span>
+            </div>
+            <div className="flex flex-col gap-2 pt-1">
               {[
                 { id: 'intellect', name: 'Knowledge', key: 'INT', val: attributes.INT },
-                { id: 'mindfulness', name: 'Mindfulness', key: 'WIL', val: attributes.WIL },
-                { id: 'creativity', name: 'Creative', key: 'CRT', val: attributes.CRT },
-                { id: 'relationships', name: 'Relationships', key: 'CHA', val: attributes.CHA },
-                { id: 'finance', name: 'Finance', key: 'RES', val: attributes.RES },
+                { id: 'mindfulness', name: 'Willpower', key: 'WIL', val: attributes.WIL },
+                { id: 'creativity', name: 'Creativity', key: 'CRT', val: attributes.CRT },
+                { id: 'relationships', name: 'Charisma', key: 'CHA', val: attributes.CHA },
+                { id: 'finance', name: 'Resilience', key: 'RES', val: attributes.RES },
               ].map(p => (
                 <div 
                   key={p.id}
-                  className="flex items-center justify-between py-1 hover:opacity-80 transition-opacity"
+                  className="flex flex-col gap-1 py-1 px-2 rounded-xs bg-bg-primary/40 border border-border-subtle hover:border-border-strong transition-colors"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-1 h-3 bg-text-primary" />
-                    <span className="text-sm font-semibold">{p.name}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold tracking-wide text-text-primary">{p.name} ({p.key})</span>
+                    <span className={`font-mono text-xs font-bold ${p.val >= 80 ? 'text-rpg-gold' : 'text-text-secondary'}`}>
+                      {p.val} / 100
+                    </span>
                   </div>
-                  <span className="text-xs font-mono text-text-secondary">{p.val} / 100</span>
+                  <div className="h-1 bg-bg-primary w-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-700 ${p.val >= 80 ? 'bg-rpg-gold' : 'bg-rpg-rare'}`}
+                      style={{ width: `${Math.min(100, p.val)}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
           </section>
 
           {/* Tactical Summary */}
-          <section>
-            <h2 className="label mb-4 border-b border-border-strong pb-2">Tactical Summary</h2>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-2">
+          <section className="bg-bg-secondary border border-border-strong p-5">
+            <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-4">
+              <h2 className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span>TACTICAL SUMMARY</span>
+              </h2>
+              <span className="text-3xs font-mono text-text-muted">PERSONAL</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-1">
               {[
-                { value: pendingTasks.length.toString(), label: 'Pending' },
-                { value: personalStreak.toString() + 'D', label: 'Streak' },
-                { value: completedTasks.length.toString(), label: 'Completed' },
-                { value: totalPersonalExp.toLocaleString(), label: 'Total EXP' },
+                { value: pendingTasks.length.toString(), label: 'Active Quests', color: 'text-text-primary' },
+                { value: personalStreak.toString() + 'D', label: 'Cadence Streak', color: 'text-rpg-gold' },
+                { value: completedTasks.length.toString(), label: 'Completed', color: 'text-rpg-green' },
+                { value: totalPersonalExp.toLocaleString(), label: 'Personal EXP', color: 'text-rpg-gold' },
               ].map(stat => (
-                <div key={stat.label} className="flex flex-col">
-                  <span className="text-2xl font-black font-mono leading-none tracking-tight">{stat.value}</span>
-                  <span className="text-xs text-text-secondary mt-1 uppercase tracking-wider">{stat.label}</span>
+                <div key={stat.label} className="flex flex-col bg-bg-primary/50 p-3 border border-border-subtle">
+                  <span className={`text-xl font-black font-mono leading-none tracking-tight ${stat.color}`}>{stat.value}</span>
+                  <span className="text-3xs text-text-secondary mt-1.5 uppercase tracking-wider font-mono">{stat.label}</span>
                 </div>
               ))}
             </div>
           </section>
 
           {/* S-Tier Polymath Gate Clearance */}
-          <section className="panel p-4 border border-border-strong bg-bg-secondary">
+          <section className="bg-bg-secondary border border-border-strong p-5 relative overflow-hidden group hover:border-rpg-gold/40 transition-colors">
             <div className="flex items-center justify-between mb-3 border-b border-border-subtle pb-2">
-              <span className="label text-text-primary flex items-center gap-1.5">
-                <Trophy size={13} className="text-accent" />
-                <span>S-Tier Gate</span>
+              <span className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
+                <Trophy size={13} className="text-rpg-gold" />
+                <span>POLYMATH SOVEREIGN GATE</span>
               </span>
-              <span className="text-xs font-mono font-bold text-accent">
+              <span className="text-xs font-mono font-bold text-rpg-gold">
                 {sTierProgressOverall}%
               </span>
             </div>
-            <div className="flex flex-col gap-2 text-2xs font-mono text-text-secondary">
+
+            {/* Dynamic Status Banner */}
+            {personalRank.rank === 'S' && (
+              <div className="bg-rpg-gold/15 text-rpg-gold p-2.5 text-3xs font-mono font-bold uppercase mb-3 flex items-center justify-between border border-rpg-gold/40 shadow-[0_0_8px_rgba(216,168,78,0.2)]">
+                <span className="font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rpg-gold animate-pulse" />
+                  POLYMATH SOVEREIGN (S-TIER)
+                </span>
+                <span>CLEARED</span>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 text-3xs font-mono text-text-secondary pt-1">
               <div className="flex justify-between">
                 <span>Books Read ({sGate.totalSynthesizedBooks}/{sGate.requiredBooks})</span>
-                <span className={sGate.totalSynthesizedBooks >= sGate.requiredBooks ? 'text-success font-bold' : ''}>
+                <span className={sGate.totalSynthesizedBooks >= sGate.requiredBooks ? 'text-rpg-green font-bold' : 'text-text-primary'}>
                   {sTierBooksPct}%
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Mindfulness ({sGate.meditationHours}/{sGate.requiredMeditationHours}h)</span>
-                <span className={sGate.meditationHours >= sGate.requiredMeditationHours ? 'text-success font-bold' : ''}>
+                <span className={sGate.meditationHours >= sGate.requiredMeditationHours ? 'text-rpg-green font-bold' : 'text-text-primary'}>
                   {sTierMeditationPct}%
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Balanced Attributes</span>
-                <span className={allAttrsBalanced ? 'text-success font-bold' : ''}>
-                  {allAttrsBalanced ? 'CLEARED' : 'PENDING'}
+                <span className={allAttrsBalanced ? 'text-rpg-green font-bold' : 'text-text-primary'}>
+                  {allAttrsBalanced ? 'CLEARED ✓' : 'PENDING'}
                 </span>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-2 border-t border-border-subtle">
+              <div className="h-1 bg-bg-primary w-full overflow-hidden">
+                <div 
+                  className="h-full bg-rpg-gold transition-all duration-700"
+                  style={{ width: `${sTierProgressOverall}%` }}
+                />
               </div>
             </div>
           </section>
@@ -281,11 +321,15 @@ export function PersonalDashboardPage() {
         <div className="flex flex-col gap-10">
           
           {/* Header */}
-          <header className="flex items-end justify-between border-b-2 border-text-primary pb-4">
+          <header className="flex items-end justify-between border-b-2 border-border-strong pb-4">
             <div>
-              <h1 className="text-4xl font-black tracking-tight uppercase leading-none">Today</h1>
-              <div className="text-sm text-text-secondary mt-2 font-mono">
-                Personal Mastery // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
+                <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">PERSONAL PROTOCOL // MASTERY MATRIX</span>
+              </div>
+              <h1 className="text-4xl font-black tracking-tight uppercase leading-none font-cinzel text-text-primary">Personal Quests</h1>
+              <div className="text-xs text-text-secondary mt-2 font-mono">
+                MASTERY CYCLE // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
               </div>
             </div>
             <button 
@@ -298,25 +342,25 @@ export function PersonalDashboardPage() {
 
           {/* Highest Priority Quest */}
           <section>
-            <h2 className="label mb-4">Highest Priority</h2>
+            <h2 className="label mb-4">Highest Priority Protocol</h2>
             {topPriority ? (
-              <div className="panel p-6 border-l-2 border-l-accent flex flex-col justify-between gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="label text-accent font-semibold flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                    <span>Top Priority &bull; {topPriority.pillar.toUpperCase()}</span>
+              <div className="relative overflow-hidden bg-bg-secondary border-2 border-rpg-gold/40 p-6 flex flex-col justify-between gap-5 group hover:border-rpg-gold transition-colors shadow-sm">
+                <div className="flex items-center justify-between border-b border-border-subtle pb-3">
+                  <div className="label text-rpg-gold font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rpg-gold animate-pulse" />
+                    <span>PRIME QUEST &bull; {topPriority.pillar.toUpperCase()}</span>
                   </div>
-                  <div className="text-xs font-mono font-bold text-accent">
+                  <div className="text-xs font-mono font-bold text-rpg-gold px-2.5 py-0.5 bg-rpg-gold/15 border border-rpg-gold/30">
                     +{getPersonalExpOnTask(topPriority.metadata?.difficulty || 'medium')} PERSONAL XP
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-text-primary tracking-tight">
+                  <h3 className="text-xl font-bold text-text-primary tracking-tight font-cinzel">
                     {topPriority.title}
                   </h3>
                   <div className="text-xs font-mono text-text-secondary mt-2 flex flex-wrap items-center gap-3">
-                    <span>{topPriority.effort_estimate_mins} MIN</span>
+                    <span className="px-2 py-0.5 bg-bg-tertiary border border-border-subtle">{topPriority.effort_estimate_mins} MIN</span>
                     {topPriority.metadata?.book_title && (
                       <span>&bull; BOOK: {topPriority.metadata.book_title}</span>
                     )}
@@ -336,22 +380,22 @@ export function PersonalDashboardPage() {
                 </div>
 
                 <div className="pt-3 border-t border-border-subtle flex items-center justify-between">
-                  <span className="text-2xs font-mono text-text-muted uppercase tracking-wider">
+                  <span className="text-3xs font-mono text-rpg-gold uppercase tracking-wider font-bold">
                     DIFFICULTY: {(topPriority.metadata?.difficulty || 'medium').toUpperCase()}
                   </span>
                   <button
                     onClick={() => handleCompleteTask(topPriority.id, topPriority.pillar, topPriority.metadata?.difficulty || 'medium')}
-                    className="btn-primary py-2 px-4 text-xs flex items-center gap-1.5 !bg-accent hover:!bg-accent-hover text-white border-none"
+                    className="btn-primary py-2 px-5 text-xs flex items-center gap-1.5"
                   >
-                    <Check size={14} /> Complete Quest
+                    <Check size={14} /> Execute Quest
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="panel p-6 border-l-2 border-l-accent">
-                <div className="empty-state py-8">
-                  <div className="text-sm font-semibold mb-1 text-text-primary">No Active Quests</div>
-                  <div className="text-xs text-text-secondary mb-4 font-mono">Queue is clear. Initialize a personal quest to begin.</div>
+              <div className="bg-bg-secondary border border-border-strong p-6">
+                <div className="empty-state py-8 text-center">
+                  <div className="text-sm font-semibold mb-1 text-text-primary font-cinzel">All Personal Quests Cleared</div>
+                  <div className="text-xs text-text-secondary mb-4 font-mono">Queue is clear. Initialize a personal quest to expand knowledge.</div>
                   <button onClick={() => setIsNewTaskModalOpen(true)} className="btn-primary">
                     Initialize Quest
                   </button>
@@ -363,16 +407,16 @@ export function PersonalDashboardPage() {
           {/* Operation Queue */}
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-border-strong pb-2 gap-3">
-              <h2 className="label">Operation Queue</h2>
+              <h2 className="label">Quest Queue</h2>
               
               {/* Filter pills */}
               <div className="flex flex-wrap gap-1">
                 <button
                   onClick={() => setActiveTabPillar('all')}
-                  className={`px-2.5 py-1 text-2xs font-mono font-bold uppercase tracking-wider border transition-colors ${
+                  className={`px-2.5 py-1 text-3xs font-mono font-bold uppercase tracking-wider border transition-colors ${
                     activeTabPillar === 'all'
-                      ? 'bg-text-primary text-bg-primary border-text-primary'
-                      : 'bg-bg-secondary text-text-secondary border-border-subtle hover:border-text-primary'
+                      ? 'bg-rpg-gold text-bg-primary border-rpg-gold font-black'
+                      : 'bg-bg-secondary text-text-secondary border-border-subtle hover:border-rpg-gold/40'
                   }`}
                 >
                   All ({tasks.filter(t => t.status !== 'done').length})
@@ -381,10 +425,10 @@ export function PersonalDashboardPage() {
                   <button
                     key={p.id}
                     onClick={() => setActiveTabPillar(p.id)}
-                    className={`px-2 py-1 text-2xs font-mono font-bold uppercase tracking-wider border transition-colors ${
+                    className={`px-2 py-1 text-3xs font-mono font-bold uppercase tracking-wider border transition-colors ${
                       activeTabPillar === p.id
-                        ? 'bg-text-primary text-bg-primary border-text-primary'
-                        : 'bg-bg-secondary text-text-secondary border-border-subtle hover:border-text-primary'
+                        ? 'bg-rpg-gold text-bg-primary border-rpg-gold font-black'
+                        : 'bg-bg-secondary text-text-secondary border-border-subtle hover:border-rpg-gold/40'
                     }`}
                   >
                     {p.name.split(' ')[0]}

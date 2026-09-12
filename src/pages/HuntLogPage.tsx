@@ -386,19 +386,19 @@ export function HuntLogPage() {
       </button>
 
       {/* Main Header & Branding */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b-2 border-text-primary pb-6 gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b-2 border-border-strong pb-6 gap-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <span className="w-2.5 h-2.5 bg-accent" />
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-text-secondary">
-              SYSTEM CONQUEST AUDIT // ALL DOMAINS
+            <span className="w-2 h-2 bg-rpg-gold rounded-xs shadow-[0_0_8px_rgba(216,168,78,0.5)]" />
+            <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">
+              SYSTEM CONQUEST AUDIT // ALL REALMS
             </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-text-primary leading-none">
+          <h1 className="text-4xl sm:text-5xl font-black font-cinzel uppercase tracking-tight text-text-primary leading-none">
             Hunt Log
           </h1>
-          <div className="text-sm font-mono text-text-secondary mt-2">
-            Chronological combat logs, protocol executions, and EXP records across your entire life.
+          <div className="text-xs font-mono text-text-secondary mt-2">
+            CHRONOLOGICAL CONQUEST RECORDS, PROTOCOL EXECUTIONS, AND VERIFIED EXP ARCHIVES
           </div>
         </div>
 
@@ -407,24 +407,24 @@ export function HuntLogPage() {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="btn-secondary text-xs font-mono uppercase tracking-widest flex items-center gap-2 px-3 py-2 border border-border-strong hover:bg-bg-tertiary transition-colors disabled:opacity-50 shrink-0"
+            className="btn-secondary text-xs font-mono uppercase tracking-widest flex items-center gap-2 px-3.5 py-2 border border-border-strong hover:border-rpg-gold/40 hover:text-rpg-gold transition-colors disabled:opacity-50 shrink-0"
             title="Export all operator tasks, EXP logs, and records as JSON backup"
           >
             <Download size={13} className={isExporting ? 'animate-bounce' : ''} />
-            <span>{isExporting ? 'Exporting...' : 'Export Backup'}</span>
+            <span>{isExporting ? 'Exporting...' : 'Export Archives'}</span>
           </button>
 
           {/* Quick Search */}
           <div className="relative w-full md:w-64">
             <input
               type="text"
-              placeholder="Search operations..."
+              placeholder="Search conquests..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setPage(0);
               }}
-              className="w-full bg-bg-secondary border border-border-strong px-3 py-2 pl-9 text-xs font-mono text-text-primary focus:border-text-primary focus:outline-none transition-colors"
+              className="w-full bg-bg-secondary border border-border-strong px-3 py-2 pl-9 text-xs font-mono text-text-primary focus:border-rpg-gold focus:outline-none transition-colors"
             />
             <Search size={14} className="absolute left-3 top-2.5 text-text-muted" />
             {searchQuery && (
@@ -446,13 +446,13 @@ export function HuntLogPage() {
             onClick={() => handleDomainChange('all')}
             className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
               domainFilter === 'all'
-                ? 'bg-text-primary text-bg-primary shadow-sm'
+                ? 'bg-rpg-gold text-bg-primary font-black shadow-xs'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
             }`}
           >
             <Layers size={13} />
-            <span>All Domains</span>
-            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'all' ? 'bg-bg-primary text-text-primary' : 'bg-bg-tertiary text-text-muted'}`}>
+            <span>All Realms</span>
+            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'all' ? 'bg-bg-primary/20 text-bg-primary' : 'bg-bg-tertiary text-text-muted'}`}>
               {totalCount}
             </span>
           </button>
@@ -461,13 +461,13 @@ export function HuntLogPage() {
             onClick={() => handleDomainChange('career')}
             className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
               domainFilter === 'career'
-                ? 'bg-text-primary text-bg-primary shadow-sm'
+                ? 'bg-rpg-gold text-bg-primary font-black shadow-xs'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
             }`}
           >
-            <Terminal size={13} className={domainFilter === 'career' ? 'text-accent' : ''} />
+            <Terminal size={13} />
             <span>Career</span>
-            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'career' ? 'bg-bg-primary text-text-primary' : 'bg-bg-tertiary text-text-muted'}`}>
+            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'career' ? 'bg-bg-primary/20 text-bg-primary' : 'bg-bg-tertiary text-text-muted'}`}>
               {careerCount}
             </span>
           </button>
@@ -476,13 +476,13 @@ export function HuntLogPage() {
             onClick={() => handleDomainChange('health')}
             className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
               domainFilter === 'health'
-                ? 'bg-text-primary text-bg-primary shadow-sm'
+                ? 'bg-rpg-gold text-bg-primary font-black shadow-xs'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
             }`}
           >
-            <HeartPulse size={13} className={domainFilter === 'health' ? 'text-emerald-400' : ''} />
+            <HeartPulse size={13} />
             <span>Health</span>
-            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'health' ? 'bg-bg-primary text-text-primary' : 'bg-bg-tertiary text-text-muted'}`}>
+            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'health' ? 'bg-bg-primary/20 text-bg-primary' : 'bg-bg-tertiary text-text-muted'}`}>
               {healthCount}
             </span>
           </button>
@@ -491,13 +491,13 @@ export function HuntLogPage() {
             onClick={() => handleDomainChange('personal')}
             className={`px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
               domainFilter === 'personal'
-                ? 'bg-text-primary text-bg-primary shadow-sm'
+                ? 'bg-rpg-gold text-bg-primary font-black shadow-xs'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
             }`}
           >
-            <Brain size={13} className={domainFilter === 'personal' ? 'text-purple-400' : ''} />
+            <Brain size={13} />
             <span>Personal</span>
-            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'personal' ? 'bg-bg-primary text-text-primary' : 'bg-bg-tertiary text-text-muted'}`}>
+            <span className={`text-2xs px-1.5 py-0.2 font-mono ${domainFilter === 'personal' ? 'bg-bg-primary/20 text-bg-primary' : 'bg-bg-tertiary text-text-muted'}`}>
               {personalCount}
             </span>
           </button>
@@ -618,20 +618,20 @@ export function HuntLogPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 bg-bg-secondary border border-border-strong p-4">
         <div>
           <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">EXP Captured</span>
-          <span className="text-xl font-mono font-bold text-accent">+{totalExp.toLocaleString()} XP</span>
+          <span className="text-xl font-mono font-bold text-rpg-gold">+{totalExp.toLocaleString()} XP</span>
         </div>
         <div className="border-l border-border-subtle pl-4">
-          <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">Operations Logged</span>
+          <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">Conquests Logged</span>
           <span className="text-xl font-mono font-bold text-text-primary">{filteredLogs.length}</span>
         </div>
         <div className="border-l border-border-subtle pl-4">
           <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">Active Scope</span>
-          <span className="text-sm font-mono font-bold uppercase text-text-primary mt-1 block truncate">
-            {domainFilter === 'all' ? 'All Life Domains' : domainFilter}
+          <span className="text-sm font-mono font-bold uppercase text-rpg-gold mt-1 block truncate">
+            {domainFilter === 'all' ? 'All Life Realms' : domainFilter.toUpperCase()}
           </span>
         </div>
         <div className="border-l border-border-subtle pl-4">
-          <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">Avg EXP / Op</span>
+          <span className="text-3xs font-mono uppercase tracking-widest text-text-muted block">Avg EXP / Quest</span>
           <span className="text-xl font-mono font-bold text-text-secondary">{avgExp} XP</span>
         </div>
       </div>
@@ -716,8 +716,8 @@ export function HuntLogPage() {
                 </div>
 
                 {/* XP */}
-                <div className="text-right text-sm font-mono font-black text-text-primary">
-                  +{entry.exp}
+                <div className="text-right text-sm font-mono font-bold text-rpg-gold">
+                  +{entry.exp} XP
                 </div>
               </div>
             );
