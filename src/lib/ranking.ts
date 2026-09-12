@@ -258,13 +258,13 @@ export const general = {
 // 7. PLACEMENT READINESS
 // ---------------------------------------------------------
 export const placement = {
-  getPlacementReadinessScore: (scores: { leetcode: number, projects: number, learning: number, coursework: number, hackathon: number }): number => {
+  getPlacementReadinessScore: (scores: Partial<{ leetcode: number, projects: number, learning: number, coursework: number, hackathon: number }> | Record<string, number>): number => {
     const raw = 
-      (scores.leetcode * 0.30) +
-      (scores.projects * 0.25) +
-      (scores.learning * 0.20) +
-      (scores.coursework * 0.15) +
-      (scores.hackathon * 0.10);
+      ((scores.leetcode || 0) * 0.30) +
+      ((scores.projects || 0) * 0.25) +
+      ((scores.learning || 0) * 0.20) +
+      ((scores.coursework || 0) * 0.15) +
+      ((scores.hackathon || 0) * 0.10);
     
     // Scale is 0-1000 internally. Convert back to 0-100 for display
     return Math.floor(raw / 10);

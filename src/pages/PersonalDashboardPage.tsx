@@ -10,6 +10,7 @@ import {
   checkPersonalSGate,
   getPersonalRank
 } from '../lib/personalRanking';
+import { calculateCalendarStreak, calculateWeeklyActivity } from '../lib/domainTelemetry';
 import { RankCard } from '../components/dashboard/RankCard';
 import { ActivityGrid } from '../components/dashboard/ActivityGrid';
 import { TactileLevelUpModal } from '../components/shared/TactileLevelUpModal';
@@ -73,54 +74,8 @@ export function PersonalDashboardPage() {
   const sGate = checkPersonalSGate(attributes, completedTasks);
   const personalRank = getPersonalRank(attributes, sGate.isSReady);
 
-  const calcStreak = (dateStrings: string[]): number => {
-    const distinctDates = Array.from(new Set(
-      dateStrings.map(ds => {
-        const d = new Date(ds);
-        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      })
-    ));
-
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-    const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
-
-    let checkDate = today;
-    let checkDateStr = todayStr;
-    let streak = 0;
-    
-    if (!distinctDates.includes(todayStr) && distinctDates.includes(yesterdayStr)) {
-      checkDate = yesterday;
-      checkDateStr = yesterdayStr;
-    }
-
-    while (distinctDates.includes(checkDateStr)) {
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-      checkDateStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
-    }
-    return streak;
-  };
-
-  const personalStreak = calcStreak(expLogs.map(l => l.awarded_at));
-
-  // Compute 7-day Activity Grid data for this week (Mon-Sun)
-  const now = new Date();
-  const day = now.getUTCDay();
-  const diff = now.getUTCDate() - day + (day === 0 ? -6 : 1);
-  const startOfWeek = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), diff, 0, 0, 0, 0));
-
-  const recentThisWeek = expLogs.filter(l => new Date(l.awarded_at) >= startOfWeek);
-  const activityData = [0, 0, 0, 0, 0, 0, 0];
-  recentThisWeek.forEach(l => {
-    const d = new Date(l.awarded_at);
-    const dow = d.getUTCDay();
-    const idx = dow === 0 ? 6 : dow - 1; // 0=Mon, 6=Sun
-    activityData[idx] = Math.min(4, activityData[idx] + 1);
-  });
+  const personalStreak = calculateCalendarStreak(expLogs.map(l => l.awarded_at));
+  const activityData = calculateWeeklyActivity(expLogs.map(l => l.awarded_at));
 
   const handleCreateTask = async (data: {
     title: string;

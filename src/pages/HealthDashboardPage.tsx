@@ -11,6 +11,7 @@ import {
   getHealthRank,
   calculateCalendarStreak
 } from '../lib/healthRanking';
+import { calculateWeeklyActivity } from '../lib/domainTelemetry';
 import { RankCard } from '../components/dashboard/RankCard';
 import { ActivityGrid } from '../components/dashboard/ActivityGrid';
 import { TactileLevelUpModal } from '../components/shared/TactileLevelUpModal';
@@ -83,20 +84,8 @@ export function HealthDashboardPage() {
   const sGate = checkHealthSGate(attributes, completedTasks, healthStreak, recent7DayCount);
   const healthRank = getHealthRank(attributes, sGate.isSReady);
 
-  // Compute 7-day Activity Grid data for this week (Mon-Sun)
-  const now = new Date();
-  const day = now.getUTCDay();
-  const diff = now.getUTCDate() - day + (day === 0 ? -6 : 1);
-  const startOfWeek = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), diff, 0, 0, 0, 0));
-
-  const recentThisWeek = expLogs.filter(l => new Date(l.awarded_at) >= startOfWeek);
-  const activityData = [0, 0, 0, 0, 0, 0, 0];
-  recentThisWeek.forEach(l => {
-    const d = new Date(l.awarded_at);
-    const dow = d.getUTCDay();
-    const idx = dow === 0 ? 6 : dow - 1; // 0=Mon, 6=Sun
-    activityData[idx] = Math.min(4, activityData[idx] + 1);
-  });
+  // Compute 7-day Activity Grid data for this week (Mon-Sun in local time)
+  const activityData = calculateWeeklyActivity(expLogs.map(l => l.awarded_at));
 
   const handleCreateTask = async (data: {
     title: string;

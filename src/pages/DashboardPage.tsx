@@ -32,6 +32,7 @@ import { HackathonTrackerPanel } from '../components/dashboard/HackathonTrackerP
 import { ProjectTrackerPanel } from '../components/dashboard/ProjectTrackerPanel';
 import { projects as rankingProjects, leetcode as rankingLeetcode, getCareerLevel } from '../lib/ranking';
 import { triggerTactileFeedback, resolveTaskAttribute } from '../lib/tactileFeedback';
+import { calculateWeeklyActivity, getStartOfCurrentWeek } from '../lib/domainTelemetry';
 
 const ALL_DOMAINS = [
   { id: 'leetcode', name: 'LeetCode', color: 'bg-rust' },
@@ -123,12 +124,8 @@ export function DashboardPage() {
       
       setCompletedCount(count || 0);
 
-      // 3. Fetch completed tasks this week for ActivityGrid
-      const now = new Date();
-      const day = now.getUTCDay();
-      const diff = now.getUTCDate() - day + (day === 0 ? -6 : 1); // Monday is start
-      const startOfWeek = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), diff, 0, 0, 0, 0));
-
+      // 3. Fetch completed tasks this week for ActivityGrid (in local calendar time)
+      const startOfWeek = getStartOfCurrentWeek();
       const { data: recentCompleted } = await supabase
         .from('tasks')
         .select('updated_at')
@@ -137,19 +134,7 @@ export function DashboardPage() {
         .gte('updated_at', startOfWeek.toISOString());
 
       if (recentCompleted) {
-        const gridData = [0, 0, 0, 0, 0, 0, 0];
-        recentCompleted.forEach(t => {
-          if (!t.updated_at) return;
-          const date = new Date(t.updated_at);
-          let dayIndex = date.getUTCDay() - 1; // 1 (Mon) -> 0
-          if (dayIndex === -1) dayIndex = 6; // 0 (Sun) -> 6
-          if (dayIndex >= 0 && dayIndex <= 6) {
-              gridData[dayIndex]++;
-          }
-        });
-        
-        const mappedActivity = gridData.map(c => c === 0 ? 0 : c === 1 ? 1 : c === 2 ? 2 : c === 3 ? 3 : 4);
-        setActivityData(mappedActivity);
+        setActivityData(calculateWeeklyActivity(recentCompleted.map(t => t.updated_at)));
       }
 
       // 4. Fetch recent completions for Dashboard
@@ -445,10 +430,10 @@ export function DashboardPage() {
     setTotalExp(prev => prev + estimatedExp);
     setCompletedCount(prev => prev + 1);
 
-    // Light up today's activity grid cell immediately
+    // Light up today's activity grid cell immediately (in local calendar time)
     const today = new Date();
-    let todayIndex = today.getUTCDay() - 1;
-    if (todayIndex === -1) todayIndex = 6;
+    const todayDay = today.getDay();
+    const todayIndex = todayDay === 0 ? 6 : todayDay - 1;
     setActivityData(prev => {
       const next = [...prev];
       if (todayIndex >= 0 && todayIndex < next.length) {

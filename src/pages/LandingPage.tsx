@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Activity, Shield, Target, Terminal } from 'lucide-react';
 
-export function LandingPage() {
+interface LandingPageProps {
+  isAuthenticated?: boolean;
+}
+
+export function LandingPage({ isAuthenticated }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary overflow-hidden flex flex-col relative font-sans">
 
@@ -24,9 +28,12 @@ export function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link to="/dashboard" className="btn-primary text-xl px-12 py-5 uppercase tracking-widest font-bold">
+            <Link 
+              to={isAuthenticated ? "/life" : "/auth"} 
+              className="btn-primary text-xl px-12 py-5 uppercase tracking-widest font-bold"
+            >
               <span className="flex items-center gap-3">
-                <Terminal size={24} /> Access Console
+                <Terminal size={24} /> {isAuthenticated ? 'Open Command Center' : 'Access Console'}
               </span>
             </Link>
           </div>

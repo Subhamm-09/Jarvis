@@ -1,10 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Terminal, Activity, Target, Folder, Layers, HeartPulse, Brain, Menu, X } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { useState, useEffect } from 'react';
+import { calculateCalendarStreak } from '../../lib/domainTelemetry';
 
 export function NavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Career telemetry
@@ -32,7 +34,7 @@ export function NavBar() {
         .order('awarded_at', { ascending: false });
 
       if (cExpData && cExpData.length > 0) {
-        setCareerStreak(calcStreakFromDates(cExpData.map(l => l.awarded_at)));
+        setCareerStreak(calculateCalendarStreak(cExpData.map(l => l.awarded_at)));
       }
 
       const { data: cStatsData } = await supabase
@@ -59,7 +61,7 @@ export function NavBar() {
         .order('awarded_at', { ascending: false });
 
       if (hExpData && hExpData.length > 0) {
-        setHealthStreak(calcStreakFromDates(hExpData.map(l => l.awarded_at)));
+        setHealthStreak(calculateCalendarStreak(hExpData.map(l => l.awarded_at)));
       }
 
       const { data: hStatsData } = await supabase
@@ -86,7 +88,7 @@ export function NavBar() {
         .order('awarded_at', { ascending: false });
 
       if (pExpData && pExpData.length > 0) {
-        setPersonalStreak(calcStreakFromDates(pExpData.map(l => l.awarded_at)));
+        setPersonalStreak(calculateCalendarStreak(pExpData.map(l => l.awarded_at)));
       }
 
       const { data: pStatsData } = await supabase
@@ -108,38 +110,6 @@ export function NavBar() {
     } catch (err) {
       console.error('NavBar fetch error:', err);
     }
-  };
-
-  const calcStreakFromDates = (dateStrings: string[]): number => {
-    const distinctDates = Array.from(new Set(
-      dateStrings.map(ds => {
-        const d = new Date(ds);
-        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      })
-    ));
-
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-    const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
-
-    let checkDate = today;
-    let checkDateStr = todayStr;
-    let streak = 0;
-    
-    if (!distinctDates.includes(todayStr) && distinctDates.includes(yesterdayStr)) {
-      checkDate = yesterday;
-      checkDateStr = yesterdayStr;
-    }
-
-    while (distinctDates.includes(checkDateStr)) {
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-      checkDateStr = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
-    }
-    return streak;
   };
 
   useEffect(() => {
@@ -185,21 +155,25 @@ export function NavBar() {
   }, [mobileMenuOpen]);
 
   const path = location.pathname;
+  const searchParams = new URLSearchParams(location.search);
+  const queryDomain = searchParams.get('domain');
+
+  const isHuntLog = path === '/hunt-log';
 
   // Detect Active Top Domain
-  const isLifeDomain = path === '/life' || path === '/life-map' || path === '/';
-  const isHealthDomain = path.startsWith('/health');
-  const isPersonalDomain = path.startsWith('/personal');
+  const isHealthDomain = path.startsWith('/health') || (isHuntLog && queryDomain === 'health');
+  const isPersonalDomain = path.startsWith('/personal') || (isHuntLog && queryDomain === 'personal');
+  const isLifeDomain = (path === '/life' || path === '/life-map' || path === '/') || (isHuntLog && (queryDomain === 'all' || queryDomain === 'life'));
   const isCareerDomain = !isLifeDomain && !isHealthDomain && !isPersonalDomain;
 
   // Career Sub-routes
   const isDashboard = path === '/dashboard';
   const isStatus = path === '/status';
-  const isHuntLog = path === '/hunt-log';
   const isCollections = path.startsWith('/collections');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    navigate('/landing');
   };
 
   // Top Domain Switcher Tabs
@@ -214,28 +188,31 @@ export function NavBar() {
   let currentSubLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: Terminal, active: isDashboard },
     { name: 'Status Report', path: '/status', icon: Activity, active: isStatus },
-    { name: 'Hunt Log', path: '/hunt-log', icon: Target, active: isHuntLog },
+    { name: 'Hunt Log', path: '/hunt-log?domain=career', icon: Target, active: isHuntLog && queryDomain === 'career' },
     { name: 'Collections', path: '/collections', icon: Folder, active: isCollections },
   ];
 
   if (isLifeDomain) {
     currentSubLinks = [
-      { name: 'Life Map', path: '/life', icon: Layers, active: isLifeDomain },
+      { name: 'Life Map', path: '/life', icon: Layers, active: !isHuntLog },
+      { name: 'Unified Log', path: '/hunt-log?domain=all', icon: Target, active: isHuntLog && (!queryDomain || queryDomain === 'all' || queryDomain === 'life') },
     ];
   } else if (isHealthDomain) {
     currentSubLinks = [
-      { name: 'Health Protocols', path: '/health', icon: HeartPulse, active: isHealthDomain },
+      { name: 'Health Protocols', path: '/health', icon: HeartPulse, active: !isHuntLog },
+      { name: 'Protocol Log', path: '/hunt-log?domain=health', icon: Target, active: isHuntLog && queryDomain === 'health' },
     ];
   } else if (isPersonalDomain) {
     currentSubLinks = [
-      { name: 'Personal Mastery', path: '/personal', icon: Brain, active: isPersonalDomain },
+      { name: 'Personal Mastery', path: '/personal', icon: Brain, active: !isHuntLog },
+      { name: 'Mastery Log', path: '/hunt-log?domain=personal', icon: Target, active: isHuntLog && queryDomain === 'personal' },
     ];
   }
 
   // Active domain telemetry readout
   const activeStreak = isHealthDomain ? healthStreak : isPersonalDomain ? personalStreak : careerStreak;
   const activeRank = isHealthDomain ? healthRank : isPersonalDomain ? personalRank : careerRank;
-  const activeRankLabel = isHealthDomain ? 'Vanguard' : isPersonalDomain ? 'Polymath' : 'Hunter';
+  const activeRankLabel = isHealthDomain ? 'Vanguard' : isPersonalDomain ? 'Polymath' : isLifeDomain ? 'Operator' : 'Hunter';
 
   return (
     <>
@@ -245,7 +222,7 @@ export function NavBar() {
           {/* Logo & Primary Domain Switcher */}
           <div className="flex items-center gap-4 lg:gap-8 h-full">
             <Link 
-              to="/life" 
+              to="/landing" 
               className="flex items-center gap-2.5 sm:gap-3 group"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -444,14 +421,13 @@ export function NavBar() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-3xs font-mono text-text-muted uppercase tracking-widest">Operator Session</span>
+                <div className="flex items-center justify-end pt-1">
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="btn-secondary text-xs font-mono font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white flex items-center gap-2 px-3 py-1.5"
+                    className="btn-secondary w-full text-xs font-mono font-bold uppercase tracking-widest text-accent hover:bg-accent hover:text-white flex items-center justify-center gap-2 px-3 py-2"
                   >
                     <LogOut size={13} /> Disconnect
                   </button>
