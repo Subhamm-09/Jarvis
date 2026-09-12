@@ -188,12 +188,12 @@ export function LifeMapPage() {
   // Mathematical Attribute Computations (0 - 100)
   const avgHealthScore = (healthAttrs.STR + healthAttrs.END + healthAttrs.VIT + healthAttrs.REC + healthAttrs.AGI) / 5;
   const attributes = [
-    { name: 'INTELLECT', value: Math.min(99, Math.max(35, Math.round(40 + (careerProg.level * 2.2) + (personalAttrs.INT * 0.3)))), color: 'bg-[#5A8FC2]' },
-    { name: 'DISCIPLINE', value: Math.min(99, Math.max(30, Math.round(35 + (careerStreak * 4) + (healthStreak * 3)))), color: 'bg-accent' },
+    { name: 'INTELLECT', value: Math.min(99, Math.max(35, Math.round(40 + (careerProg.level * 2.2) + (personalAttrs.INT * 0.3)))), color: 'bg-accent' },
+    { name: 'DISCIPLINE', value: Math.min(99, Math.max(30, Math.round(35 + (careerStreak * 4) + (healthStreak * 3)))), color: 'bg-[#274156]' },
     { name: 'EXECUTION', value: Math.min(99, Math.max(30, Math.round(30 + (careerProg.level * 2.5) + (careerTasks.filter(t => t.status === 'done').length * 0.4)))), color: 'bg-accent' },
     { name: 'HEALTH', value: Math.min(99, Math.max(25, Math.round(20 + (avgHealthScore * 0.8)))), color: 'bg-success' },
-    { name: 'CREATIVITY', value: Math.min(99, Math.max(30, Math.round(35 + (personalAttrs.CRT * 0.6) + (careerTasks.filter(t => t.domain === 'projects').length * 6)))), color: 'bg-[#C2825A]' },
-    { name: 'SOCIAL', value: Math.min(99, Math.max(20, Math.round(25 + (personalAttrs.CHA * 0.5) + (careerTasks.filter(t => t.domain === 'hackathon').length * 8)))), color: 'bg-[#9B6FA2]' },
+    { name: 'CREATIVITY', value: Math.min(99, Math.max(30, Math.round(35 + (personalAttrs.CRT * 0.6) + (careerTasks.filter(t => t.domain === 'projects').length * 6)))), color: 'bg-[#605856]' },
+    { name: 'SOCIAL', value: Math.min(99, Math.max(20, Math.round(25 + (personalAttrs.CHA * 0.5) + (careerTasks.filter(t => t.domain === 'hackathon').length * 8)))), color: 'bg-[#274156]' },
   ];
 
   // Active Cross-Domain Quests Feed
@@ -278,14 +278,14 @@ export function LifeMapPage() {
       
       {/* 1. CHARACTER HERO HEADER */}
       <section className="rpg-panel border border-border-strong p-6 sm:p-8 mb-10 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-[#E8B958] to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-accent/80 to-transparent" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           
           {/* Protagonist Identity & Level */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5 text-2xs font-mono font-bold uppercase tracking-widest text-accent">
-              <span className="w-2 h-2 bg-accent shadow-[0_0_8px_rgba(216,168,78,0.6)] rotate-45" />
+              <span className="w-2 h-2 bg-accent shadow-[0_0_8px_rgba(28,110,140,0.4)] rotate-45" />
               <span>JARVIS SYSTEM // PROTAGONIST CONSOLE</span>
             </div>
 
@@ -303,12 +303,12 @@ export function LifeMapPage() {
                 HEALTH <span className="text-success">{healthRank}</span>
               </span>
               <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
-                PERSONAL <span className="text-[#5A8FC2]">{personalRank}</span>
+                PERSONAL <span className="text-accent">{personalRank}</span>
               </span>
             </div>
           </div>
 
-          {/* Character Level & Gold XP Progress Meter */}
+          {/* Character Level & Cerulean XP Progress Meter */}
           <div className="w-full lg:w-96 flex flex-col gap-2.5 bg-bg-tertiary/70 border border-border-strong p-5">
             <div className="flex items-center justify-between font-mono">
               <div className="flex items-baseline gap-2">
@@ -323,7 +323,7 @@ export function LifeMapPage() {
             {/* RPG XP Bar */}
             <div className="w-full h-2.5 bg-bg-primary border border-border-strong relative overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-accent to-[#E8B958] transition-all duration-500 shadow-[0_0_12px_rgba(216,168,78,0.4)]"
+                className="h-full bg-accent transition-all duration-500 shadow-[0_0_12px_rgba(28,110,140,0.3)]"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -422,20 +422,20 @@ export function LifeMapPage() {
           {/* WORLD 03: PERSONAL */}
           <div 
             onClick={() => navigate('/personal')}
-            className="rpg-panel p-6 cursor-pointer hover:border-[#5A8FC2] group transition-all relative overflow-hidden flex flex-col justify-between"
+            className="rpg-panel p-6 cursor-pointer hover:border-accent group transition-all relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#5A8FC2]/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-[#5A8FC2]/10 transition-colors" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl -mr-8 -mt-8 group-hover:bg-accent/10 transition-colors" />
             
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="label text-[#5A8FC2]">WORLD 03 // PERSONAL</span>
-                <span className="text-3xs font-mono font-bold text-[#5A8FC2] border border-[#5A8FC2]/40 px-2 py-0.5 bg-[#5A8FC2]/10">
+                <span className="label text-accent">WORLD 03 // PERSONAL</span>
+                <span className="text-3xs font-mono font-bold text-accent border border-accent/40 px-2 py-0.5 bg-accent/10">
                   POLYMATH
                 </span>
               </div>
 
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-4xl font-black font-display text-text-primary group-hover:text-[#5A8FC2] transition-colors">
+                <span className="text-4xl font-black font-display text-text-primary group-hover:text-accent transition-colors">
                   RANK {personalRank}
                 </span>
                 <span className="font-mono text-sm font-bold text-text-secondary">
@@ -448,7 +448,7 @@ export function LifeMapPage() {
               </p>
             </div>
 
-            <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-[#5A8FC2] font-bold">
+            <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-xs font-mono text-accent font-bold">
               <span>ENTER PERSONAL REALM</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>
@@ -523,9 +523,9 @@ export function LifeMapPage() {
                           {quest.domain}
                         </span>
                         <span className={`text-3xs font-mono uppercase tracking-wider px-1.5 py-0.5 border ${
-                          quest.rarity === 'LEGENDARY' ? 'text-[#E8B958] border-[#E8B958]/50 bg-[#E8B958]/10 font-bold' :
-                          quest.rarity === 'EPIC' ? 'text-accent border-accent/40 bg-accent/10 font-bold' :
-                          quest.rarity === 'RARE' ? 'text-[#5A8FC2] border-[#5A8FC2]/40 bg-[#5A8FC2]/10' :
+                          quest.rarity === 'LEGENDARY' ? 'text-text-primary border-accent bg-accent/20 font-bold' :
+                          quest.rarity === 'EPIC' ? 'text-accent border-accent/40 bg-accent/15 font-bold' :
+                          quest.rarity === 'RARE' ? 'text-accent border-accent/40 bg-accent/10' :
                           'text-text-muted border-border-subtle'
                         }`}>
                           {quest.rarity}

@@ -232,7 +232,7 @@ export function NavBar() {
               className="flex items-center gap-2.5 sm:gap-3 group"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(216,168,78,0.5)] group-hover:bg-accent-hover transition-colors rotate-45" />
+              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(28,110,140,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
               <span className="text-xl font-black uppercase tracking-tighter text-text-primary">
                 JARVIS
               </span>
@@ -246,11 +246,11 @@ export function NavBar() {
                   to={tab.path}
                   className={`px-3.5 py-1.5 text-2xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
                     tab.active
-                      ? 'bg-accent text-bg-primary shadow-[0_2px_10px_rgba(216,168,78,0.3)]'
+                      ? 'bg-accent text-[#FBFCFF] shadow-[0_2px_10px_rgba(28,110,140,0.25)]'
                       : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
                   }`}
                 >
-                  <tab.icon size={13} className={tab.active ? 'text-bg-primary' : 'text-accent'} />
+                  <tab.icon size={13} className={tab.active ? 'text-[#FBFCFF]' : 'text-accent'} />
                   <span>{tab.name}</span>
                 </Link>
               ))}
@@ -334,7 +334,7 @@ export function NavBar() {
         {mobileMenuOpen && (
           <>
             <div 
-              className="fixed inset-0 top-16 bg-black/75 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 top-16 bg-[#274156]/40 backdrop-blur-sm z-40 lg:hidden"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden="true"
             />
@@ -361,13 +361,13 @@ export function NavBar() {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`p-3 text-xs font-mono font-bold uppercase flex flex-col justify-between gap-2 border transition-all ${
                           tab.active 
-                            ? 'bg-accent text-bg-primary border-accent shadow-[0_2px_10px_rgba(216,168,78,0.25)]' 
+                            ? 'bg-accent text-[#FBFCFF] border-accent shadow-[0_2px_10px_rgba(28,110,140,0.25)]' 
                             : 'bg-bg-tertiary border-border-strong text-text-secondary hover:text-text-primary hover:border-accent'
                         }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
-                            <tab.icon size={14} className={tab.active ? 'text-bg-primary' : 'text-accent'} />
+                            <tab.icon size={14} className={tab.active ? 'text-[#FBFCFF]' : 'text-accent'} />
                             <span className="font-sans font-bold text-sm tracking-tight">{tab.name}</span>
                           </div>
                           {tab.active && (

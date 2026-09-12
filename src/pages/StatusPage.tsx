@@ -299,7 +299,7 @@ export function StatusPage() {
       <div className="border-b-2 border-border-strong pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 bg-rpg-gold rounded-xs shadow-[0_0_8px_rgba(216,168,78,0.5)]" />
+            <span className="w-2 h-2 bg-rpg-gold rounded-xs shadow-[0_0_8px_rgba(28,110,140,0.4)]" />
             <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">
               CAREER DOMAIN // CLASSIFICATION ARCHIVES
             </span>
@@ -353,7 +353,7 @@ export function StatusPage() {
           </span>
           <span className={`text-4xl sm:text-5xl font-black font-mono tracking-tighter leading-none ${
             totalClearedObjectives === trialObjectives.length && trialObjectives.length > 0
-              ? 'text-rpg-gold drop-shadow-[0_0_12px_rgba(216,168,78,0.5)]'
+              ? 'text-rpg-gold drop-shadow-[0_0_12px_rgba(28,110,140,0.35)]'
               : 'text-text-primary'
           }`}>
             {totalClearedObjectives} <span className="text-2xl text-text-muted">/ {trialObjectives.length}</span>
@@ -401,7 +401,7 @@ export function StatusPage() {
             </div>
             <div className="h-2 bg-bg-primary w-full overflow-hidden border border-border-subtle p-[1px]">
               <div 
-                className="h-full bg-gradient-to-r from-rpg-gold/80 to-rpg-gold transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(216,168,78,0.3)]"
+                className="h-full bg-gradient-to-r from-rpg-gold/80 to-rpg-gold transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(28,110,140,0.3)]"
                 style={{ width: `${Math.min(100, Math.max(0, (currentLevelExp / expToNext) * 100))}%` }}
               />
             </div>
@@ -418,7 +418,7 @@ export function StatusPage() {
             <div>
               <div className="flex items-center justify-between border-b border-border-subtle pb-3 mb-6">
                 <span className="text-3xs font-mono font-bold uppercase tracking-widest text-text-secondary flex items-center gap-1.5">
-                  <span className={`w-1.5 h-1.5 rounded-xs ${placementData.isReady ? 'bg-rpg-green shadow-[0_0_6px_rgba(111,155,114,0.5)]' : 'bg-rpg-gold'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-xs ${placementData.isReady ? 'bg-rpg-green shadow-[0_0_6px_rgba(46,125,86,0.4)]' : 'bg-rpg-gold'}`} />
                   <span>PLACEMENT READINESS INDEX</span>
                 </span>
                 <span className={`text-3xs font-mono font-bold px-2 py-0.5 border ${
@@ -432,7 +432,7 @@ export function StatusPage() {
 
               <div className="flex items-baseline gap-4 mb-3">
                 <div className={`text-7xl sm:text-8xl font-black font-cinzel tracking-tighter leading-none ${
-                  placementData.isReady ? 'text-rpg-green drop-shadow-[0_0_12px_rgba(111,155,114,0.4)]' : 'text-text-primary'
+                  placementData.isReady ? 'text-rpg-green drop-shadow-[0_0_12px_rgba(46,125,86,0.35)]' : 'text-text-primary'
                 }`}>
                   {placementData.score}
                 </div>
@@ -500,7 +500,7 @@ export function StatusPage() {
               key={obj.domain}
               className={`p-5 border flex flex-col justify-between transition-all ${
                 obj.cleared 
-                  ? 'bg-rpg-gold/5 border-rpg-gold/40 hover:border-rpg-gold shadow-[0_0_10px_rgba(216,168,78,0.1)]' 
+                  ? 'bg-rpg-gold/5 border-rpg-gold/40 hover:border-rpg-gold shadow-[0_0_10px_rgba(28,110,140,0.1)]' 
                   : 'bg-bg-primary/40 border-border-strong hover:border-border-strong'
               }`}
             >
@@ -565,7 +565,7 @@ export function StatusPage() {
                   onClick={() => setExpandedDomain(isExpanded ? null : stat.domain)}
                   className={`bg-bg-secondary border transition-all cursor-pointer overflow-hidden ${
                     isExpanded 
-                      ? 'border-rpg-gold/50 shadow-[0_0_12px_rgba(216,168,78,0.15)]' 
+                      ? 'border-rpg-gold/50 shadow-[0_0_12px_rgba(28,110,140,0.15)]' 
                       : 'border-border-strong hover:border-rpg-gold/30'
                   }`}
                 >
@@ -574,7 +574,7 @@ export function StatusPage() {
                     <div className="w-48 shrink-0 flex items-center gap-4">
                       <div className={`w-10 h-10 border flex items-center justify-center font-cinzel font-black text-xl shrink-0 ${
                         isS 
-                          ? 'bg-rpg-gold/15 border-rpg-gold text-rpg-gold shadow-[0_0_8px_rgba(216,168,78,0.3)]' 
+                          ? 'bg-rpg-gold/15 border-rpg-gold text-rpg-gold shadow-[0_0_8px_rgba(28,110,140,0.25)]' 
                           : 'bg-bg-primary border-border-strong text-text-primary'
                       }`}>
                         {stat.rank}

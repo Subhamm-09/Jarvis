@@ -7,39 +7,43 @@
   --font-display: 'Cinzel', serif;
   --font-serif: 'Cormorant Garamond', serif;
 
-  --color-bg-primary: #08090C;
-  --color-bg-secondary: #0D1015;
-  --color-bg-tertiary: #12151C;
-  --color-bg-elevated: #181C26;
+  --color-bg-primary: #FBFCFF;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F2EFF2;
+  --color-bg-elevated: #FFFFFF;
   
-  --color-text-primary: #F2F0E8;
-  --color-text-secondary: #A0A5B5;
-  --color-text-muted: #656A7B;
+  --color-text-primary: #274156;
+  --color-text-secondary: #605856;
+  --color-text-muted: #8E8684;
   
-  --color-border-subtle: #1E2330;
-  --color-border-strong: #2D3446;
+  --color-border-subtle: #E5E2E5;
+  --color-border-strong: #D0CCD0;
   
-  --color-accent: #D8A84E;
-  --color-accent-hover: #E5B860;
-  --color-accent-muted: rgba(216, 168, 78, 0.12);
+  --color-accent: #1C6E8C;
+  --color-accent-hover: #14556C;
+  --color-accent-muted: rgba(28, 110, 140, 0.12);
   
-  --color-gold: #D8A84E;
-  --color-gold-hover: #E5B860;
-  --color-gold-muted: rgba(216, 168, 78, 0.15);
+  --color-gold: #1C6E8C;
+  --color-gold-hover: #14556C;
+  --color-gold-muted: rgba(28, 110, 140, 0.15);
+
+  --color-rpg-gold: #1C6E8C;
+  --color-rpg-green: #2E7D56;
+  --color-rpg-crimson: #B83A45;
   
   --color-danger: #B83A45;
   --color-crimson: #B83A45;
-  --color-crimson-hover: #CF4450;
-  --color-crimson-muted: rgba(184, 58, 69, 0.15);
+  --color-crimson-hover: #9E2F39;
+  --color-crimson-muted: rgba(184, 58, 69, 0.12);
   
-  --color-success: #6F9B72;
-  --color-success-hover: #83B386;
-  --color-success-muted: rgba(111, 155, 114, 0.15);
+  --color-success: #2E7D56;
+  --color-success-hover: #236344;
+  --color-success-muted: rgba(46, 125, 86, 0.12);
 
-  --color-rarity-common: #656A7B;
-  --color-rarity-rare: #5A8FC2;
-  --color-rarity-epic: #D8A84E;
-  --color-rarity-legendary: #E8B958;
+  --color-rarity-common: #605856;
+  --color-rarity-rare: #1C6E8C;
+  --color-rarity-epic: #274156;
+  --color-rarity-legendary: #1C6E8C;
 
   --radius-system: 0px;
   
@@ -57,19 +61,21 @@
 
 @layer base {
   :root {
-    --color-bg-primary: #08090C;
-    --color-bg-secondary: #0D1015;
-    --color-bg-tertiary: #12151C;
-    --color-bg-elevated: #181C26;
-    --color-text-primary: #F2F0E8;
-    --color-text-secondary: #A0A5B5;
-    --color-text-muted: #656A7B;
-    --color-border-subtle: #1E2330;
-    --color-border-strong: #2D3446;
-    --color-accent: #D8A84E;
-    --color-gold: #D8A84E;
+    --color-bg-primary: #FBFCFF;
+    --color-bg-secondary: #FFFFFF;
+    --color-bg-tertiary: #F2EFF2;
+    --color-bg-elevated: #FFFFFF;
+    --color-text-primary: #274156;
+    --color-text-secondary: #605856;
+    --color-text-muted: #8E8684;
+    --color-border-subtle: #E5E2E5;
+    --color-border-strong: #D0CCD0;
+    --color-accent: #1C6E8C;
+    --color-gold: #1C6E8C;
+    --color-rpg-gold: #1C6E8C;
+    --color-rpg-green: #2E7D56;
     --color-crimson: #B83A45;
-    --color-success: #6F9B72;
+    --color-success: #2E7D56;
 
     /* Spacing System */
     --space-xs: 4px;
@@ -82,7 +88,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #2D3446 transparent;
+    scrollbar-color: #D0CCD0 transparent;
   }
 
   *::-webkit-scrollbar {
@@ -94,7 +100,7 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #2D3446;
+    background: #D0CCD0;
     border-radius: 0px;
   }
 
@@ -112,23 +118,23 @@
 }
 
 @layer components {
-  /* Minimalist Section / Panel with Disciplined RPG Depth */
+  /* Minimalist Section / Panel with Disciplined Depth */
   .panel {
     @apply bg-bg-secondary border border-border-strong;
     border-radius: var(--radius-system);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+    box-shadow: 0 2px 12px -2px rgba(39, 65, 86, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   }
 
   .panel-accent {
     @apply bg-bg-secondary border-l-2 border-l-accent border border-border-strong;
     border-radius: var(--radius-system);
-    box-shadow: 0 4px 24px -2px rgba(216, 168, 78, 0.08), inset 0 1px 0 0 rgba(216, 168, 78, 0.15);
+    box-shadow: 0 4px 16px -2px rgba(28, 110, 140, 0.08);
   }
 
   .panel-crimson {
     @apply bg-bg-secondary border-l-2 border-l-crimson border border-border-strong;
     border-radius: var(--radius-system);
-    box-shadow: 0 4px 24px -2px rgba(184, 58, 69, 0.12), inset 0 1px 0 0 rgba(184, 58, 69, 0.2);
+    box-shadow: 0 4px 16px -2px rgba(184, 58, 69, 0.08);
   }
 
   .panel-success {
@@ -139,17 +145,17 @@
   /* RPG Panel Classes */
   .rpg-panel {
     @apply bg-bg-secondary border border-border-strong;
-    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 4px 20px -2px rgba(39, 65, 86, 0.06);
   }
 
   .rpg-panel-gold {
     @apply bg-bg-secondary border border-accent/40;
-    box-shadow: 0 8px 32px -4px rgba(216, 168, 78, 0.1), inset 0 1px 0 0 rgba(216, 168, 78, 0.2);
+    box-shadow: 0 4px 20px -2px rgba(28, 110, 140, 0.10);
   }
 
   .rpg-panel-crimson {
-    @apply bg-bg-secondary border border-crimson/50;
-    box-shadow: 0 8px 32px -4px rgba(184, 58, 69, 0.15), inset 0 1px 0 0 rgba(184, 58, 69, 0.25);
+    @apply bg-bg-secondary border border-crimson/40;
+    box-shadow: 0 4px 20px -2px rgba(184, 58, 69, 0.10);
   }
 
   /* Editorial & RPG Telemetry Typography */
@@ -189,7 +195,7 @@
 
   /* Clean Input Forms */
   .input-system {
-    @apply w-full bg-bg-tertiary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent font-mono;
+    @apply w-full bg-bg-secondary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent font-mono;
     border-radius: var(--radius-system);
   }
   
@@ -198,21 +204,21 @@
   }
 
   .select-system {
-    @apply w-full bg-bg-tertiary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent appearance-none font-mono cursor-pointer;
+    @apply w-full bg-bg-secondary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent appearance-none font-mono cursor-pointer;
     border-radius: var(--radius-system);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A0A5B5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23605856' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
   }
 
   .select-system:focus {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23D8A84E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231C6E8C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   }
 
-  /* Primary Button - RPG Gold */
+  /* Primary Button - RPG Cerulean */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-accent text-bg-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(216,168,78,0.25)];
+    @apply flex items-center justify-center gap-2 bg-accent text-[#FBFCFF] text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(28,110,140,0.25)];
     border-radius: var(--radius-system);
   }
 
@@ -222,7 +228,7 @@
   }
 
   .btn-crimson {
-    @apply flex items-center justify-center gap-2 bg-crimson text-text-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.3)];
+    @apply flex items-center justify-center gap-2 bg-crimson text-[#FBFCFF] text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.25)];
     border-radius: var(--radius-system);
   }
 
@@ -232,7 +238,7 @@
 
   /* Data Table/List rows */
   .data-row {
-    @apply grid items-center border-b border-border-subtle py-3 hover:bg-bg-tertiary/70 transition-colors cursor-pointer px-3;
+    @apply grid items-center border-b border-border-subtle py-3 hover:bg-bg-tertiary/60 transition-colors cursor-pointer px-3;
   }
   
   .data-row:last-child {
@@ -241,12 +247,12 @@
 
   /* Empty state */
   .empty-state {
-    @apply flex flex-col items-center justify-center text-center py-12 px-6 border border-dashed border-border-strong bg-bg-secondary/40;
+    @apply flex flex-col items-center justify-center text-center py-12 px-6 border border-dashed border-border-strong bg-bg-secondary/60;
     border-radius: var(--radius-system);
   }
 
-  /* Gold Line Sweep Keyframes */
-  @keyframes goldSweep {
+  /* Oceanic Cerulean Line Sweep Keyframes */
+  @keyframes ceruleanSweep {
     0% {
       transform: translateX(-100%);
       opacity: 0;
@@ -260,8 +266,8 @@
     }
   }
 
-  .animate-gold-sweep {
-    animation: goldSweep 1.8s ease-in-out infinite;
+  .animate-cerulean-sweep, .animate-gold-sweep {
+    animation: ceruleanSweep 1.8s ease-in-out infinite;
   }
 }
 

@@ -76,9 +76,9 @@ function computeQuestMetadata(task: Task): {
 
 const rarityConfig: Record<QuestRarity, { label: string; class: string }> = {
   COMMON: { label: 'COMMON', class: 'text-text-muted border-border-subtle bg-bg-tertiary/60' },
-  RARE: { label: 'RARE', class: 'text-[#5A8FC2] border-[#5A8FC2]/40 bg-[#5A8FC2]/10' },
-  EPIC: { label: 'EPIC', class: 'text-accent border-accent/40 bg-accent/10 font-bold' },
-  LEGENDARY: { label: 'LEGENDARY', class: 'text-[#E8B958] border-[#E8B958]/60 bg-[#E8B958]/15 shadow-[0_0_10px_rgba(232,185,88,0.2)] font-black' },
+  RARE: { label: 'RARE', class: 'text-accent border-accent/40 bg-accent/10' },
+  EPIC: { label: 'EPIC', class: 'text-accent border-accent/40 bg-accent/15 font-bold' },
+  LEGENDARY: { label: 'LEGENDARY', class: 'text-text-primary border-accent bg-accent/20 shadow-[0_0_10px_rgba(28,110,140,0.2)] font-black' },
 };
 
 const difficultyConfig: Record<QuestDifficulty, { label: string; class: string }> = {

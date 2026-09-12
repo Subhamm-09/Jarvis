@@ -348,7 +348,7 @@ export function RewardsPage() {
                 key={title.id}
                 className={`rpg-panel p-5 flex flex-col justify-between transition-all relative overflow-hidden ${
                   title.unlocked 
-                    ? (isEquipped ? 'border-accent shadow-[0_0_20px_rgba(216,168,78,0.15)] bg-bg-secondary' : 'hover:border-accent/70') 
+                    ? (isEquipped ? 'border-accent shadow-[0_0_20px_rgba(28,110,140,0.15)] bg-bg-secondary' : 'hover:border-accent/70') 
                     : 'opacity-50 grayscale bg-bg-tertiary/40'
                 }`}
               >
@@ -357,8 +357,8 @@ export function RewardsPage() {
                     <span className={`text-3xs uppercase tracking-wider px-1.5 py-0.5 border ${
                       title.category === 'CAREER' ? 'text-accent border-accent/40 bg-accent/10' :
                       title.category === 'HEALTH' ? 'text-success border-success/40 bg-success/10' :
-                      title.category === 'PERSONAL' ? 'text-[#5A8FC2] border-[#5A8FC2]/40 bg-[#5A8FC2]/10' :
-                      'text-[#E8B958] border-[#E8B958]/50 bg-[#E8B958]/10'
+                      title.category === 'PERSONAL' ? 'text-accent border-accent/40 bg-accent/10' :
+                      'text-text-primary border-accent/50 bg-accent/15'
                     }`}>
                       {title.category}
                     </span>
@@ -445,7 +445,7 @@ export function RewardsPage() {
             >
               <div className={`w-11 h-11 border flex items-center justify-center shrink-0 ${
                 badge.unlocked 
-                  ? 'bg-accent/10 border-accent text-accent shadow-[0_0_12px_rgba(216,168,78,0.2)]' 
+                  ? 'bg-accent/10 border-accent text-accent shadow-[0_0_12px_rgba(28,110,140,0.2)]' 
                   : 'bg-bg-tertiary border-border-strong text-text-muted'
               }`}>
                 {badge.iconName === 'trophy' && <Trophy size={20} />}

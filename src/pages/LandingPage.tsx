@@ -70,7 +70,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
         <section 
           className="px-6 sm:px-12 pt-20 pb-24 border-b border-border-strong relative overflow-hidden bg-bg-primary"
           style={{
-            backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(216, 168, 78, 0.10) 0%, rgba(8, 9, 12, 1) 75%)'
+            backgroundImage: 'radial-gradient(circle at 50% 20%, rgba(28, 110, 140, 0.08) 0%, rgba(251, 252, 255, 1) 75%)'
           }}
         >
           <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
@@ -82,7 +82,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
             </div>
 
             {/* Massive Display Title */}
-            <h1 className="text-6xl sm:text-8xl md:text-[9.5rem] font-black font-cinzel tracking-tighter text-text-primary mb-6 leading-none uppercase select-none drop-shadow-[0_0_30px_rgba(216,168,78,0.2)]">
+            <h1 className="text-6xl sm:text-8xl md:text-[9.5rem] font-black font-cinzel tracking-tighter text-text-primary mb-6 leading-none uppercase select-none drop-shadow-[0_4px_20px_rgba(39,65,86,0.12)]">
               JARVIS
             </h1>
 

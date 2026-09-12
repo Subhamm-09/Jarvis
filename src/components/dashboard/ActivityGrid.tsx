@@ -6,13 +6,13 @@ const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export function ActivityGrid({ data = [0, 0, 0, 0, 0, 0, 0] }: ActivityGridProps) {
-  // 0: empty, 1: low (subtle gold), 2: medium, 3: high, 4: max (luminous gold)
+  // 0: empty, 1: low (subtle cerulean), 2: medium, 3: high, 4: max (vivid cerulean)
   const intensityColors = [
-    'rgba(255, 255, 255, 0.03)',
-    'rgba(216, 168, 78, 0.20)',
-    'rgba(216, 168, 78, 0.45)',
-    'rgba(216, 168, 78, 0.75)',
-    '#D8A84E',
+    '#F2EFF2',
+    'rgba(28, 110, 140, 0.20)',
+    'rgba(28, 110, 140, 0.45)',
+    'rgba(28, 110, 140, 0.75)',
+    '#1C6E8C',
   ];
 
   // Determine today's column index in local time (Mon=0, ..., Sun=6)
@@ -35,14 +35,14 @@ export function ActivityGrid({ data = [0, 0, 0, 0, 0, 0, 0] }: ActivityGridProps
               title={`${dayNames[i]}${isToday ? ' (Today)' : ''}: ${intensity > 0 ? (intensity >= 4 ? '4+ quests' : `${intensity} quests`) : 'No activity'}`}
               className={`aspect-square border transition-all ${
                 isToday 
-                  ? 'border-rpg-gold ring-1 ring-rpg-gold/50' 
+                  ? 'border-accent ring-1 ring-accent/50' 
                   : clamped > 0
-                    ? 'border-rpg-gold/30 hover:border-rpg-gold'
+                    ? 'border-accent/40 hover:border-accent'
                     : 'border-border-subtle hover:border-border-strong'
               }`}
               style={{ 
                 background: bg,
-                boxShadow: hasMaxGlow ? '0 0 10px rgba(216, 168, 78, 0.35)' : undefined 
+                boxShadow: hasMaxGlow ? '0 0 10px rgba(28, 110, 140, 0.35)' : undefined 
               }}
             />
           );
@@ -53,10 +53,10 @@ export function ActivityGrid({ data = [0, 0, 0, 0, 0, 0, 0] }: ActivityGridProps
           const isToday = i === todayIndex;
           return (
             <div key={i} className="flex flex-col items-center">
-              <span className={`text-[11px] font-mono ${isToday ? 'font-bold text-rpg-gold' : 'text-text-muted'}`}>
+              <span className={`text-[11px] font-mono ${isToday ? 'font-bold text-accent' : 'text-text-muted'}`}>
                 {d}
               </span>
-              {isToday && <span className="w-1 h-1 bg-rpg-gold rounded-full mt-0.5" />}
+              {isToday && <span className="w-1 h-1 bg-accent rounded-full mt-0.5" />}
             </div>
           );
         })}
