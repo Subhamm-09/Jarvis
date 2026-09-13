@@ -139,6 +139,16 @@ export function NewHealthTaskModal({ isOpen, onClose, onSubmit }: NewHealthTaskM
         metadata,
       });
 
+      setTitle('');
+      setSets('');
+      setReps('');
+      setWeightKg('');
+      setDistanceKm('');
+      setTargetSleepHours('');
+      setNutritionGoal('');
+      setRecoveryActivity('');
+      setMobilityFocus('');
+
       onClose();
     } finally {
       setSubmitting(false);

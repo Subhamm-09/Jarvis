@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Moon, Dumbbell, Check, Plus, Flame } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import type { HealthTask } from '../../types';
+import type { HealthTask, HealthPillar } from '../../types';
 
 interface HealthTrackerPanelProps {
   onOpenNewTask?: () => void;
   onRefresh?: () => void;
+  onCompleteTask?: (taskId: string, pillar: HealthPillar, difficulty: 'easy' | 'medium' | 'hard' | 'boss') => void;
 }
 
-export function HealthTrackerPanel({ onOpenNewTask, onRefresh }: HealthTrackerPanelProps) {
+export function HealthTrackerPanel({ onOpenNewTask, onRefresh, onCompleteTask }: HealthTrackerPanelProps) {
   const [activeWorkouts, setActiveWorkouts] = useState<HealthTask[]>([]);
 
   const fetchWorkouts = async () => {
@@ -44,6 +45,12 @@ export function HealthTrackerPanel({ onOpenNewTask, onRefresh }: HealthTrackerPa
   }, []);
 
   const handleComplete = async (taskId: string) => {
+    const task = activeWorkouts.find(t => t.id === taskId);
+    if (onCompleteTask && task) {
+      onCompleteTask(task.id, task.pillar, (task.metadata?.difficulty as any) || 'medium');
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -58,7 +65,7 @@ export function HealthTrackerPanel({ onOpenNewTask, onRefresh }: HealthTrackerPa
         .insert({
           user_id: user.id,
           task_id: taskId,
-          pillar: 'strength',
+          pillar: task?.pillar || 'strength',
           exp_awarded: 35,
           metadata: { completed_via: 'radar' },
         });

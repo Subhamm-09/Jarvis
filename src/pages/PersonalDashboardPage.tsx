@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Check, Trophy } from 'lucide-react';
+import { Plus, Check, Trophy, Sparkles, X } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import type { PersonalTask, PersonalExpLog, PersonalPillar } from '../types';
 import { 
@@ -17,6 +17,7 @@ import { TactileLevelUpModal } from '../components/shared/TactileLevelUpModal';
 import { NewPersonalTaskModal } from '../components/personal/NewPersonalTaskModal';
 import { PersonalTrackerPanel } from '../components/personal/PersonalTrackerPanel';
 import { triggerTactileFeedback, resolveTaskAttribute } from '../lib/tactileFeedback';
+import { playSolenoidClick } from '../lib/mechanicalAudio';
 
 export function PersonalDashboardPage() {
   const [tasks, setTasks] = useState<PersonalTask[]>([]);
@@ -24,6 +25,13 @@ export function PersonalDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [activeTabPillar, setActiveTabPillar] = useState<PersonalPillar | 'all'>('all');
+  const [user, setUser] = useState<any>(null);
+  const [actionToast, setActionToast] = useState<{
+    show: boolean;
+    title: string;
+    subtitle?: string;
+    icon?: 'personal' | 'check';
+  } | null>(null);
   
   // Level-up celebration state
   const [levelUpData, setLevelUpData] = useState<{
@@ -34,14 +42,29 @@ export function PersonalDashboardPage() {
     expGained: number;
   } | null>(null);
 
+  const getActiveUser = async () => {
+    if (user) return user;
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData?.session?.user) {
+      setUser(sessionData.session.user);
+      return sessionData.session.user;
+    }
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData?.user) {
+      setUser(userData.user);
+      return userData.user;
+    }
+    return null;
+  };
+
   const fetchPersonalData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const activeUser = await getActiveUser();
+      if (!activeUser) return;
 
       const [tasksRes, expRes] = await Promise.all([
-        supabase.from('personal_tasks').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('personal_exp_log').select('*').eq('user_id', user.id).order('awarded_at', { ascending: false }),
+        supabase.from('personal_tasks').select('*').eq('user_id', activeUser.id).order('created_at', { ascending: false }),
+        supabase.from('personal_exp_log').select('*').eq('user_id', activeUser.id).order('awarded_at', { ascending: false }),
       ]);
 
       if (tasksRes.data) setTasks(tasksRes.data as PersonalTask[]);
@@ -54,6 +77,23 @@ export function PersonalDashboardPage() {
   };
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) setUser(data.user);
+      else {
+        supabase.auth.getSession().then(({ data: sData }) => {
+          if (sData?.session?.user) setUser(sData.session.user);
+        });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) setUser(session.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     fetchPersonalData();
 
     const handleUpdate = () => fetchPersonalData();
@@ -64,6 +104,14 @@ export function PersonalDashboardPage() {
       window.removeEventListener('personal-task-created', handleUpdate);
     };
   }, []);
+
+  useEffect(() => {
+    if (!actionToast?.show) return;
+    const timer = setTimeout(() => {
+      setActionToast(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [actionToast]);
 
   // Compute Independent Personal Progress
   const totalPersonalExp = expLogs.reduce((sum, log) => sum + log.exp_awarded, 0);
@@ -85,85 +133,159 @@ export function PersonalDashboardPage() {
     effort_estimate_mins: number;
     metadata: Record<string, any>;
   }) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: inserted, error } = await supabase
-      .from('personal_tasks')
-      .insert({
-        user_id: user.id,
+    try {
+      const activeUser = await getActiveUser();
+      const tempId = 'temp-' + Date.now();
+      const optimisticTask: PersonalTask = {
+        id: tempId,
+        user_id: activeUser?.id || 'local-user',
         title: data.title,
         pillar: data.pillar,
+        status: 'todo',
         priority: data.priority,
         effort_estimate_mins: data.effort_estimate_mins,
-        metadata: data.metadata,
-      })
-      .select()
-      .single();
+        metadata: { ...data.metadata, difficulty: data.difficulty },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    if (!error && inserted) {
-      setTasks(prev => [inserted as PersonalTask, ...prev]);
+      // 1. Instant Optimistic UI addition (<1ms)
+      setTasks(prev => [optimisticTask, ...prev]);
+      setIsNewTaskModalOpen(false);
+
+      // 2. Play tactile solenoid click sound
+      playSolenoidClick();
+
+      // 3. Action Toast notification (matching Career)
+      setActionToast({
+        show: true,
+        title: 'Personal Quest Initialized',
+        subtitle: `${data.title} // ${data.pillar.toUpperCase()}`,
+        icon: 'personal'
+      });
+
       window.dispatchEvent(new CustomEvent('personal-task-created'));
+
+      // 4. Background DB persistence
+      if (activeUser) {
+        const { data: inserted, error } = await supabase
+          .from('personal_tasks')
+          .insert({
+            user_id: activeUser.id,
+            title: data.title,
+            pillar: data.pillar,
+            priority: data.priority,
+            effort_estimate_mins: data.effort_estimate_mins,
+            metadata: { ...data.metadata, difficulty: data.difficulty },
+          })
+          .select()
+          .single();
+
+        if (!error && inserted) {
+          setTasks(prev => prev.map(t => t.id === tempId ? (inserted as PersonalTask) : t));
+        } else if (error) {
+          console.error("Database error inserting personal task:", error);
+        }
+      }
+    } catch (err: any) {
+      console.error("handleCreateTask error:", err);
+      alert("Error initializing personal quest: " + (err?.message || "Unknown error"));
     }
   };
 
   const handleCompleteTask = async (taskId: string, taskPillar: PersonalPillar, difficulty: 'easy' | 'medium' | 'hard' | 'boss' = 'medium') => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
 
     const expAwarded = getPersonalExpOnTask(difficulty);
-    const oldLevel = personalLevel;
-    const task = tasks.find(t => t.id === taskId);
+    const oldProg = getPersonalLevel(totalPersonalExp);
+    const newTotalExp = totalPersonalExp + expAwarded;
+    const newProg = getPersonalLevel(newTotalExp);
+    const attr = resolveTaskAttribute('personal', taskPillar);
 
-    // 1. Mark task done
-    await supabase
-      .from('personal_tasks')
-      .update({ status: 'done', updated_at: new Date().toISOString() })
-      .eq('id', taskId);
+    // 1. INSTANT OPTIMISTIC STATE UPDATES (<1ms) - EXACT SAME AS CAREER!
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'done' as const } : t));
 
-    // 2. Insert isolated Personal EXP log
-    await supabase
-      .from('personal_exp_log')
-      .insert({
-        user_id: user.id,
-        task_id: taskId,
-        pillar: taskPillar,
-        exp_awarded: expAwarded,
-        metadata: { difficulty },
-      });
-
-    // 3. Optimistically update state
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'done' } : t));
-    setExpLogs(prev => [{
-      id: crypto.randomUUID(),
-      user_id: user.id,
+    const optimisticLog: PersonalExpLog = {
+      id: 'opt-' + Date.now(),
+      user_id: user?.id || 'local-user',
       task_id: taskId,
       pillar: taskPillar,
       exp_awarded: expAwarded,
       metadata: { difficulty },
       awarded_at: new Date().toISOString()
-    }, ...prev]);
+    };
+    setExpLogs(prev => [optimisticLog, ...prev]);
 
-    window.dispatchEvent(new CustomEvent('personal-exp-awarded'));
-
-    // 4. Trigger Tactile Mechanical Feedback HUD
-    const newTotalExp = totalPersonalExp + expAwarded;
-    const { level: newLevel, currentLevelExp: newLevelExp, expToNext: newExpToNext } = getPersonalLevel(newTotalExp);
-    const attr = resolveTaskAttribute('personal', taskPillar);
-
+    // 2. TRIGGER TACTILE MECHANICAL FEEDBACK HUD & AUDIO IMMEDIATELY (<1ms) - EXACT SAME AS CAREER!
     triggerTactileFeedback({
       domain: 'personal',
-      questTitle: task?.title || 'Personal Quest',
+      questTitle: task.title,
       expGained: expAwarded,
       attributeName: attr.name,
       attributeDelta: attr.delta,
-      oldLevel: oldLevel,
-      newLevel: newLevel,
-      currentLevelExp: newLevelExp,
-      expToNext: newExpToNext,
+      oldLevel: oldProg.level,
+      newLevel: newProg.level,
+      currentLevelExp: newProg.currentLevelExp,
+      expToNext: newProg.expToNext,
       rank: personalRank.rank,
       rankTitle: personalRank.title
     });
+
+    // 3. TRIGGER CINEMATIC LEVEL UP MODAL IF LEVEL INCREASED (EXACT SAME AS CAREER!)
+    if (newProg.level > oldProg.level) {
+      setTimeout(() => {
+        setLevelUpData({
+          isOpen: true,
+          level: newProg.level,
+          rank: personalRank.rank,
+          rankTitle: personalRank.title,
+          expGained: expAwarded,
+        });
+      }, 2100);
+    }
+
+    // 4. ACTION TOAST POP-UP (EXACT SAME AS CAREER!)
+    setActionToast({
+      show: true,
+      title: 'Personal Protocol Cleared',
+      subtitle: `+${expAwarded} PERSONAL XP // ${attr.name} Surge`,
+      icon: 'check'
+    });
+
+    // 5. DISPATCH EXP-AWARDED EVENT
+    window.dispatchEvent(new CustomEvent('personal-exp-awarded', { detail: { taskId, exp: expAwarded } }));
+
+    // 6. ASYNC BACKGROUND PERSISTENCE (NON-BLOCKING)
+    try {
+      const activeUser = await getActiveUser();
+      if (activeUser) {
+        if (!taskId.startsWith('temp-')) {
+          supabase
+            .from('personal_tasks')
+            .update({ status: 'done', updated_at: new Date().toISOString() })
+            .eq('id', taskId)
+            .then(({ error }) => {
+              if (error) console.error("Error updating personal task:", error);
+            });
+        }
+
+        supabase
+          .from('personal_exp_log')
+          .insert({
+            user_id: activeUser.id,
+            task_id: taskId.startsWith('temp-') ? null : taskId,
+            pillar: taskPillar,
+            exp_awarded: expAwarded,
+            metadata: { difficulty },
+          })
+          .then(({ error }) => {
+            if (error) console.error("Error inserting personal exp log:", error);
+          });
+      }
+    } catch (err) {
+      console.error("Background complete task error:", err);
+    }
   };
 
   const filteredTasks = tasks.filter(t => {
@@ -509,6 +631,7 @@ export function PersonalDashboardPage() {
             <PersonalTrackerPanel 
               onOpenNewTask={() => setIsNewTaskModalOpen(true)}
               onRefresh={fetchPersonalData}
+              onCompleteTask={handleCompleteTask}
             />
           </div>
 
@@ -565,6 +688,36 @@ export function PersonalDashboardPage() {
           rankTitle={levelUpData.rankTitle}
           expGained={levelUpData.expGained}
         />
+      )}
+
+      {/* Action Toast Pop-up (Matching Career) */}
+      {actionToast?.show && (
+        <div 
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-[120] bg-bg-secondary border-2 border-text-primary px-4 py-3 shadow-[4px_4px_0_0_var(--color-text-primary)] flex items-center gap-3 max-w-sm transition-all animate-in fade-in slide-in-from-bottom-3"
+        >
+          <div className="w-8 h-8 bg-text-primary text-bg-primary flex items-center justify-center shrink-0">
+            {actionToast.icon === 'personal' ? <Sparkles size={16} /> : <Check size={16} />}
+          </div>
+          <div className="flex flex-col min-w-0 pr-2">
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-text-primary">
+              {actionToast.title}
+            </div>
+            {actionToast.subtitle && (
+              <div className="text-[11px] font-mono text-text-secondary truncate">
+                {actionToast.subtitle}
+              </div>
+            )}
+          </div>
+          <button 
+            onClick={() => setActionToast(null)}
+            className="ml-auto text-text-muted hover:text-text-primary hover:bg-bg-tertiary p-1 transition-colors border border-transparent hover:border-border-strong shrink-0 cursor-pointer"
+            aria-label="Dismiss notification"
+          >
+            <X size={14} />
+          </button>
+        </div>
       )}
     </div>
   );

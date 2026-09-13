@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Brain, Check, Plus, Bookmark } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import type { PersonalTask } from '../../types';
+import type { PersonalTask, PersonalPillar } from '../../types';
 
 interface PersonalTrackerPanelProps {
   onOpenNewTask?: () => void;
   onRefresh?: () => void;
+  onCompleteTask?: (taskId: string, pillar: PersonalPillar, difficulty: 'easy' | 'medium' | 'hard' | 'boss') => void;
 }
 
-export function PersonalTrackerPanel({ onOpenNewTask, onRefresh }: PersonalTrackerPanelProps) {
+export function PersonalTrackerPanel({ onOpenNewTask, onRefresh, onCompleteTask }: PersonalTrackerPanelProps) {
   const [activeQuests, setActiveQuests] = useState<PersonalTask[]>([]);
 
   const fetchQuests = async () => {
@@ -44,6 +45,12 @@ export function PersonalTrackerPanel({ onOpenNewTask, onRefresh }: PersonalTrack
   }, []);
 
   const handleComplete = async (taskId: string) => {
+    const task = activeQuests.find(t => t.id === taskId);
+    if (onCompleteTask && task) {
+      onCompleteTask(task.id, task.pillar, (task.metadata?.difficulty as any) || 'medium');
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -58,7 +65,7 @@ export function PersonalTrackerPanel({ onOpenNewTask, onRefresh }: PersonalTrack
         .insert({
           user_id: user.id,
           task_id: taskId,
-          pillar: 'intellect',
+          pillar: task?.pillar || 'intellect',
           exp_awarded: 35,
           metadata: { completed_via: 'radar' },
         });

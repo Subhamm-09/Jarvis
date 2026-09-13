@@ -152,6 +152,18 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
         metadata,
       });
 
+      setTitle('');
+      setBookTitle('');
+      setPagesRead('');
+      setMindfulnessPractice('');
+      setCreationType('');
+      setRelationshipActivity('');
+      setFinanceGoal('');
+      setFinanceAmount('');
+      setPersonalGoal('');
+      setDeadline('');
+      setCustomXp(null);
+
       onClose();
     } finally {
       setSubmitting(false);
