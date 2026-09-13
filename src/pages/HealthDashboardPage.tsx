@@ -44,18 +44,37 @@ export function HealthDashboardPage() {
   } | null>(null);
 
   const getActiveUser = async () => {
-    if (user) return user;
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData?.session?.user) {
-      setUser(sessionData.session.user);
-      return sessionData.session.user;
+    try {
+      // 1. Check current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (session?.user && !sessionError) {
+        // 2. Refresh token if expired or expiring within 60 seconds
+        const expiresAt = session.expires_at;
+        const now = Math.floor(Date.now() / 1000);
+        if (expiresAt && expiresAt <= now + 60) {
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError && refreshData.session?.user) {
+            setUser(refreshData.session.user);
+            return refreshData.session.user;
+          }
+        }
+        setUser(session.user);
+        return session.user;
+      }
+
+      // 3. Fallback: contact auth server directly
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+      if (authUser && !userError) {
+        setUser(authUser);
+        return authUser;
+      }
+
+      return user || null;
+    } catch (e) {
+      console.error("getActiveUser error:", e);
+      return user || null;
     }
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData?.user) {
-      setUser(userData.user);
-      return userData.user;
-    }
-    return null;
   };
 
   const fetchHealthData = async () => {
