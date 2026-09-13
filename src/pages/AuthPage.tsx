@@ -115,7 +115,7 @@ export function AuthPage() {
         <div className="text-center mb-10 pb-6 border-b-2 border-text-primary">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-3 h-3 bg-text-primary"></div>
-            <h1 className="text-3xl font-black uppercase tracking-tighter text-text-primary leading-none">JARVIS</h1>
+            <h1 className="text-2xl font-mono font-bold tracking-[0.25em] text-text-primary leading-none">JARVIS</h1>
           </div>
           <div className="text-xs font-mono font-bold tracking-widest uppercase text-text-secondary">
             {isDevLogin ? 'Developer Override' : 'System Initialization'}

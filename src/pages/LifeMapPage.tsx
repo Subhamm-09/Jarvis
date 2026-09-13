@@ -334,7 +334,7 @@ export function LifeMapPage() {
 
             {isEditingName ? (
               <div className="flex items-center flex-wrap gap-2 animate-in fade-in duration-200">
-                <span className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display">
+                <span className="text-3xl sm:text-4xl md:text-5xl font-serif font-light sm:font-normal tracking-tight text-text-primary">
                   {greeting},
                 </span>
                 <div className="inline-flex items-center gap-1.5 border-b-2 border-accent pb-0.5 bg-bg-secondary/60 px-2 py-0.5 shadow-2xs">
@@ -348,7 +348,7 @@ export function LifeMapPage() {
                     }}
                     autoFocus
                     maxLength={24}
-                    className="bg-transparent font-display font-black text-2xl sm:text-3xl md:text-4xl uppercase text-accent focus:outline-none tracking-tight w-auto min-w-[140px] max-w-[280px] sm:max-w-md"
+                    className="bg-transparent font-serif font-normal text-2xl sm:text-3xl md:text-4xl uppercase text-accent focus:outline-none tracking-tight w-auto min-w-[140px] max-w-[280px] sm:max-w-md"
                     placeholder="DESIGNATION"
                     aria-label="Protagonist designation"
                     disabled={isSavingName}
@@ -374,9 +374,9 @@ export function LifeMapPage() {
                 </div>
               </div>
             ) : (
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display flex items-center flex-wrap gap-x-3 gap-y-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-light sm:font-normal tracking-tight text-text-primary flex items-center flex-wrap gap-x-3 gap-y-1">
                 <span>
-                  {greeting}, <span className="text-accent">{userName}</span>
+                  {greeting}, <span className="italic text-accent">{userName}</span>
                 </span>
                 <button
                   type="button"
@@ -394,14 +394,14 @@ export function LifeMapPage() {
             {/* Three Realms Tier Summary Strip */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 font-mono text-xs">
               <span className="text-text-muted text-2xs uppercase tracking-wider">TIER STANDING:</span>
-              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
-                CAREER <span className="text-accent">{careerRank}</span>
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-medium">
+                CAREER <span className="text-accent font-bold">{careerRank}</span>
               </span>
-              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
-                HEALTH <span className="text-success">{healthRank}</span>
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-medium">
+                HEALTH <span className="text-success font-bold">{healthRank}</span>
               </span>
-              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-bold">
-                PERSONAL <span className="text-accent">{personalRank}</span>
+              <span className="px-2 py-0.5 bg-bg-tertiary border border-border-strong text-text-primary font-medium">
+                PERSONAL <span className="text-accent font-bold">{personalRank}</span>
               </span>
             </div>
           </div>
@@ -411,7 +411,7 @@ export function LifeMapPage() {
             <div className="flex items-center justify-between font-mono">
               <div className="flex items-baseline gap-2">
                 <span className="text-3xs uppercase tracking-widest text-text-muted">CURRENT</span>
-                <span className="text-2xl font-black text-text-primary font-display">LEVEL {protagonistLevel}</span>
+                <span className="text-xl sm:text-2xl font-serif font-normal text-text-primary tracking-wide">Level {protagonistLevel}</span>
               </div>
               <span className="text-xs font-mono font-bold text-accent">
                 {currentLevelExp} / {expToNext} XP
@@ -463,8 +463,8 @@ export function LifeMapPage() {
               </div>
 
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-4xl font-black font-display text-text-primary group-hover:text-accent transition-colors">
-                  RANK {careerRank}
+                <span className="text-3xl sm:text-4xl font-serif font-light tracking-tight text-text-primary group-hover:text-accent transition-colors">
+                  Rank <span className="font-normal">{careerRank}</span>
                 </span>
                 <span className="font-mono text-sm font-bold text-text-secondary">
                   LVL {careerProg.level}
@@ -498,8 +498,8 @@ export function LifeMapPage() {
               </div>
 
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-4xl font-black font-display text-text-primary group-hover:text-success transition-colors">
-                  RANK {healthRank}
+                <span className="text-3xl sm:text-4xl font-serif font-light tracking-tight text-text-primary group-hover:text-success transition-colors">
+                  Rank <span className="font-normal">{healthRank}</span>
                 </span>
                 <span className="font-mono text-sm font-bold text-text-secondary">
                   LVL {healthProg.level}
@@ -533,8 +533,8 @@ export function LifeMapPage() {
               </div>
 
               <div className="flex items-baseline justify-between mb-1">
-                <span className="text-4xl font-black font-display text-text-primary group-hover:text-accent transition-colors">
-                  RANK {personalRank}
+                <span className="text-3xl sm:text-4xl font-serif font-light tracking-tight text-text-primary group-hover:text-accent transition-colors">
+                  Rank <span className="font-normal">{personalRank}</span>
                 </span>
                 <span className="font-mono text-sm font-bold text-text-secondary">
                   LVL {personalProg.level}
@@ -571,7 +571,7 @@ export function LifeMapPage() {
                 <div key={attr.name} className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between font-mono text-xs">
                     <span className="font-bold text-text-secondary tracking-wider">{attr.name}</span>
-                    <span className="font-black text-text-primary">{attr.value} <span className="text-3xs text-text-muted font-normal">/ 100</span></span>
+                    <span className="font-medium text-text-primary">{attr.value} <span className="text-3xs text-text-muted font-normal">/ 100</span></span>
                   </div>
                   
                   {/* Visual Meter */}

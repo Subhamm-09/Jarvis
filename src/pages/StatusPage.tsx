@@ -304,7 +304,7 @@ export function StatusPage() {
               CAREER DOMAIN // CLASSIFICATION ARCHIVES
             </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black font-cinzel tracking-tight uppercase leading-none text-text-primary">
+          <h1 className="text-3xl sm:text-5xl font-serif font-normal tracking-tight text-text-primary leading-none">
             S-Tier Trial & Status
           </h1>
           <div className="text-xs font-mono text-text-secondary mt-2">
@@ -381,7 +381,7 @@ export function StatusPage() {
           </div>
 
           <div className="flex items-baseline gap-6 mb-6">
-            <div className="text-8xl sm:text-9xl font-black leading-none text-text-primary tracking-tighter font-cinzel">
+            <div className="text-7xl sm:text-8xl font-serif font-light leading-none text-text-primary tracking-tighter">
               {overallLevel}
             </div>
             <div className="flex flex-col">
@@ -431,7 +431,7 @@ export function StatusPage() {
               </div>
 
               <div className="flex items-baseline gap-4 mb-3">
-                <div className={`text-7xl sm:text-8xl font-black font-cinzel tracking-tighter leading-none ${
+                <div className={`text-6xl sm:text-7xl font-serif font-light tracking-tighter leading-none ${
                   placementData.isReady ? 'text-rpg-green drop-shadow-[0_0_12px_rgba(46,125,86,0.35)]' : 'text-text-primary'
                 }`}>
                   {placementData.score}
@@ -479,8 +479,8 @@ export function StatusPage() {
                 MONARCH GATE VERIFICATION PROTOCOL
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black font-cinzel uppercase tracking-tight text-text-primary">
-              S-Tier Trial Objectives
+            <h2 className="text-2xl sm:text-3xl font-serif font-light tracking-tight text-text-primary">
+              S-Tier Trial <span className="italic text-accent">Objectives</span>
             </h2>
           </div>
 
@@ -546,8 +546,8 @@ export function StatusPage() {
       {domainStats.length > 0 && (
         <section className="flex flex-col gap-6">
           <div className="border-b-2 border-border-strong pb-3 flex items-center justify-between">
-            <h2 className="text-xl sm:text-2xl font-black font-cinzel uppercase tracking-tight text-text-primary">
-              Domain Protocols Telemetry
+            <h2 className="text-xl sm:text-2xl font-serif font-light tracking-tight text-text-primary">
+              Domain Protocols <span className="italic text-accent">Telemetry</span>
             </h2>
             <span className="text-3xs font-mono text-text-muted uppercase tracking-widest">
               CLICK PROTOCOL TO EXPAND DOSSIER
@@ -572,7 +572,7 @@ export function StatusPage() {
                   {/* Row Header */}
                   <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="w-48 shrink-0 flex items-center gap-4">
-                      <div className={`w-10 h-10 border flex items-center justify-center font-cinzel font-black text-xl shrink-0 ${
+                      <div className={`w-10 h-10 border flex items-center justify-center font-serif font-normal text-xl shrink-0 ${
                         isS 
                           ? 'bg-rpg-gold/15 border-rpg-gold text-rpg-gold shadow-[0_0_8px_rgba(194,89,52,0.25)]' 
                           : 'bg-bg-primary border-border-strong text-text-primary'
@@ -580,7 +580,7 @@ export function StatusPage() {
                         {stat.rank}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-text-primary uppercase tracking-wider font-cinzel">
+                        <span className="text-sm font-serif font-normal text-text-primary uppercase tracking-wider">
                           {stat.domain}
                         </span>
                         <span className="text-3xs font-mono text-text-secondary uppercase">

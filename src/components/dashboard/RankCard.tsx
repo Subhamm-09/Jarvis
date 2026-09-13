@@ -34,7 +34,7 @@ export function RankCard({ rank, status, currentExp, maxExp, level }: RankCardPr
       {/* Rank Monument */}
       <div className="flex items-baseline justify-between pt-1">
         <div className="flex items-baseline gap-3">
-          <span className={`text-6xl font-black font-cinzel leading-none tracking-tight ${
+          <span className={`text-6xl font-serif font-light leading-none tracking-tight ${
             isSRank ? 'text-accent drop-shadow-[0_0_12px_rgba(194,89,52,0.35)]' : 'text-text-primary'
           }`}>
             {rank}

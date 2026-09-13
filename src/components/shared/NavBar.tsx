@@ -259,7 +259,7 @@ export function NavBar() {
                 onClick={() => playSolenoidClick()}
               >
                 <div className="w-3 h-3 bg-accent shadow-[0_0_8px_rgba(194,89,52,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
-                <span className="text-lg font-black font-cinzel tracking-tight text-text-primary uppercase">
+                <span className="text-base font-mono font-bold tracking-[0.2em] text-text-primary uppercase">
                   JARVIS
                 </span>
               </Link>
@@ -381,7 +381,7 @@ export function NavBar() {
               }}
             >
               <div className="w-3 h-3 bg-accent rotate-45" />
-              <span className="text-base font-black font-cinzel tracking-tight text-text-primary uppercase">
+              <span className="text-sm font-mono font-bold tracking-[0.2em] text-text-primary uppercase">
                 JARVIS
               </span>
             </Link>

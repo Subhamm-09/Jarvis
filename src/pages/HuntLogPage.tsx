@@ -394,8 +394,8 @@ export function HuntLogPage() {
               SYSTEM CONQUEST AUDIT // ALL REALMS
             </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black font-cinzel uppercase tracking-tight text-text-primary leading-none">
-            Hunt Log
+          <h1 className="text-4xl sm:text-5xl font-serif font-light tracking-tight text-text-primary leading-none">
+            Hunt <span className="italic text-accent">Log</span>
           </h1>
           <div className="text-xs font-mono text-text-secondary mt-2">
             CHRONOLOGICAL CONQUEST RECORDS, PROTOCOL EXECUTIONS, AND VERIFIED EXP ARCHIVES

@@ -621,7 +621,7 @@ export function DashboardPage() {
                 <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
                 <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">CAREER PROTOCOL // ACTIVE MATRIX</span>
               </div>
-              <h1 className="text-4xl font-black tracking-tight uppercase leading-none font-cinzel text-text-primary">Career Quests</h1>
+              <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-text-primary">Career Quests</h1>
               <div className="text-xs text-text-secondary mt-2 font-mono">
                 OPERATIONAL FOCUS // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
               </div>

@@ -327,7 +327,7 @@ export function PersonalDashboardPage() {
                 <span className="w-1.5 h-1.5 bg-rpg-gold rounded-xs" />
                 <span className="text-3xs font-mono font-bold uppercase tracking-widest text-rpg-gold">PERSONAL PROTOCOL // MASTERY MATRIX</span>
               </div>
-              <h1 className="text-4xl font-black tracking-tight uppercase leading-none font-cinzel text-text-primary">Personal Quests</h1>
+              <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-text-primary">Personal Quests</h1>
               <div className="text-xs text-text-secondary mt-2 font-mono">
                 MASTERY CYCLE // {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
               </div>
@@ -356,7 +356,7 @@ export function PersonalDashboardPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-text-primary tracking-tight font-cinzel">
+                  <h3 className="text-xl font-serif font-normal text-text-primary tracking-tight">
                     {topPriority.title}
                   </h3>
                   <div className="text-xs font-mono text-text-secondary mt-2 flex flex-wrap items-center gap-3">
@@ -394,7 +394,7 @@ export function PersonalDashboardPage() {
             ) : (
               <div className="bg-bg-secondary border border-border-strong p-6">
                 <div className="empty-state py-8 text-center">
-                  <div className="text-sm font-semibold mb-1 text-text-primary font-cinzel">All Personal Quests Cleared</div>
+                  <div className="text-sm font-serif font-normal mb-1 text-text-primary">All Personal Quests Cleared</div>
                   <div className="text-xs text-text-secondary mb-4 font-mono">Queue is clear. Initialize a personal quest to expand knowledge.</div>
                   <button onClick={() => setIsNewTaskModalOpen(true)} className="btn-primary">
                     Initialize Quest

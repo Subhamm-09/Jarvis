@@ -298,8 +298,8 @@ export function RewardsPage() {
               <span>REWARDS // PROGRESSION UNLOCKS & TITLES</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display">
-              Hall of Glory
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-light tracking-tight text-text-primary">
+              Hall of <span className="italic text-accent">Glory</span>
             </h1>
 
             <p className="text-xs sm:text-sm font-serif italic text-text-secondary max-w-2xl leading-relaxed">
@@ -314,7 +314,7 @@ export function RewardsPage() {
               <Sparkles size={13} className="text-accent" />
             </div>
 
-            <div className="text-lg font-black font-display uppercase tracking-wider text-accent border-b border-border-strong pb-2">
+            <div className="text-lg font-serif font-normal tracking-wide text-accent border-b border-border-strong pb-2">
               {equippedTitle}
             </div>
 
@@ -374,7 +374,7 @@ export function RewardsPage() {
                     )}
                   </div>
 
-                  <h3 className="text-base font-black font-display uppercase tracking-wide text-text-primary mb-1">
+                  <h3 className="text-base font-serif font-normal tracking-wide text-text-primary mb-1">
                     {title.name}
                   </h3>
 
@@ -494,7 +494,7 @@ export function RewardsPage() {
                   <span className="text-accent font-bold">{ins.realm}</span>
                   <span className="text-3xs text-success font-bold">ACTIVE</span>
                 </div>
-                <h4 className="text-lg font-black font-display uppercase tracking-wide text-text-primary mb-2">
+                <h4 className="text-lg font-serif font-normal tracking-wide text-text-primary mb-2">
                   {ins.name}
                 </h4>
                 <p className="text-xs text-text-secondary font-serif leading-relaxed">

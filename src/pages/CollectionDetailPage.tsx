@@ -196,7 +196,7 @@ export function CollectionDetailPage() {
               {getIcon()}
             </div>
             <div>
-              <h1 className="text-4xl font-black text-text-primary uppercase tracking-tight">{collection.name}</h1>
+              <h1 className="text-3xl sm:text-4xl font-serif font-light text-text-primary tracking-tight">{collection.name}</h1>
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-secondary border border-border-strong px-2 py-0.5 rounded bg-bg-primary">
                   {collection.type} list
@@ -205,13 +205,13 @@ export function CollectionDetailPage() {
             </div>
           </div>
           {collection.description && (
-            <p className="mt-6 text-sm text-text-secondary max-w-2xl">{collection.description}</p>
+            <p className="mt-6 text-sm font-serif italic text-text-secondary max-w-2xl">{collection.description}</p>
           )}
         </div>
       </div>
 
       <div className="mt-4">
-        <h2 className="text-xl font-bold tracking-tight mb-6 uppercase border-b-2 border-border-strong pb-2 flex items-center justify-between">
+        <h2 className="text-xl font-serif font-normal tracking-tight mb-6 border-b-2 border-border-strong pb-2 flex items-center justify-between">
           <span>Queue</span>
           <span className="text-xs font-mono text-text-muted">{tasks.length} items</span>
         </h2>

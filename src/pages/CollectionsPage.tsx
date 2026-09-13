@@ -46,7 +46,9 @@ export function CollectionsPage() {
   return (
     <div className="flex-1 w-full max-w-[1200px] mx-auto p-4 md:p-8 flex flex-col">
       <header className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2 uppercase text-text-primary">Collections</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight mb-2 text-text-primary">
+          Curated <span className="italic text-accent">Collections</span>
+        </h1>
         <div className="text-sm font-mono text-text-secondary uppercase tracking-widest border-b-2 border-border-strong inline-block pb-1">
           Smart Preparation Lists
         </div>

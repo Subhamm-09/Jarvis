@@ -77,7 +77,7 @@ export function TactileLevelUpModal({
             {domainName} PROTOCOL // STATUS UPGRADE
           </div>
 
-          <div className="text-3xl font-black uppercase tracking-tight font-cinzel text-accent mb-1 drop-shadow-[0_0_12px_rgba(194,89,52,0.35)]">
+          <div className="text-3xl font-serif font-light uppercase tracking-widest text-accent mb-1 drop-shadow-[0_0_12px_rgba(194,89,52,0.35)]">
             LEVEL UP
           </div>
           <p className="text-xs font-mono text-text-secondary mb-6">
@@ -89,7 +89,7 @@ export function TactileLevelUpModal({
             <div className="flex items-center justify-around">
               <div className="flex flex-col items-center">
                 <span className="text-3xs font-mono uppercase tracking-widest text-text-muted mb-1">Clearance</span>
-                <span className="text-5xl font-black font-cinzel text-text-primary leading-none tracking-tight">
+                <span className="text-5xl font-serif font-light text-text-primary leading-none tracking-tight">
                   LVL {level}
                 </span>
               </div>
@@ -98,7 +98,7 @@ export function TactileLevelUpModal({
 
               <div className="flex flex-col items-center">
                 <span className="text-3xs font-mono uppercase tracking-widest text-text-muted mb-1">Tier Rank</span>
-                <span className="text-5xl font-black font-cinzel text-accent leading-none tracking-tight">
+                <span className="text-5xl font-serif font-light text-accent leading-none tracking-tight">
                   {rank}
                 </span>
               </div>

@@ -165,7 +165,7 @@ export function TactileFeedbackHUD() {
               </span>
               <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black font-cinzel tracking-tight uppercase leading-tight text-text-primary">
+            <h2 className="text-xl sm:text-2xl font-serif font-light tracking-tight leading-tight text-text-primary">
               {domainHeader}
             </h2>
             <div className="text-xs font-mono text-text-secondary mt-1 truncate">
@@ -236,7 +236,7 @@ export function TactileFeedbackHUD() {
                   <Award size={14} className="text-accent" />
                 </div>
 
-                <div className="text-2xl sm:text-3xl font-black font-cinzel uppercase tracking-wider text-accent text-center py-1">
+                <div className="text-2xl sm:text-3xl font-serif font-light uppercase tracking-widest text-accent text-center py-1">
                   LEVEL UP
                 </div>
                 

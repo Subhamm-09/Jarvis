@@ -1,11 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-display: 'Cinzel', serif;
-  --font-serif: 'Cormorant Garamond', serif;
+  --font-display: 'Cormorant Garamond', 'Newsreader', Georgia, serif;
+  --font-serif: 'Cormorant Garamond', 'Newsreader', Georgia, serif;
+  --font-cinzel: 'Cormorant Garamond', 'Newsreader', Georgia, serif;
 
   --color-bg-primary: #faf9f5;
   --color-bg-secondary: #ffffff;
@@ -113,7 +114,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight text-text-primary;
+    @apply font-serif font-normal tracking-tight text-text-primary;
   }
 }
 
@@ -160,19 +161,19 @@
 
   /* Editorial & RPG Telemetry Typography */
   .label {
-    @apply text-2xs uppercase tracking-ultra font-semibold text-text-secondary font-mono;
+    @apply text-2xs uppercase tracking-widest font-medium text-text-secondary font-mono;
   }
 
   .label-accent {
-    @apply text-2xs uppercase tracking-ultra font-semibold text-accent font-mono;
+    @apply text-2xs uppercase tracking-widest font-medium text-accent font-mono;
   }
 
   .label-crimson {
-    @apply text-2xs uppercase tracking-ultra font-semibold text-crimson font-mono;
+    @apply text-2xs uppercase tracking-widest font-medium text-crimson font-mono;
   }
 
   .heading-display {
-    @apply font-black tracking-widest text-text-primary uppercase;
+    @apply font-serif font-normal tracking-tight text-text-primary;
     font-family: var(--font-display);
   }
 
@@ -218,22 +219,22 @@
 
   /* Primary Button - Editorial Rust Orange */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-accent text-white text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(194,89,52,0.25)];
+    @apply flex items-center justify-center gap-2 bg-accent text-white text-xs font-mono font-medium uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(194,89,52,0.2)];
     border-radius: var(--radius-system);
   }
 
   .btn-secondary {
-    @apply flex items-center justify-center gap-2 bg-bg-secondary border border-border-strong text-text-primary text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:border-accent hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center justify-center gap-2 bg-bg-secondary border border-border-strong text-text-primary text-xs font-mono font-medium uppercase tracking-wider px-5 py-2.5 hover:border-accent hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed;
     border-radius: var(--radius-system);
   }
 
   .btn-crimson {
-    @apply flex items-center justify-center gap-2 bg-crimson text-white text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.25)];
+    @apply flex items-center justify-center gap-2 bg-crimson text-white text-xs font-mono font-medium uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.2)];
     border-radius: var(--radius-system);
   }
 
   .btn-ghost {
-    @apply flex items-center justify-center gap-2 text-text-secondary text-xs font-mono font-bold uppercase tracking-wider px-3 py-2 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply flex items-center justify-center gap-2 text-text-secondary text-xs font-mono font-medium uppercase tracking-wider px-3 py-2 hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   /* Data Table/List rows */

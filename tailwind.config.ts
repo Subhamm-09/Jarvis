@@ -49,6 +49,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'Segoe UI', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        serif: ['Cormorant Garamond', 'Newsreader', 'Georgia', 'serif'],
+        display: ['Cormorant Garamond', 'Newsreader', 'Georgia', 'serif'],
+        cinzel: ['Cormorant Garamond', 'Newsreader', 'Georgia', 'serif'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem', letterSpacing: '0.05em' }],

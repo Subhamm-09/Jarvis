@@ -69,7 +69,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
               <div className="flex flex-wrap items-center gap-3 mb-8 animate-in fade-in duration-500">
                 <div className="flex items-center gap-2.5">
                   <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(194,89,52,0.4)] rotate-45" />
-                  <span className="text-xl font-black font-cinzel tracking-tighter text-text-primary uppercase">
+                  <span className="text-base sm:text-lg font-mono font-bold tracking-[0.2em] text-text-primary uppercase">
                     JARVIS
                   </span>
                 </div>
@@ -81,21 +81,21 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
               </div>
 
               {/* Monumental Life RPG Headline */}
-              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black font-cinzel tracking-tight uppercase leading-[0.95] text-text-primary mb-6 selection:bg-accent selection:text-white">
-                YOU ARE THE PROTAGONIST. <br />
-                <span className="text-accent drop-shadow-[0_2px_12px_rgba(194,89,52,0.2)]">
-                  JARVIS IS THE SYSTEM.
+              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-serif font-light sm:font-normal tracking-tight text-text-primary mb-6 leading-[1.08] selection:bg-accent selection:text-white">
+                You are the protagonist. <br />
+                <span className="italic text-accent font-light">
+                  JARVIS is the system.
                 </span>
               </h1>
 
               {/* Editorial Subtitle */}
-              <p className="text-xl sm:text-2xl font-serif italic text-text-secondary max-w-2xl mb-6 leading-relaxed">
+              <p className="text-lg sm:text-xl font-serif italic font-light text-text-secondary max-w-2xl mb-6 leading-relaxed">
                 Eradicate passive to-do list triage. Awaken mathematical human capability across Career, Health, and Personal realms with zero cross-realm contamination.
               </p>
 
               {/* Manifesto Fragment */}
               <div className="p-4 bg-bg-secondary border-l-2 border-l-accent border border-border-strong mb-10 max-w-2xl shadow-xs">
-                <p className="text-xs sm:text-sm font-sans text-text-muted leading-relaxed">
+                <p className="text-xs sm:text-sm font-sans text-text-muted leading-relaxed font-normal">
                   Most productivity tools treat existence as an administrative chore queue. JARVIS models reality as an uncompromising RPG progression architecture: consistency is quantified, trials are unforgiving, and the S-Tier is unlocked solely through mathematical proof of work.
                 </p>
               </div>
@@ -105,14 +105,14 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                 <Link
                   to={isAuthenticated ? "/life" : "/auth"}
                   onClick={() => playSolenoidClick()}
-                  className="btn-primary py-4 px-8 text-sm font-mono font-black uppercase tracking-widest flex items-center justify-between gap-4 group transition-all shadow-[0_4px_24px_rgba(194,89,52,0.3)]"
+                  className="btn-primary py-4 px-7 text-sm font-mono font-medium uppercase tracking-wider flex items-center justify-between gap-4 group transition-all shadow-[0_4px_24px_rgba(194,89,52,0.25)]"
                 >
                   <div className="flex flex-col text-left">
-                    <span className="text-3xs text-white/70 font-mono tracking-widest">
+                    <span className="text-3xs text-white/80 font-mono tracking-widest">
                       {isAuthenticated ? 'CURRENT SESSION // ACTIVE' : 'INITIALIZE PROTOCOL // REALM MATRIX'}
                     </span>
-                    <span className="text-sm font-black tracking-wider">
-                      {isAuthenticated ? 'Enter Character Matrix' : 'Awaken The System'}
+                    <span className="text-sm font-semibold tracking-wide">
+                      {isAuthenticated ? 'Enter Character Matrix' : 'Awaken the System'}
                     </span>
                   </div>
                   <ChevronRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
@@ -120,7 +120,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
 
                 <button
                   onClick={() => scrollToSection('act-tri-realms')}
-                  className="btn-secondary py-4 px-6 text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2"
+                  className="btn-secondary py-4 px-6 text-xs font-mono font-medium uppercase tracking-wider flex items-center justify-center gap-2"
                 >
                   <ArrowDown size={14} className="text-accent" />
                   <span>Explore The 3 Realms</span>
@@ -307,11 +307,11 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                 <Layers size={13} />
                 <span>SOVEREIGN ARCHITECTURE // THE THREE REALMS</span>
               </div>
-              <h2 className="text-3xl sm:text-5xl font-black font-cinzel tracking-tight uppercase text-text-primary">
-                The Tri-Domain Concordat
+              <h2 className="text-3xl sm:text-5xl font-serif font-light sm:font-normal tracking-tight text-text-primary">
+                The Tri-Domain <span className="italic text-accent">Concordat</span>
               </h2>
             </div>
-            <p className="text-sm font-serif italic text-text-secondary max-w-md">
+            <p className="text-sm sm:text-base font-serif italic font-light text-text-secondary max-w-md">
               Each domain maintains its own XP mathematical engine, ranking hierarchy, and unforgiving S-Tier clearance gate. Zero pooling. Zero dilution.
             </p>
           </div>
@@ -331,12 +331,12 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                     <Target size={12} />
                     <span>WORLD 01 &bull; CAREER</span>
                   </span>
-                  <span className="text-xs font-mono text-text-muted font-bold">
+                  <span className="text-xs font-mono text-text-muted font-medium">
                     HUNTER CLASS
                   </span>
                 </div>
 
-                <h3 className="text-2xl font-black font-cinzel uppercase tracking-tight text-text-primary mb-3 group-hover:text-accent transition-colors">
+                <h3 className="text-xl sm:text-2xl font-serif font-normal tracking-tight text-text-primary mb-3 group-hover:text-accent transition-colors">
                   Algorithmic Combat & Production Systems
                 </h3>
 
@@ -387,12 +387,12 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                     <HeartPulse size={12} />
                     <span>WORLD 02 &bull; HEALTH</span>
                   </span>
-                  <span className="text-xs font-mono text-text-muted font-bold">
+                  <span className="text-xs font-mono text-text-muted font-medium">
                     VANGUARD CLASS
                   </span>
                 </div>
 
-                <h3 className="text-2xl font-black font-cinzel uppercase tracking-tight text-text-primary mb-3 group-hover:text-success transition-colors">
+                <h3 className="text-xl sm:text-2xl font-serif font-normal tracking-tight text-text-primary mb-3 group-hover:text-success transition-colors">
                   Biological Mastery & Iron Endurance
                 </h3>
 
@@ -443,12 +443,12 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                     <Brain size={12} />
                     <span>WORLD 03 &bull; PERSONAL</span>
                   </span>
-                  <span className="text-xs font-mono text-text-muted font-bold">
+                  <span className="text-xs font-mono text-text-muted font-medium">
                     POLYMATH CLASS
                   </span>
                 </div>
 
-                <h3 className="text-2xl font-black font-cinzel uppercase tracking-tight text-text-primary mb-3 group-hover:text-accent transition-colors">
+                <h3 className="text-xl sm:text-2xl font-serif font-normal tracking-tight text-text-primary mb-3 group-hover:text-accent transition-colors">
                   Philosophical Synthesis & Deliberate Practice
                 </h3>
 
@@ -496,23 +496,23 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
       <section className="py-24 bg-bg-primary text-center border-b border-border-strong relative">
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center">
           
-          <div className="w-8 h-8 bg-accent rotate-45 mb-8 shadow-[0_0_16px_rgba(194,89,52,0.4)]" />
+          <div className="w-8 h-8 bg-accent rotate-45 mb-8 shadow-[0_0_16px_rgba(194,89,52,0.3)]" />
 
-          <h2 className="text-4xl sm:text-6xl font-black font-cinzel uppercase tracking-tight text-text-primary mb-6">
-            Commence Your Ascension.
+          <h2 className="text-3xl sm:text-5xl font-serif font-light sm:font-normal tracking-tight text-text-primary mb-5">
+            Commence Your <span className="italic text-accent">Ascension.</span>
           </h2>
 
-          <p className="text-lg sm:text-xl font-serif italic text-text-secondary max-w-xl mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg font-serif italic font-light text-text-secondary max-w-xl mb-8 leading-relaxed">
             The system is online. The three realms are ready. The S-Tier barrier awaits your proof of work.
           </p>
 
           <Link
             to={isAuthenticated ? "/life" : "/auth"}
             onClick={() => playSolenoidClick()}
-            className="btn-primary py-5 px-12 text-base font-mono font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_4px_30px_rgba(194,89,52,0.35)]"
+            className="btn-primary py-4 px-10 text-sm font-mono font-medium uppercase tracking-widest flex items-center gap-3 shadow-[0_4px_30px_rgba(194,89,52,0.25)]"
           >
-            <Terminal size={18} />
-            <span>{isAuthenticated ? 'Enter Character Matrix' : 'Awaken The Protocol'}</span>
+            <Terminal size={16} />
+            <span>{isAuthenticated ? 'Enter Character Matrix' : 'Awaken the Protocol'}</span>
           </Link>
 
         </div>
