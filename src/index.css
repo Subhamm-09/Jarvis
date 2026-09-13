@@ -269,10 +269,60 @@
   .animate-cerulean-sweep, .animate-gold-sweep {
     animation: ceruleanSweep 1.8s ease-in-out infinite;
   }
+
+  /* Orbital Astrolabe Keyframes */
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spinReverse {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes pulseSubtle {
+    0%, 100% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 90s linear infinite;
+  }
+
+  .animate-spin-reverse {
+    animation: spinReverse 70s linear infinite;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulseSubtle 4s ease-in-out infinite;
+  }
 }
 
 @layer utilities {
   .rounded-system {
     border-radius: var(--radius-system);
   }
+
+  .bg-blueprint-grid {
+    background-image: 
+      linear-gradient(to right, rgba(39, 65, 86, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(39, 65, 86, 0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
 }
+
