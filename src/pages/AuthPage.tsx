@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { supabase, supabaseUrl } from '../lib/supabaseClient';
 
 export function AuthPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +16,12 @@ export function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const isLocalhostInProd = 
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1' &&
+    (supabaseUrl.includes('localhost') || supabaseUrl.includes('127.0.0.1'));
+
   const handleDevSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (devPasscode !== 'HEY HEY HEY') {
@@ -27,7 +33,7 @@ export function AuthPage() {
     const savedPassword = localStorage.getItem('dev_password');
 
     if (!savedEmail || !savedPassword) {
-      setError('Developer backdoor not configured. Please log in normally once to link your account, then you can use the backdoor.');
+      setError('Developer backdoor not configured on this device. Please register or log in normally once to link your account, then you can use the backdoor.');
       setIsDevLogin(false);
       return;
     }
@@ -75,15 +81,25 @@ export function AuthPage() {
         localStorage.setItem('dev_password', btoa(password));
         
       } else {
-        const { error } = await supabase.auth.signUp({ email: cleanEmail, password });
+        const { data, error } = await supabase.auth.signUp({ email: cleanEmail, password });
         if (error) throw error;
-        setMessage('Check your inbox for the confirmation link.');
+        if (data.session) {
+          setMessage('Agent initialized successfully! Entering character matrix...');
+        } else {
+          setMessage('Registration received! Check your inbox/spam for the confirmation link, or disable "Confirm email" in your Supabase Auth dashboard.');
+        }
       }
     } catch (err: any) {
       if (err.message === 'Invalid login credentials') {
-        setError('Invalid access code or email. (If your local DB was reset, you may need to register again)');
+        setError('Invalid credentials. If this is your first time on this deployment, please click "Register a new agent instead" below.');
+      } else if (err.message?.includes('Email not confirmed')) {
+        setError('Email not confirmed yet. Check your inbox/spam for the confirmation email, or turn off "Confirm email" in Supabase Auth settings.');
       } else if (err.message?.includes('Failed to fetch') || err.name === 'TypeError') {
-        setError('Cannot connect to authentication service (Failed to fetch). Ensure your local Supabase/Docker backend is running on port 54321.');
+        if (isLocalhostInProd) {
+          setError('Backend misconfigured: This deployment is still pointing to local 127.0.0.1:54321, which other devices cannot reach. Add your cloud VITE_SUPABASE_URL in Vercel settings and redeploy.');
+        } else {
+          setError('Cannot connect to authentication service (Failed to fetch). Check your network connection or verify your Supabase project status.');
+        }
       } else {
         setError(err.message || 'An error occurred during authentication.');
       }
@@ -105,6 +121,21 @@ export function AuthPage() {
             {isDevLogin ? 'Developer Override' : 'System Initialization'}
           </div>
         </div>
+
+        {isLocalhostInProd && (
+          <div className="p-3.5 mb-6 bg-accent/15 border-l-4 border-accent text-xs font-mono text-text-primary leading-relaxed shadow-xs">
+            <div className="flex items-center gap-1.5 font-bold text-accent mb-1">
+              <AlertTriangle size={14} />
+              <span>BACKEND CONFIGURATION NOTICE</span>
+            </div>
+            <p className="text-3xs text-text-secondary mb-1.5">
+              This deployment is trying to connect to local Docker on <span className="font-bold text-text-primary">127.0.0.1:54321</span>. Other devices cannot reach your local machine.
+            </p>
+            <p className="text-3xs text-text-muted">
+              Add <code className="text-accent font-bold">VITE_SUPABASE_URL</code> and <code className="text-accent font-bold">VITE_SUPABASE_ANON_KEY</code> to your Vercel Environment Variables, then click <strong>Redeploy</strong>.
+            </p>
+          </div>
+        )}
 
         {error && (
           <div className="p-4 mb-8 bg-accent-muted border-l-4 border-accent flex items-start gap-3">
