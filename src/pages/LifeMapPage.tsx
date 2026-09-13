@@ -110,20 +110,40 @@ export function LifeMapPage() {
       ]);
 
       if (cTasksRes.data) setCareerTasks(cTasksRes.data as Task[]);
-      if (cStatsRes.data) setCareerStats(cStatsRes.data);
+      if (cStatsRes.data) {
+        setCareerStats(prev => {
+          const dbTotal = (cStatsRes.data || []).reduce((sum: number, s: any) => sum + (s.current_exp || 0), 0);
+          const prevTotal = prev.reduce((sum: number, s: any) => sum + (s.current_exp || 0), 0);
+          if (dbTotal >= prevTotal) return cStatsRes.data;
+          const diff = prevTotal - dbTotal;
+          return [{ domain: 'career', current_exp: diff, rank: 'E' }, ...cStatsRes.data];
+        });
+      }
       if (cExpRes.data) {
         setCareerStreak(calcStreak(cExpRes.data.map((l: any) => l.awarded_at)));
       }
 
       if (hTasksRes.data) setHealthTasks((hTasksRes.data as HealthTask[]) || []);
       if (hExpRes.data) {
-        setHealthExpLogs((hExpRes.data as HealthExpLog[]) || []);
+        setHealthExpLogs(prev => {
+          const inFlight = prev.filter(l => l.id.startsWith('opt-'));
+          const dbLogs = hExpRes.data as HealthExpLog[];
+          const dbTaskIds = new Set(dbLogs.map(l => l.task_id).filter(Boolean));
+          const pending = inFlight.filter(l => !l.task_id || !dbTaskIds.has(l.task_id));
+          return [...pending, ...dbLogs];
+        });
         setHealthStreak(calcStreak(hExpRes.data.map((l: any) => l.awarded_at)));
       }
 
       if (pTasksRes.data) setPersonalTasks((pTasksRes.data as PersonalTask[]) || []);
       if (pExpRes.data) {
-        setPersonalExpLogs((pExpRes.data as PersonalExpLog[]) || []);
+        setPersonalExpLogs(prev => {
+          const inFlight = prev.filter(l => l.id.startsWith('opt-'));
+          const dbLogs = pExpRes.data as PersonalExpLog[];
+          const dbTaskIds = new Set(dbLogs.map(l => l.task_id).filter(Boolean));
+          const pending = inFlight.filter(l => !l.task_id || !dbTaskIds.has(l.task_id));
+          return [...pending, ...dbLogs];
+        });
         setPersonalStreak(calcStreak(pExpRes.data.map((l: any) => l.awarded_at)));
       }
 
@@ -149,14 +169,72 @@ export function LifeMapPage() {
 
   useEffect(() => {
     fetchTelemetry();
-    const handleUpdate = () => fetchTelemetry();
-    window.addEventListener('exp-awarded', handleUpdate);
-    window.addEventListener('health-exp-awarded', handleUpdate);
-    window.addEventListener('personal-exp-awarded', handleUpdate);
+
+    const handleCareerExp = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.exp) {
+        setCareerStats(prev => [
+          { domain: detail.domain || 'career', current_exp: detail.exp, rank: 'E' },
+          ...prev
+        ]);
+        if (detail.taskId) {
+          setCareerTasks(prev => prev.map(t => t.id === detail.taskId ? { ...t, status: 'done' as const } : t));
+        }
+      }
+      setTimeout(() => fetchTelemetry(), 2500);
+    };
+
+    const handleHealthExp = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.exp) {
+        setHealthExpLogs(prev => [
+          {
+            id: 'opt-' + Date.now(),
+            user_id: '',
+            task_id: detail.taskId || null,
+            pillar: detail.pillar || 'strength',
+            exp_awarded: detail.exp,
+            metadata: {},
+            awarded_at: new Date().toISOString()
+          },
+          ...prev
+        ]);
+        if (detail.taskId) {
+          setHealthTasks(prev => prev.map(t => t.id === detail.taskId ? { ...t, status: 'done' as const } : t));
+        }
+      }
+      setTimeout(() => fetchTelemetry(), 2500);
+    };
+
+    const handlePersonalExp = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.exp) {
+        setPersonalExpLogs(prev => [
+          {
+            id: 'opt-' + Date.now(),
+            user_id: '',
+            task_id: detail.taskId || null,
+            pillar: detail.pillar || 'intellect',
+            exp_awarded: detail.exp,
+            metadata: {},
+            awarded_at: new Date().toISOString()
+          },
+          ...prev
+        ]);
+        if (detail.taskId) {
+          setPersonalTasks(prev => prev.map(t => t.id === detail.taskId ? { ...t, status: 'done' as const } : t));
+        }
+      }
+      setTimeout(() => fetchTelemetry(), 2500);
+    };
+
+    window.addEventListener('exp-awarded', handleCareerExp);
+    window.addEventListener('health-exp-awarded', handleHealthExp);
+    window.addEventListener('personal-exp-awarded', handlePersonalExp);
     return () => {
-      window.removeEventListener('exp-awarded', handleUpdate);
-      window.removeEventListener('health-exp-awarded', handleUpdate);
-      window.removeEventListener('personal-exp-awarded', handleUpdate);
+      window.removeEventListener('exp-awarded', handleCareerExp);
+      window.removeEventListener('health-exp-awarded', handleHealthExp);
+      window.removeEventListener('personal-exp-awarded', handlePersonalExp);
     };
   }, []);
 

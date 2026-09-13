@@ -114,7 +114,7 @@ export function DashboardPage() {
             rank = row.rank;
           }
         });
-        setTotalExp(total);
+        setTotalExp(prev => Math.max(prev, total));
         setHighestRank(rank);
         setDomainRanks(currentDomainRanks);
       }
@@ -198,10 +198,27 @@ export function DashboardPage() {
     fetchTasks();
 
     // Listen for exp-awarded events from any source (completions, hackathon results, etc.)
-    const handleExpAwarded = () => {
-      supabase.auth.getUser().then(({ data: { user: u } }) => {
-        if (u) fetchDashboardStats(u.id);
-      });
+    const handleExpAwarded = (e: Event) => {
+      const customEvent = e as CustomEvent<{ taskId?: string; exp?: number; fromLocalCompletion?: boolean }>;
+      const detail = customEvent.detail;
+
+      // If this was dispatched locally by handleCompleteTask, totalExp was already optimistically incremented
+      if (detail?.fromLocalCompletion) {
+        return;
+      }
+
+      // If dispatched by an external panel (e.g. ProjectTrackerPanel, HackathonTrackerPanel), increment immediately
+      if (detail?.exp) {
+        setTotalExp(prev => prev + detail.exp!);
+        setCompletedCount(prev => prev + 1);
+      }
+
+      // Reconcile with authoritative DB after background edge functions settle
+      setTimeout(() => {
+        supabase.auth.getUser().then(({ data: { user: u } }) => {
+          if (u) fetchDashboardStats(u.id);
+        });
+      }, 2500);
     };
 
     window.addEventListener('exp-awarded', handleExpAwarded);
@@ -480,8 +497,10 @@ export function DashboardPage() {
       ...prev.slice(0, 3)
     ]);
 
-    // Dispatch exp-awarded immediately so Navbar streak and rank react instantly
-    window.dispatchEvent(new CustomEvent('exp-awarded', { detail: { taskId, exp: estimatedExp } }));
+    // Dispatch exp-awarded immediately so Navbar streak, rank, and cross-realm telemetry react instantly
+    window.dispatchEvent(new CustomEvent('exp-awarded', { 
+      detail: { taskId, exp: estimatedExp, domain: task.domain, fromLocalCompletion: true } 
+    }));
 
     if (isRecallModalOpen) {
       setIsRecallModalOpen(false);

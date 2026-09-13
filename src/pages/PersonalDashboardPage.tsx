@@ -98,7 +98,15 @@ export function PersonalDashboardPage() {
           ];
         });
       }
-      if (expRes.data) setExpLogs(expRes.data as PersonalExpLog[]);
+      if (expRes.data) {
+        setExpLogs(prev => {
+          const inFlightOpt = prev.filter(l => l.id.startsWith('opt-'));
+          const dbLogs = expRes.data as PersonalExpLog[];
+          const dbTaskIds = new Set(dbLogs.map(l => l.task_id).filter(Boolean));
+          const stillPendingOpt = inFlightOpt.filter(l => !l.task_id || !dbTaskIds.has(l.task_id));
+          return [...stillPendingOpt, ...dbLogs];
+        });
+      }
     } catch (err) {
       console.error("Personal fetch error:", err);
     } finally {
@@ -126,7 +134,15 @@ export function PersonalDashboardPage() {
   useEffect(() => {
     fetchPersonalData();
 
-    const handleExp = () => fetchPersonalData();
+    const handleExp = (e: Event) => {
+      const customEvent = e as CustomEvent<{ taskId?: string; exp?: number; fromLocalCompletion?: boolean }>;
+      if (customEvent.detail?.fromLocalCompletion) {
+        return;
+      }
+      setTimeout(() => {
+        fetchPersonalData();
+      }, 2000);
+    };
     window.addEventListener('personal-exp-awarded', handleExp);
     return () => {
       window.removeEventListener('personal-exp-awarded', handleExp);
@@ -302,7 +318,9 @@ export function PersonalDashboardPage() {
     });
 
     // 5. DISPATCH EXP-AWARDED EVENT
-    window.dispatchEvent(new CustomEvent('personal-exp-awarded', { detail: { taskId, exp: expAwarded } }));
+    window.dispatchEvent(new CustomEvent('personal-exp-awarded', { 
+      detail: { taskId, exp: expAwarded, pillar: taskPillar, fromLocalCompletion: true } 
+    }));
 
     // 6. ASYNC BACKGROUND PERSISTENCE (NON-BLOCKING)
     try {
@@ -329,6 +347,8 @@ export function PersonalDashboardPage() {
           })
           .then(({ error }) => {
             if (error) console.error("Error inserting personal exp log:", error);
+            // Reconcile once DB insert is confirmed
+            fetchPersonalData();
           });
       }
     } catch (err) {

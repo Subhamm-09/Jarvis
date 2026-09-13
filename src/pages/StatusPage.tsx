@@ -88,15 +88,19 @@ export function StatusPage() {
           }
         }
 
-        setTotalXp(calculatedTotalXp);
+        const finalXp = calculatedTotalXp;
         setStreak(calculatedStreak);
-        setTasksCompleted(tasksData?.length || 0);
+        setTasksCompleted(prev => Math.max(prev, tasksData?.length || 0));
 
-        // 3. Compute Overall Level
-        const { level: lvl, currentLevelExp: lvlExp, expToNext: nextThreshold } = getCareerLevel(calculatedTotalXp);
-        setOverallLevel(lvl);
-        setExpToNext(nextThreshold);
-        setCurrentLevelExp(lvlExp);
+        // 3. Compute Overall Level using the highest known XP
+        setTotalXp(prevTotal => {
+          const effectiveXp = Math.max(prevTotal, finalXp);
+          const { level: lvl, currentLevelExp: lvlExp, expToNext: nextThreshold } = getCareerLevel(effectiveXp);
+          setOverallLevel(lvl);
+          setExpToNext(nextThreshold);
+          setCurrentLevelExp(lvlExp);
+          return effectiveXp;
+        });
 
         // 4. Fetch domain stats & compute dynamically
         if (tasksData || expLogData) {
@@ -272,12 +276,36 @@ export function StatusPage() {
 
     fetchStatus();
 
-    const handleUpdate = () => {
-      fetchStatus();
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ taskId?: string; exp?: number; domain?: string }>;
+      const detail = customEvent.detail;
+      if (detail?.exp) {
+        // Immediate Ascent Progress update in memory (<1ms)
+        setTotalXp(prev => {
+          const newTotal = prev + detail.exp!;
+          const { level: lvl, currentLevelExp: lvlExp, expToNext: nextThreshold } = getCareerLevel(newTotal);
+          setOverallLevel(lvl);
+          setExpToNext(nextThreshold);
+          setCurrentLevelExp(lvlExp);
+          return newTotal;
+        });
+        setTasksCompleted(prev => prev + 1);
+      }
+
+      // Reconcile with authoritative DB after background triggers settle
+      setTimeout(() => {
+        fetchStatus();
+      }, 2500);
     };
 
     window.addEventListener('exp-awarded', handleUpdate);
-    return () => window.removeEventListener('exp-awarded', handleUpdate);
+    window.addEventListener('health-exp-awarded', handleUpdate);
+    window.addEventListener('personal-exp-awarded', handleUpdate);
+    return () => {
+      window.removeEventListener('exp-awarded', handleUpdate);
+      window.removeEventListener('health-exp-awarded', handleUpdate);
+      window.removeEventListener('personal-exp-awarded', handleUpdate);
+    };
   }, []);
 
   if (loading) return null;
@@ -401,7 +429,7 @@ export function StatusPage() {
             </div>
             <div className="h-2 bg-bg-primary w-full overflow-hidden border border-border-subtle p-[1px]">
               <div 
-                className="h-full bg-gradient-to-r from-rpg-gold/80 to-rpg-gold transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(194,89,52,0.3)]"
+                className="h-full bg-gradient-to-r from-rpg-gold/80 to-rpg-gold transition-all duration-500 ease-out shadow-[0_0_8px_rgba(194,89,52,0.3)]"
                 style={{ width: `${Math.min(100, Math.max(0, (currentLevelExp / expToNext) * 100))}%` }}
               />
             </div>

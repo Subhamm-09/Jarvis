@@ -99,7 +99,15 @@ export function HealthDashboardPage() {
           ];
         });
       }
-      if (expRes.data) setExpLogs(expRes.data as HealthExpLog[]);
+      if (expRes.data) {
+        setExpLogs(prev => {
+          const inFlightOpt = prev.filter(l => l.id.startsWith('opt-'));
+          const dbLogs = expRes.data as HealthExpLog[];
+          const dbTaskIds = new Set(dbLogs.map(l => l.task_id).filter(Boolean));
+          const stillPendingOpt = inFlightOpt.filter(l => !l.task_id || !dbTaskIds.has(l.task_id));
+          return [...stillPendingOpt, ...dbLogs];
+        });
+      }
     } catch (err) {
       console.error("Health fetch error:", err);
     } finally {
@@ -127,7 +135,15 @@ export function HealthDashboardPage() {
   useEffect(() => {
     fetchHealthData();
 
-    const handleExp = () => fetchHealthData();
+    const handleExp = (e: Event) => {
+      const customEvent = e as CustomEvent<{ taskId?: string; exp?: number; fromLocalCompletion?: boolean }>;
+      if (customEvent.detail?.fromLocalCompletion) {
+        return;
+      }
+      setTimeout(() => {
+        fetchHealthData();
+      }, 2000);
+    };
     window.addEventListener('health-exp-awarded', handleExp);
     return () => {
       window.removeEventListener('health-exp-awarded', handleExp);
@@ -312,7 +328,9 @@ export function HealthDashboardPage() {
     });
 
     // 5. DISPATCH EXP-AWARDED EVENT
-    window.dispatchEvent(new CustomEvent('health-exp-awarded', { detail: { taskId, exp: expAwarded } }));
+    window.dispatchEvent(new CustomEvent('health-exp-awarded', { 
+      detail: { taskId, exp: expAwarded, pillar: taskPillar, fromLocalCompletion: true } 
+    }));
 
     // 6. ASYNC BACKGROUND PERSISTENCE (NON-BLOCKING)
     try {
@@ -339,6 +357,8 @@ export function HealthDashboardPage() {
           })
           .then(({ error }) => {
             if (error) console.error("Error inserting health exp log:", error);
+            // Reconcile once DB insert is confirmed
+            fetchHealthData();
           });
       }
     } catch (err) {
