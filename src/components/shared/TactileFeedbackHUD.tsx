@@ -111,16 +111,16 @@ export function TactileFeedbackHUD() {
 
   return (
     <div 
-      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#274156]/40 backdrop-blur-md select-none"
+      className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#111111]/40 backdrop-blur-md select-none"
       onClick={handleDismiss}
       aria-modal="true"
       role="dialog"
       style={{
-        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(28, 110, 140, 0.12) 0%, rgba(251, 252, 255, 0.95) 75%)'
+        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(194, 89, 52, 0.12) 0%, rgba(250, 249, 245, 0.95) 75%)'
       }}
     >
       <div 
-        className="w-full max-w-md sm:max-w-lg bg-bg-secondary border-2 border-accent/40 shadow-[0_12px_48px_rgba(39,65,86,0.15),0_0_25px_rgba(28,110,140,0.15)] overflow-hidden animate-in zoom-in-95 duration-150 relative"
+        className="w-full max-w-md sm:max-w-lg bg-bg-secondary border-2 border-accent/40 shadow-[0_12px_48px_rgba(17,17,17,0.12),0_0_25px_rgba(194,89,52,0.15)] overflow-hidden animate-in zoom-in-95 duration-150 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Animated Sweep Bar */}
@@ -189,7 +189,7 @@ export function TactileFeedbackHUD() {
                   prefix="+" 
                   suffix="XP"
                   durationMs={700}
-                  className="text-3xl sm:text-4xl font-black font-mono text-accent drop-shadow-[0_0_10px_rgba(28,110,140,0.3)]"
+                  className="text-3xl sm:text-4xl font-black font-mono text-accent drop-shadow-[0_0_10px_rgba(194,89,52,0.3)]"
                   sizeClass="h-[1.2em] w-[0.7em] text-2xl sm:text-3xl"
                 />
               ) : (
@@ -210,13 +210,13 @@ export function TactileFeedbackHUD() {
               </span>
             </div>
 
-            {/* Segmented attribute gauge filling with Cerulean */}
+            {/* Segmented attribute gauge filling with rust orange */}
             <div className="h-2 bg-bg-primary w-full flex gap-1 p-[1px] border border-border-strong">
               {[...Array(10)].map((_, i) => (
                 <div 
                   key={i} 
                   className={`h-full flex-1 transition-colors duration-200 ${
-                    phase >= 2 && i < 8 ? 'bg-accent shadow-[0_0_6px_rgba(28,110,140,0.4)]' : 'bg-transparent'
+                    phase >= 2 && i < 8 ? 'bg-accent shadow-[0_0_6px_rgba(194,89,52,0.4)]' : 'bg-transparent'
                   }`} 
                 />
               ))}
@@ -227,7 +227,7 @@ export function TactileFeedbackHUD() {
           <div className={`border-t border-border-subtle pt-4 transition-all duration-300 ${phase >= 3 ? 'opacity-100' : 'opacity-20'}`}>
             {isLevelUp ? (
               /* PROMOTION LEVEL-UP CINEMATIC DISPLAY */
-              <div className="bg-bg-secondary border-2 border-accent p-5 flex flex-col gap-3 relative overflow-hidden shadow-[0_0_20px_rgba(28,110,140,0.2)]">
+              <div className="bg-bg-secondary border-2 border-accent p-5 flex flex-col gap-3 relative overflow-hidden shadow-[0_0_20px_rgba(194,89,52,0.2)]">
                 <div className="flex items-center justify-between text-3xs font-mono font-bold tracking-widest uppercase text-accent">
                   <span className="flex items-center gap-1.5">
                     <Sparkles size={13} className="text-accent animate-spin" />

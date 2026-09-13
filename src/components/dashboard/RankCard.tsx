@@ -35,7 +35,7 @@ export function RankCard({ rank, status, currentExp, maxExp, level }: RankCardPr
       <div className="flex items-baseline justify-between pt-1">
         <div className="flex items-baseline gap-3">
           <span className={`text-6xl font-black font-cinzel leading-none tracking-tight ${
-            isSRank ? 'text-accent drop-shadow-[0_0_12px_rgba(28,110,140,0.35)]' : 'text-text-primary'
+            isSRank ? 'text-accent drop-shadow-[0_0_12px_rgba(194,89,52,0.35)]' : 'text-text-primary'
           }`}>
             {rank}
           </span>
@@ -60,7 +60,7 @@ export function RankCard({ rank, status, currentExp, maxExp, level }: RankCardPr
         </div>
         <div className="h-1.5 bg-bg-tertiary w-full overflow-hidden border border-border-subtle p-[1px]">
           <div 
-            className="h-full bg-accent transition-all duration-700 shadow-[0_0_8px_rgba(28,110,140,0.3)]"
+            className="h-full bg-accent transition-all duration-700 shadow-[0_0_8px_rgba(194,89,52,0.3)]"
             style={{ width: `${progress}%` }}
           />
         </div>

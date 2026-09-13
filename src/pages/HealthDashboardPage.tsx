@@ -287,7 +287,7 @@ export function HealthDashboardPage() {
 
             {/* Dynamic Status Banner */}
             {healthRank.rank === 'S' ? (
-              <div className="bg-rpg-gold/15 text-rpg-gold p-2.5 text-3xs font-mono font-bold uppercase mb-3 flex items-center justify-between border border-rpg-gold/40 shadow-[0_0_8px_rgba(28,110,140,0.2)]">
+              <div className="bg-rpg-gold/15 text-rpg-gold p-2.5 text-3xs font-mono font-bold uppercase mb-3 flex items-center justify-between border border-rpg-gold/40 shadow-[0_0_8px_rgba(194,89,52,0.2)]">
                 <span className="font-bold flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-rpg-gold animate-pulse" />
                   APEX TITAN (S-TIER)

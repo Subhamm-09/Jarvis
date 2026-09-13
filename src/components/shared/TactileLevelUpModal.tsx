@@ -46,13 +46,13 @@ export function TactileLevelUpModal({
 
   return (
     <div 
-      className="fixed inset-0 z-[200] bg-[#274156]/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[200] bg-[#111111]/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       style={{
-        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(28, 110, 140, 0.15) 0%, rgba(251, 252, 255, 0.95) 75%)'
+        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(194, 89, 52, 0.15) 0%, rgba(250, 249, 245, 0.95) 75%)'
       }}
     >
-      <div className="bg-bg-secondary border-2 border-accent/50 w-full max-w-md shadow-[0_12px_48px_rgba(39,65,86,0.15),0_0_25px_rgba(28,110,140,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-bg-secondary border-2 border-accent/50 w-full max-w-md shadow-[0_12px_48px_rgba(17,17,17,0.12),0_0_25px_rgba(194,89,52,0.2)] relative overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Animated Sweep Bar */}
         <div className="h-1 bg-gradient-to-r from-transparent via-accent to-transparent w-full animate-shimmer" />
 
@@ -77,7 +77,7 @@ export function TactileLevelUpModal({
             {domainName} PROTOCOL // STATUS UPGRADE
           </div>
 
-          <div className="text-3xl font-black uppercase tracking-tight font-cinzel text-accent mb-1 drop-shadow-[0_0_12px_rgba(28,110,140,0.35)]">
+          <div className="text-3xl font-black uppercase tracking-tight font-cinzel text-accent mb-1 drop-shadow-[0_0_12px_rgba(194,89,52,0.35)]">
             LEVEL UP
           </div>
           <p className="text-xs font-mono text-text-secondary mb-6">

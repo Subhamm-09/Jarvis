@@ -6,13 +6,13 @@ const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Satur
 const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 export function ActivityGrid({ data = [0, 0, 0, 0, 0, 0, 0] }: ActivityGridProps) {
-  // 0: empty, 1: low (subtle cerulean), 2: medium, 3: high, 4: max (vivid cerulean)
+  // 0: empty, 1: low (subtle rust orange), 2: medium, 3: high, 4: max (vivid rust orange)
   const intensityColors = [
-    '#F2EFF2',
-    'rgba(28, 110, 140, 0.20)',
-    'rgba(28, 110, 140, 0.45)',
-    'rgba(28, 110, 140, 0.75)',
-    '#1C6E8C',
+    '#f0eee6',
+    'rgba(194, 89, 52, 0.20)',
+    'rgba(194, 89, 52, 0.45)',
+    'rgba(194, 89, 52, 0.75)',
+    '#c25934',
   ];
 
   // Determine today's column index in local time (Mon=0, ..., Sun=6)
@@ -42,7 +42,7 @@ export function ActivityGrid({ data = [0, 0, 0, 0, 0, 0, 0] }: ActivityGridProps
               }`}
               style={{ 
                 background: bg,
-                boxShadow: hasMaxGlow ? '0 0 10px rgba(28, 110, 140, 0.35)' : undefined 
+                boxShadow: hasMaxGlow ? '0 0 10px rgba(194, 89, 52, 0.35)' : undefined 
               }}
             />
           );

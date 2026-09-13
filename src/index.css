@@ -7,43 +7,43 @@
   --font-display: 'Cinzel', serif;
   --font-serif: 'Cormorant Garamond', serif;
 
-  --color-bg-primary: #FBFCFF;
-  --color-bg-secondary: #FFFFFF;
-  --color-bg-tertiary: #F2EFF2;
-  --color-bg-elevated: #FFFFFF;
+  --color-bg-primary: #faf9f5;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f0eee6;
+  --color-bg-elevated: #ffffff;
   
-  --color-text-primary: #274156;
-  --color-text-secondary: #605856;
-  --color-text-muted: #8E8684;
+  --color-text-primary: #111111;
+  --color-text-secondary: #555555;
+  --color-text-muted: #888888;
   
-  --color-border-subtle: #E5E2E5;
-  --color-border-strong: #D0CCD0;
+  --color-border-subtle: #e5e5e5;
+  --color-border-strong: #cccccc;
   
-  --color-accent: #1C6E8C;
-  --color-accent-hover: #14556C;
-  --color-accent-muted: rgba(28, 110, 140, 0.12);
+  --color-accent: #c25934;
+  --color-accent-hover: #a64b2b;
+  --color-accent-muted: rgba(194, 89, 52, 0.12);
   
-  --color-gold: #1C6E8C;
-  --color-gold-hover: #14556C;
-  --color-gold-muted: rgba(28, 110, 140, 0.15);
+  --color-gold: #c25934;
+  --color-gold-hover: #a64b2b;
+  --color-gold-muted: rgba(194, 89, 52, 0.15);
 
-  --color-rpg-gold: #1C6E8C;
-  --color-rpg-green: #2E7D56;
-  --color-rpg-crimson: #B83A45;
+  --color-rpg-gold: #c25934;
+  --color-rpg-green: #2d5a27;
+  --color-rpg-crimson: #b83a45;
   
-  --color-danger: #B83A45;
-  --color-crimson: #B83A45;
-  --color-crimson-hover: #9E2F39;
+  --color-danger: #b83a45;
+  --color-crimson: #b83a45;
+  --color-crimson-hover: #9e2f39;
   --color-crimson-muted: rgba(184, 58, 69, 0.12);
   
-  --color-success: #2E7D56;
-  --color-success-hover: #236344;
-  --color-success-muted: rgba(46, 125, 86, 0.12);
+  --color-success: #2d5a27;
+  --color-success-hover: #23471f;
+  --color-success-muted: rgba(45, 90, 39, 0.12);
 
-  --color-rarity-common: #605856;
-  --color-rarity-rare: #1C6E8C;
-  --color-rarity-epic: #274156;
-  --color-rarity-legendary: #1C6E8C;
+  --color-rarity-common: #888888;
+  --color-rarity-rare: #c25934;
+  --color-rarity-epic: #111111;
+  --color-rarity-legendary: #c25934;
 
   --radius-system: 0px;
   
@@ -61,21 +61,21 @@
 
 @layer base {
   :root {
-    --color-bg-primary: #FBFCFF;
-    --color-bg-secondary: #FFFFFF;
-    --color-bg-tertiary: #F2EFF2;
-    --color-bg-elevated: #FFFFFF;
-    --color-text-primary: #274156;
-    --color-text-secondary: #605856;
-    --color-text-muted: #8E8684;
-    --color-border-subtle: #E5E2E5;
-    --color-border-strong: #D0CCD0;
-    --color-accent: #1C6E8C;
-    --color-gold: #1C6E8C;
-    --color-rpg-gold: #1C6E8C;
-    --color-rpg-green: #2E7D56;
-    --color-crimson: #B83A45;
-    --color-success: #2E7D56;
+    --color-bg-primary: #faf9f5;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #f0eee6;
+    --color-bg-elevated: #ffffff;
+    --color-text-primary: #111111;
+    --color-text-secondary: #555555;
+    --color-text-muted: #888888;
+    --color-border-subtle: #e5e5e5;
+    --color-border-strong: #cccccc;
+    --color-accent: #c25934;
+    --color-gold: #c25934;
+    --color-rpg-gold: #c25934;
+    --color-rpg-green: #2d5a27;
+    --color-crimson: #b83a45;
+    --color-success: #2d5a27;
 
     /* Spacing System */
     --space-xs: 4px;
@@ -88,7 +88,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #D0CCD0 transparent;
+    scrollbar-color: #cccccc transparent;
   }
 
   *::-webkit-scrollbar {
@@ -100,7 +100,7 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #D0CCD0;
+    background: #cccccc;
     border-radius: 0px;
   }
 
@@ -122,13 +122,13 @@
   .panel {
     @apply bg-bg-secondary border border-border-strong;
     border-radius: var(--radius-system);
-    box-shadow: 0 2px 12px -2px rgba(39, 65, 86, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px -2px rgba(17, 17, 17, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
   }
 
   .panel-accent {
     @apply bg-bg-secondary border-l-2 border-l-accent border border-border-strong;
     border-radius: var(--radius-system);
-    box-shadow: 0 4px 16px -2px rgba(28, 110, 140, 0.08);
+    box-shadow: 0 4px 16px -2px rgba(194, 89, 52, 0.08);
   }
 
   .panel-crimson {
@@ -145,12 +145,12 @@
   /* RPG Panel Classes */
   .rpg-panel {
     @apply bg-bg-secondary border border-border-strong;
-    box-shadow: 0 4px 20px -2px rgba(39, 65, 86, 0.06);
+    box-shadow: 0 4px 16px -2px rgba(17, 17, 17, 0.05);
   }
 
   .rpg-panel-gold {
     @apply bg-bg-secondary border border-accent/40;
-    box-shadow: 0 4px 20px -2px rgba(28, 110, 140, 0.10);
+    box-shadow: 0 4px 20px -2px rgba(194, 89, 52, 0.10);
   }
 
   .rpg-panel-crimson {
@@ -206,19 +206,19 @@
   .select-system {
     @apply w-full bg-bg-secondary border border-border-strong text-sm text-text-primary px-3 py-2.5 transition-colors focus:outline-none focus:border-accent appearance-none font-mono cursor-pointer;
     border-radius: var(--radius-system);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23605856' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
   }
 
   .select-system:focus {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231C6E8C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c25934' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   }
 
-  /* Primary Button - RPG Cerulean */
+  /* Primary Button - Editorial Rust Orange */
   .btn-primary {
-    @apply flex items-center justify-center gap-2 bg-accent text-[#FBFCFF] text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(28,110,140,0.25)];
+    @apply flex items-center justify-center gap-2 bg-accent text-white text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-accent-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(194,89,52,0.25)];
     border-radius: var(--radius-system);
   }
 
@@ -228,7 +228,7 @@
   }
 
   .btn-crimson {
-    @apply flex items-center justify-center gap-2 bg-crimson text-[#FBFCFF] text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.25)];
+    @apply flex items-center justify-center gap-2 bg-crimson text-white text-xs font-mono font-bold uppercase tracking-wider px-5 py-2.5 hover:bg-crimson-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(184,58,69,0.25)];
     border-radius: var(--radius-system);
   }
 
@@ -251,8 +251,8 @@
     border-radius: var(--radius-system);
   }
 
-  /* Oceanic Cerulean Line Sweep Keyframes */
-  @keyframes ceruleanSweep {
+  /* Rust Orange Line Sweep Keyframes */
+  @keyframes orangeSweep {
     0% {
       transform: translateX(-100%);
       opacity: 0;
@@ -266,8 +266,8 @@
     }
   }
 
-  .animate-cerulean-sweep, .animate-gold-sweep {
-    animation: ceruleanSweep 1.8s ease-in-out infinite;
+  .animate-orange-sweep, .animate-cerulean-sweep, .animate-gold-sweep {
+    animation: orangeSweep 1.8s ease-in-out infinite;
   }
 
   /* Orbital Astrolabe Keyframes */
@@ -320,9 +320,8 @@
 
   .bg-blueprint-grid {
     background-image: 
-      linear-gradient(to right, rgba(39, 65, 86, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(39, 65, 86, 0.04) 1px, transparent 1px);
+      linear-gradient(to right, rgba(17, 17, 17, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 17, 17, 0.04) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 }
-

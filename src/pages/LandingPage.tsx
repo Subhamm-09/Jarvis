@@ -60,7 +60,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
           {/* Brand Monogram */}
           <div className="flex items-center gap-4">
             <Link to="/landing" className="flex items-center gap-3 group" onClick={() => playSolenoidClick()}>
-              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(28,110,140,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
+              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(194,89,52,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
               <span className="text-xl font-black font-cinzel tracking-tighter text-text-primary uppercase">
                 JARVIS
               </span>
@@ -126,7 +126,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
         <div 
           className="absolute top-0 right-1/4 w-[700px] h-[700px] rounded-full pointer-events-none blur-3xl opacity-20 -z-10"
           style={{
-            background: 'radial-gradient(circle, rgba(28, 110, 140, 0.4) 0%, rgba(251, 252, 255, 0) 70%)'
+            background: 'radial-gradient(circle, rgba(194, 89, 52, 0.25) 0%, rgba(250, 249, 245, 0) 70%)'
           }}
         />
 
@@ -146,7 +146,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
               {/* Monumental Life RPG Headline */}
               <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black font-cinzel tracking-tight uppercase leading-[0.95] text-text-primary mb-6 selection:bg-accent selection:text-white">
                 YOU ARE THE PROTAGONIST. <br />
-                <span className="text-accent drop-shadow-[0_2px_12px_rgba(28,110,140,0.2)]">
+                <span className="text-accent drop-shadow-[0_2px_12px_rgba(194,89,52,0.2)]">
                   JARVIS IS THE SYSTEM.
                 </span>
               </h1>
@@ -168,10 +168,10 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                 <Link
                   to={isAuthenticated ? "/life" : "/auth"}
                   onClick={() => playSolenoidClick()}
-                  className="btn-primary py-4 px-8 text-sm font-mono font-black uppercase tracking-widest flex items-center justify-between gap-4 group transition-all shadow-[0_4px_24px_rgba(28,110,140,0.3)]"
+                  className="btn-primary py-4 px-8 text-sm font-mono font-black uppercase tracking-widest flex items-center justify-between gap-4 group transition-all shadow-[0_4px_24px_rgba(194,89,52,0.3)]"
                 >
                   <div className="flex flex-col text-left">
-                    <span className="text-3xs text-[#FBFCFF]/70 font-mono tracking-widest">
+                    <span className="text-3xs text-white/70 font-mono tracking-widest">
                       {isAuthenticated ? 'CURRENT SESSION // ACTIVE' : 'INITIALIZE PROTOCOL // LAT: 0.00°'}
                     </span>
                     <span className="text-sm font-black tracking-wider">
@@ -386,7 +386,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
             <div 
               onMouseEnter={() => setHoveredRealm('career')}
               onMouseLeave={() => setHoveredRealm(null)}
-              className="rpg-panel p-8 flex flex-col justify-between transition-all duration-300 hover:border-accent hover:shadow-[0_8px_32px_rgba(28,110,140,0.12)] relative group"
+              className="rpg-panel p-8 flex flex-col justify-between transition-all duration-300 hover:border-accent hover:shadow-[0_8px_32px_rgba(194,89,52,0.12)] relative group"
             >
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -498,7 +498,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
             <div 
               onMouseEnter={() => setHoveredRealm('personal')}
               onMouseLeave={() => setHoveredRealm(null)}
-              className="rpg-panel p-8 flex flex-col justify-between transition-all duration-300 hover:border-text-primary hover:shadow-[0_8px_32px_rgba(39,65,86,0.12)] relative group"
+              className="rpg-panel p-8 flex flex-col justify-between transition-all duration-300 hover:border-text-primary hover:shadow-[0_8px_32px_rgba(17,17,17,0.08)] relative group"
             >
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -707,7 +707,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
           </div>
 
           {/* HUD Viewport Frame */}
-          <div className="border-2 border-border-strong bg-bg-primary shadow-[0_12px_48px_rgba(39,65,86,0.08)] overflow-hidden">
+          <div className="border-2 border-border-strong bg-bg-primary shadow-[0_12px_48px_rgba(17,17,17,0.08)] overflow-hidden">
             
             {/* Viewport Top Chrome / Tab Switcher */}
             <div className="bg-bg-secondary border-b border-border-strong px-6 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
@@ -723,7 +723,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   onClick={() => { playSolenoidClick(); setActivePreviewTab('lifemap'); }}
                   className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     activePreviewTab === 'lifemap'
-                      ? 'bg-accent text-[#FBFCFF] shadow-xs'
+                      ? 'bg-accent text-white shadow-xs'
                       : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
@@ -733,7 +733,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   onClick={() => { playSolenoidClick(); setActivePreviewTab('career'); }}
                   className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     activePreviewTab === 'career'
-                      ? 'bg-accent text-[#FBFCFF] shadow-xs'
+                      ? 'bg-accent text-white shadow-xs'
                       : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
@@ -743,7 +743,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   onClick={() => { playSolenoidClick(); setActivePreviewTab('rewards'); }}
                   className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     activePreviewTab === 'rewards'
-                      ? 'bg-accent text-[#FBFCFF] shadow-xs'
+                      ? 'bg-accent text-white shadow-xs'
                       : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
@@ -787,7 +787,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                       { name: 'DISCIPLINE', val: 88, color: 'bg-text-primary' },
                       { name: 'EXECUTION', val: 84, color: 'bg-accent' },
                       { name: 'HEALTH', val: 78, color: 'bg-success' },
-                      { name: 'CREATIVITY', val: 72, color: 'bg-[#605856]' },
+                      { name: 'CREATIVITY', val: 72, color: 'bg-[#555555]' },
                       { name: 'SOCIAL', val: 65, color: 'bg-text-primary' },
                     ].map(attr => (
                       <div key={attr.name} className="p-3 bg-bg-secondary border border-border-strong font-mono">
@@ -817,7 +817,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                       </div>
                       <span className="text-xs text-text-muted">Domain: LeetCode &bull; Spaced Repetition Due</span>
                     </div>
-                    <span className="px-4 py-2 bg-accent text-[#FBFCFF] text-xs font-bold uppercase tracking-wider shrink-0 text-center">
+                    <span className="px-4 py-2 bg-accent text-white text-xs font-bold uppercase tracking-wider shrink-0 text-center">
                       +150 XP &bull; EXECUTE
                     </span>
                   </div>
@@ -862,14 +862,14 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                         key={t.name}
                         className={`p-5 border flex flex-col justify-between ${
                           t.eq 
-                            ? 'bg-bg-secondary border-accent shadow-[0_4px_16px_rgba(28,110,140,0.15)]' 
+                            ? 'bg-bg-secondary border-accent shadow-[0_4px_16px_rgba(194,89,52,0.15)]' 
                             : 'bg-bg-secondary border-border-strong'
                         }`}
                       >
                         <div>
                           <div className="flex items-center justify-between text-3xs font-bold uppercase mb-2">
                             <span className="text-accent">{t.cat}</span>
-                            {t.eq && <span className="px-1.5 py-0.5 bg-accent text-[#FBFCFF]">EQUIPPED</span>}
+                            {t.eq && <span className="px-1.5 py-0.5 bg-accent text-white">EQUIPPED</span>}
                           </div>
                           <div className="text-base font-black font-cinzel text-text-primary uppercase mb-1">
                             {t.name}
@@ -894,7 +894,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
       <section className="py-24 bg-bg-primary text-center border-b border-border-strong relative">
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center">
           
-          <div className="w-8 h-8 bg-accent rotate-45 mb-8 shadow-[0_0_16px_rgba(28,110,140,0.4)]" />
+          <div className="w-8 h-8 bg-accent rotate-45 mb-8 shadow-[0_0_16px_rgba(194,89,52,0.4)]" />
 
           <h2 className="text-4xl sm:text-6xl font-black font-cinzel uppercase tracking-tight text-text-primary mb-6">
             Commence Your Ascension.
@@ -907,7 +907,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
           <Link
             to={isAuthenticated ? "/life" : "/auth"}
             onClick={() => playSolenoidClick()}
-            className="btn-primary py-5 px-12 text-base font-mono font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_4px_30px_rgba(28,110,140,0.35)]"
+            className="btn-primary py-5 px-12 text-base font-mono font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_4px_30px_rgba(194,89,52,0.35)]"
           >
             <Terminal size={18} />
             <span>{isAuthenticated ? 'Enter Character Matrix' : 'Awaken The Protocol'}</span>

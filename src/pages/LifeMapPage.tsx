@@ -189,11 +189,11 @@ export function LifeMapPage() {
   const avgHealthScore = (healthAttrs.STR + healthAttrs.END + healthAttrs.VIT + healthAttrs.REC + healthAttrs.AGI) / 5;
   const attributes = [
     { name: 'INTELLECT', value: Math.min(99, Math.max(35, Math.round(40 + (careerProg.level * 2.2) + (personalAttrs.INT * 0.3)))), color: 'bg-accent' },
-    { name: 'DISCIPLINE', value: Math.min(99, Math.max(30, Math.round(35 + (careerStreak * 4) + (healthStreak * 3)))), color: 'bg-[#274156]' },
+    { name: 'DISCIPLINE', value: Math.min(99, Math.max(30, Math.round(35 + (careerStreak * 4) + (healthStreak * 3)))), color: 'bg-[#111111]' },
     { name: 'EXECUTION', value: Math.min(99, Math.max(30, Math.round(30 + (careerProg.level * 2.5) + (careerTasks.filter(t => t.status === 'done').length * 0.4)))), color: 'bg-accent' },
     { name: 'HEALTH', value: Math.min(99, Math.max(25, Math.round(20 + (avgHealthScore * 0.8)))), color: 'bg-success' },
-    { name: 'CREATIVITY', value: Math.min(99, Math.max(30, Math.round(35 + (personalAttrs.CRT * 0.6) + (careerTasks.filter(t => t.domain === 'projects').length * 6)))), color: 'bg-[#605856]' },
-    { name: 'SOCIAL', value: Math.min(99, Math.max(20, Math.round(25 + (personalAttrs.CHA * 0.5) + (careerTasks.filter(t => t.domain === 'hackathon').length * 8)))), color: 'bg-[#274156]' },
+    { name: 'CREATIVITY', value: Math.min(99, Math.max(30, Math.round(35 + (personalAttrs.CRT * 0.6) + (careerTasks.filter(t => t.domain === 'projects').length * 6)))), color: 'bg-[#555555]' },
+    { name: 'SOCIAL', value: Math.min(99, Math.max(20, Math.round(25 + (personalAttrs.CHA * 0.5) + (careerTasks.filter(t => t.domain === 'hackathon').length * 8)))), color: 'bg-[#111111]' },
   ];
 
   // Active Cross-Domain Quests Feed
@@ -285,7 +285,7 @@ export function LifeMapPage() {
           {/* Protagonist Identity & Level */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2.5 text-2xs font-mono font-bold uppercase tracking-widest text-accent">
-              <span className="w-2 h-2 bg-accent shadow-[0_0_8px_rgba(28,110,140,0.4)] rotate-45" />
+              <span className="w-2 h-2 bg-accent shadow-[0_0_8px_rgba(194,89,52,0.4)] rotate-45" />
               <span>JARVIS SYSTEM // PROTAGONIST CONSOLE</span>
             </div>
 
@@ -308,7 +308,7 @@ export function LifeMapPage() {
             </div>
           </div>
 
-          {/* Character Level & Cerulean XP Progress Meter */}
+          {/* Character Level & Rust Orange XP Progress Meter */}
           <div className="w-full lg:w-96 flex flex-col gap-2.5 bg-bg-tertiary/70 border border-border-strong p-5">
             <div className="flex items-center justify-between font-mono">
               <div className="flex items-baseline gap-2">
@@ -323,7 +323,7 @@ export function LifeMapPage() {
             {/* RPG XP Bar */}
             <div className="w-full h-2.5 bg-bg-primary border border-border-strong relative overflow-hidden">
               <div 
-                className="h-full bg-accent transition-all duration-500 shadow-[0_0_12px_rgba(28,110,140,0.3)]"
+                className="h-full bg-accent transition-all duration-500 shadow-[0_0_12px_rgba(194,89,52,0.3)]"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
