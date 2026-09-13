@@ -163,47 +163,49 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
       className="fixed inset-0 z-[150] bg-text-primary/70 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-bg-primary border-2 border-text-primary w-full max-w-lg shadow-[8px_8px_0_0_var(--color-text-primary)] max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-bg-primary border-2 border-text-primary w-full max-w-2xl shadow-[8px_8px_0_0_var(--color-text-primary)] max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b-2 border-text-primary flex items-center justify-between bg-bg-secondary">
+        <div className="px-6 sm:px-8 py-5 border-b-2 border-text-primary flex items-center justify-between bg-bg-secondary">
           <div>
-            <div className="text-lg font-black text-text-primary uppercase tracking-tight">
+            <div className="text-xl font-black text-text-primary uppercase tracking-tight">
               NEW PERSONAL QUEST
             </div>
-            <div className="text-2xs font-mono text-text-secondary mt-0.5">
+            <div className="text-xs font-mono text-text-secondary mt-0.5">
               Define today's personal objective.
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-1 text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors border border-transparent hover:border-text-primary"
+            className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors border border-transparent hover:border-text-primary cursor-pointer"
             aria-label="Close dialog"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="p-6 sm:p-8 flex flex-col gap-5">
           
           {/* Quick Quests Template Row */}
           <div>
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Sparkles size={11} className="text-accent" />
-              <span className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Sparkles size={12} className="text-accent" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-muted">
                 Quick Quests
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {QUICK_QUESTS.map((tpl) => (
                 <button
                   key={tpl.label}
                   type="button"
                   onClick={() => applyTemplate(tpl)}
-                  className="py-1.5 px-2 bg-bg-secondary border border-border-subtle hover:border-text-primary text-2xs font-mono font-bold text-text-secondary hover:text-text-primary transition-all flex flex-col items-center justify-center gap-0.5 text-center"
+                  className="py-1.5 px-3 bg-bg-secondary hover:bg-bg-tertiary border border-border-strong hover:border-text-primary text-2xs font-mono font-bold text-text-secondary hover:text-text-primary transition-all flex items-center gap-2 group cursor-pointer shadow-xs"
                 >
-                  <span className="truncate w-full">{tpl.label}</span>
-                  <span className="text-[10px] text-accent font-bold">+{tpl.xp} XP</span>
+                  <span className="whitespace-nowrap">{tpl.label}</span>
+                  <span className="text-[10px] font-mono text-accent font-bold group-hover:text-accent-hover">
+                    +{tpl.xp} XP
+                  </span>
                 </button>
               ))}
             </div>
@@ -211,10 +213,10 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
 
           {/* 1. Activity Selector */}
           <div>
-            <span className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted block mb-1.5">
-              Activity
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-muted block mb-2">
+              Activity Pillar
             </span>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {ACTIVITIES.map((act) => {
                 const Icon = act.icon;
                 const active = activity === act.id;
@@ -233,14 +235,16 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                         else if (act.id === 'personal') setTitle('Organize workspace & daily plan');
                       }
                     }}
-                    className={`p-2 border text-2xs font-mono font-bold uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-1 ${
+                    className={`py-2.5 px-1.5 border font-mono font-bold uppercase tracking-tight transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center ${
                       active
                         ? 'border-text-primary bg-text-primary text-bg-primary shadow-sm'
                         : 'border-border-strong bg-bg-secondary text-text-secondary hover:text-text-primary hover:border-text-primary'
                     }`}
                   >
-                    <Icon size={14} className={active ? 'text-accent' : ''} />
-                    <span className="truncate text-[10px] sm:text-[11px]">{act.label}</span>
+                    <Icon size={16} className={active ? 'text-accent' : 'text-text-muted'} />
+                    <span className="text-[10px] leading-tight font-mono tracking-tight block w-full truncate">
+                      {act.label}
+                    </span>
                   </button>
                 );
               })}
@@ -249,8 +253,8 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
 
           {/* 2. Quest Title */}
           <div>
-            <label className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted block mb-1.5">
-              Quest
+            <label className="text-xs font-mono font-bold uppercase tracking-wider text-text-muted block mb-1.5">
+              Quest Title
             </label>
             <input
               type="text"
@@ -258,16 +262,16 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
               placeholder="e.g. Read 25 pages of Meditations"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-bg-secondary border-2 border-text-primary px-3 py-2 text-sm font-sans font-medium text-text-primary focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full bg-bg-secondary border-2 border-text-primary px-3.5 py-2.5 text-sm font-sans font-medium text-text-primary focus:outline-none focus:ring-1 focus:ring-accent placeholder:text-text-muted"
             />
           </div>
 
           {/* 3. Difficulty */}
           <div>
-            <div className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted mb-1.5">
-              Difficulty
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-text-muted mb-2">
+              Difficulty & Base XP
             </div>
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {DIFFICULTIES.map((d) => {
                 const active = difficulty === d.id && customXp === null;
                 return (
@@ -275,14 +279,14 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                     key={d.id}
                     type="button"
                     onClick={() => handleDifficultySelect(d.id)}
-                    className={`py-2 px-1 text-center border font-mono transition-all ${
+                    className={`py-2.5 px-2 text-center border font-mono transition-all cursor-pointer ${
                       active
                         ? 'bg-text-primary text-bg-primary border-text-primary shadow-sm'
                         : 'bg-bg-secondary text-text-secondary border-border-strong hover:border-text-primary'
                     }`}
                   >
                     <div className="text-xs font-bold uppercase tracking-wider">{d.label}</div>
-                    <div className="text-[10px] font-bold mt-0.5 text-accent">
+                    <div className="text-[11px] font-bold mt-0.5 text-accent">
                       +{d.xp} XP
                     </div>
                   </button>
@@ -292,27 +296,30 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
           </div>
 
           {/* Prominent XP Reward Readout */}
-          <div className="py-2.5 px-4 bg-bg-secondary border border-border-strong flex items-center justify-center gap-2">
+          <div className="py-2.5 px-4 bg-bg-secondary border border-border-strong flex items-center justify-between">
+            <span className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted">
+              Estimated Reward
+            </span>
             <span className="text-sm font-mono font-black tracking-wider text-accent">
               +{displayXp} PERSONAL XP
             </span>
           </div>
 
           {/* 4. Duration */}
-          <div className="flex items-center justify-between gap-4 py-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
             <div className="flex items-center gap-2">
-              <Clock size={14} className="text-text-muted" />
-              <span className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted">
-                Duration
+              <Clock size={15} className="text-text-muted" />
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-muted">
+                Estimated Duration
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {[15, 30, 45, 60].map((mins) => (
                 <button
                   key={mins}
                   type="button"
                   onClick={() => setDurationMins(mins)}
-                  className={`px-2 py-1 text-2xs font-mono font-bold border transition-colors ${
+                  className={`px-3 py-1.5 text-2xs font-mono font-bold border transition-colors cursor-pointer ${
                     durationMins === mins
                       ? 'bg-text-primary text-bg-primary border-text-primary'
                       : 'bg-bg-secondary text-text-secondary border-border-subtle hover:border-text-primary'
@@ -321,7 +328,7 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                   {mins}M
                 </button>
               ))}
-              <div className="flex items-center gap-1 ml-1">
+              <div className="flex items-center gap-1.5 ml-1">
                 <input
                   type="number"
                   min="5"
@@ -337,29 +344,29 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
 
           {/* 5. Progressive Disclosure: Conditional Category Fields */}
           {activity === 'knowledge' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Reading Parameters (Optional)
               </span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Book / Article</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Book / Article</label>
                   <input
                     type="text"
                     placeholder="e.g. Meditations"
                     value={bookTitle}
                     onChange={(e) => setBookTitle(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Pages Read</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Pages Read</label>
                   <input
                     type="number"
                     placeholder="e.g. 25"
                     value={pagesRead}
                     onChange={(e) => setPagesRead(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
               </div>
@@ -367,8 +374,8 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
           )}
 
           {activity === 'mindfulness' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Mindfulness Practice (Optional)
               </span>
               <input
@@ -376,14 +383,14 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                 placeholder="e.g. Vipassana, Breathwork, Stillness, Evening reflection"
                 value={mindfulnessPractice}
                 onChange={(e) => setMindfulnessPractice(e.target.value)}
-                className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
               />
             </div>
           )}
 
           {activity === 'creative' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Creation Type (Optional)
               </span>
               <input
@@ -391,14 +398,14 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                 placeholder="e.g. Essay writing, UI Design, Music composition, Code architecture"
                 value={creationType}
                 onChange={(e) => setCreationType(e.target.value)}
-                className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
               />
             </div>
           )}
 
           {activity === 'relationships' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Relationship Activity (Optional)
               </span>
               <input
@@ -406,35 +413,35 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
                 placeholder="e.g. Call parents, mentor 1-on-1, deep conversation with close friend"
                 value={relationshipActivity}
                 onChange={(e) => setRelationshipActivity(e.target.value)}
-                className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
               />
             </div>
           )}
 
           {activity === 'finance' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Financial Goal (Optional)
               </span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Goal Description</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Goal Description</label>
                   <input
                     type="text"
                     placeholder="e.g. Weekly budget review, Portfolio rebalancing"
                     value={financeGoal}
                     onChange={(e) => setFinanceGoal(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Amount ($)</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Amount ($)</label>
                   <input
                     type="number"
                     placeholder="e.g. 250"
                     value={financeAmount}
                     onChange={(e) => setFinanceAmount(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
               </div>
@@ -442,29 +449,29 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
           )}
 
           {activity === 'personal' && (
-            <div className="p-3 bg-bg-secondary border border-border-strong flex flex-col gap-2 transition-all">
-              <span className="text-2xs font-mono font-bold uppercase text-text-muted">
+            <div className="p-3.5 bg-bg-secondary border border-border-strong flex flex-col gap-2.5 transition-all">
+              <span className="text-2xs font-mono font-bold uppercase text-text-muted tracking-wider">
                 Personal Goal (Optional)
               </span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Target Objective</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Target Objective</label>
                   <input
                     type="text"
                     placeholder="e.g. Deep clean workspace, Build side-project module"
                     value={personalGoal}
                     onChange={(e) => setPersonalGoal(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-0.5">Deadline / Date</label>
+                  <label className="text-[10px] font-mono uppercase text-text-muted block mb-1">Deadline / Date</label>
                   <input
                     type="text"
                     placeholder="e.g. Today 8:00 PM"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-strong px-2 py-1 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
+                    className="w-full bg-bg-primary border border-border-strong px-3 py-1.5 text-xs font-mono text-text-primary focus:outline-none focus:border-text-primary"
                   />
                 </div>
               </div>
@@ -472,18 +479,18 @@ export function NewPersonalTaskModal({ isOpen, onClose, onSubmit }: NewPersonalT
           )}
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t-2 border-text-primary flex items-center justify-end gap-3 mt-1">
+          <div className="pt-4 border-t-2 border-text-primary flex items-center justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="py-2.5 px-4 text-xs font-mono font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors border border-transparent hover:border-border-strong"
+              className="py-2.5 px-4 text-xs font-mono font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors border border-transparent hover:border-border-strong cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !title.trim()}
-              className="btn-primary py-2.5 px-6 text-xs font-mono font-bold uppercase tracking-wider !bg-accent hover:!bg-accent-hover text-white border-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="btn-primary py-2.5 px-6 text-xs font-mono font-bold uppercase tracking-wider !bg-accent hover:!bg-accent-hover text-white border-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-sm"
             >
               {submitting ? 'Initializing...' : 'Initialize Quest'}
             </button>
