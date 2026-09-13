@@ -98,7 +98,7 @@ export function AuthPage() {
         if (isLocalhostInProd) {
           setError('Backend misconfigured: This deployment is still pointing to local 127.0.0.1:54321, which other devices cannot reach. Add your cloud VITE_SUPABASE_URL in Vercel settings and redeploy.');
         } else {
-          setError('Cannot connect to authentication service (Failed to fetch). Check your network connection or verify your Supabase project status.');
+          setError(`Cannot connect to authentication service at ${supabaseUrl} (Failed to fetch). If you are using Brave, an ad-blocker, or an aggressive VPN, please disable shields for this site.`);
         }
       } else {
         setError(err.message || 'An error occurred during authentication.');
