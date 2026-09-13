@@ -42,7 +42,7 @@ function AppContent({ session }: { session: Session | null }) {
       {showNavBar && <NavBar />}
       <TactileFeedbackHUD />
       
-      <main className={`flex-1 flex flex-col ${showNavBar ? 'pt-[60px]' : ''}`}>
+      <main className={`flex-1 flex flex-col ${showNavBar ? 'pt-[54px] lg:pt-[82px]' : ''}`}>
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
             {/* Public Landing & Auth Routes */}

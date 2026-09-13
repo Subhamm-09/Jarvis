@@ -1,8 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Activity, Target, Folder, Layers, HeartPulse, Brain, Menu, X, Compass, Trophy, Award } from 'lucide-react';
+import { LogOut, Activity, Target, Folder, Layers, HeartPulse, Brain, Menu, X, Compass, Trophy, Award, Flame } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 import { useState, useEffect } from 'react';
 import { calculateCalendarStreak } from '../../lib/domainTelemetry';
+import { playSolenoidClick } from '../../lib/mechanicalAudio';
 
 export function NavBar() {
   const location = useLocation();
@@ -173,11 +174,12 @@ export function NavBar() {
   const isCollections = path.startsWith('/collections');
 
   const handleLogout = async () => {
+    playSolenoidClick();
     await supabase.auth.signOut();
     navigate('/landing');
   };
 
-  // Top Domain Switcher Tabs (RPG Realms + Rewards)
+  // 1. Top Domain Switcher Tabs (RPG Realms + Rewards)
   const topDomainTabs = [
     { name: 'World', path: '/life', active: isLifeDomain, icon: Compass },
     { name: 'Career', path: '/dashboard', active: isCareerDomain, icon: Target },
@@ -186,7 +188,26 @@ export function NavBar() {
     { name: 'Rewards', path: '/rewards', active: isRewardsDomain, icon: Trophy },
   ];
 
-  // Current Sub-navigation links based on active domain
+  // 2. Contextual Domain Breadcrumbs
+  const domainBreadcrumbs: Record<string, string> = {
+    career: 'CAREER REALM // OPERATIONAL SUBSYSTEMS',
+    health: 'HEALTH REALM // BIOMETRIC & EXERTION LEDGER',
+    personal: 'PERSONAL REALM // INTELLECT & CRAFT ENGINE',
+    life: 'WORLD CONCORDAT // MULTI-REALM MONARCH MATRIX',
+    rewards: 'GLORY VAULT // TITLES, INSIGNIAS & ACHIEVEMENTS',
+  };
+
+  const activeDomainKey = isHealthDomain
+    ? 'health'
+    : isPersonalDomain
+    ? 'personal'
+    : isLifeDomain
+    ? 'life'
+    : isRewardsDomain
+    ? 'rewards'
+    : 'career';
+
+  // 3. Current Sub-navigation links based on active domain
   let currentSubLinks = [
     { name: 'Quests', path: '/dashboard', icon: Target, active: isDashboard },
     { name: 'Trials & Rank', path: '/status', icon: Activity, active: isStatus },
@@ -196,22 +217,22 @@ export function NavBar() {
 
   if (isLifeDomain) {
     currentSubLinks = [
-      { name: 'Character & World', path: '/life', icon: Layers, active: !isHuntLog },
+      { name: 'Character Matrix', path: '/life', icon: Layers, active: !isHuntLog },
       { name: 'Unified Log', path: '/hunt-log?domain=all', icon: Target, active: isHuntLog && (!queryDomain || queryDomain === 'all' || queryDomain === 'life') },
     ];
   } else if (isHealthDomain) {
     currentSubLinks = [
-      { name: 'Health Quests', path: '/health', icon: HeartPulse, active: !isHuntLog },
-      { name: 'Quest Log', path: '/hunt-log?domain=health', icon: Target, active: isHuntLog && queryDomain === 'health' },
+      { name: 'Daily Protocols', path: '/health', icon: HeartPulse, active: !isHuntLog },
+      { name: 'Health Log', path: '/hunt-log?domain=health', icon: Target, active: isHuntLog && queryDomain === 'health' },
     ];
   } else if (isPersonalDomain) {
     currentSubLinks = [
-      { name: 'Personal Quests', path: '/personal', icon: Brain, active: !isHuntLog },
-      { name: 'Quest Log', path: '/hunt-log?domain=personal', icon: Target, active: isHuntLog && queryDomain === 'personal' },
+      { name: 'Daily Pursuits', path: '/personal', icon: Brain, active: !isHuntLog },
+      { name: 'Personal Log', path: '/hunt-log?domain=personal', icon: Target, active: isHuntLog && queryDomain === 'personal' },
     ];
   } else if (isRewardsDomain) {
     currentSubLinks = [
-      { name: 'Titles & Insignias', path: '/rewards', icon: Trophy, active: true },
+      { name: 'Vault & Insignias', path: '/rewards', icon: Trophy, active: true },
     ];
   }
 
@@ -222,134 +243,226 @@ export function NavBar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-bg-primary/95 backdrop-blur-md border-b-2 border-border-strong select-none">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          
-          {/* Logo & Primary Domain Switcher */}
-          <div className="flex items-center gap-4 lg:gap-8 h-full">
-            <Link 
-              to="/landing" 
-              className="flex items-center gap-2.5 sm:gap-3 group"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(194,89,52,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
-              <span className="text-xl font-black uppercase tracking-tighter text-text-primary">
-                JARVIS
-              </span>
-            </Link>
+      <nav className="sticky top-0 z-50 bg-bg-primary/95 backdrop-blur-md border-b border-border-strong select-none">
+        
+        {/* ========================================================================= */}
+        {/* TIER 1: GLOBAL REALM HUB (Desktop lg+ / 46px)                             */}
+        {/* ========================================================================= */}
+        <div className="hidden lg:block border-b border-border-subtle">
+          <div className="max-w-[1600px] mx-auto px-6 h-[46px] flex items-center justify-between">
+            
+            {/* Brand Monogram & System Identifier */}
+            <div className="flex items-center gap-3">
+              <Link 
+                to="/life" 
+                className="flex items-center gap-2.5 group cursor-pointer"
+                onClick={() => playSolenoidClick()}
+              >
+                <div className="w-3 h-3 bg-accent shadow-[0_0_8px_rgba(194,89,52,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
+                <span className="text-lg font-black font-cinzel tracking-tight text-text-primary uppercase">
+                  JARVIS
+                </span>
+              </Link>
+              <span className="text-border-strong font-mono text-xs">•</span>
+              <div className="inline-flex items-center gap-1.5 text-3xs font-mono uppercase tracking-widest px-2 py-0.5 bg-bg-secondary border border-border-subtle text-text-muted">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span>SYSTEM V3.2 // MONARCH</span>
+              </div>
+            </div>
 
-            {/* Top Domain Switcher Tabs (Desktop lg+) */}
-            <div className="hidden lg:flex items-center gap-1 bg-bg-secondary p-1 border border-border-strong">
+            {/* 5 Primary Realms Segmented Pill Bar */}
+            <div className="flex items-center bg-bg-tertiary/70 p-0.5 border border-border-strong shadow-xs">
               {topDomainTabs.map(tab => (
                 <Link
                   key={tab.name}
                   to={tab.path}
-                  className={`px-3.5 py-1.5 text-2xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                  onClick={() => playSolenoidClick()}
+                  className={`px-3 py-1 text-2xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                     tab.active
-                      ? 'bg-accent text-white shadow-[0_2px_10px_rgba(194,89,52,0.25)]'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
+                      ? 'bg-accent text-white shadow-xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary/60'
                   }`}
                 >
-                  <tab.icon size={13} className={tab.active ? 'text-white' : 'text-accent'} />
+                  <tab.icon size={12} className={tab.active ? 'text-white' : 'text-accent'} />
                   <span>{tab.name}</span>
                 </Link>
               ))}
             </div>
 
-            {/* Active Domain Indicator (Mobile & Tablet < lg) */}
-            <div className="flex lg:hidden items-center gap-2 font-mono text-2xs uppercase tracking-widest text-text-secondary border-l border-border-strong pl-3">
-              <span className="text-text-primary font-bold">{topDomainTabs.find(t => t.active)?.name || 'Domain'}</span>
-              <span className="text-accent">•</span>
-              <span className="text-accent font-bold">{activeRank}</span>
-            </div>
-          </div>
+            {/* Consolidated Tactical Status HUD & Session Control */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 px-3 py-1 bg-bg-secondary border border-border-strong text-2xs font-mono shadow-xs">
+                <div className="flex items-center gap-1.5">
+                  <Flame size={12} className="text-accent" />
+                  <span className="text-text-muted text-3xs uppercase tracking-wider">Streak</span>
+                  <span className="font-bold text-text-primary">{activeStreak > 0 ? `${activeStreak}D` : '—'}</span>
+                </div>
 
-          {/* Sub-Nav for Current Domain (Desktop lg+) */}
-          <div className="hidden lg:flex items-center gap-6 h-full">
-            {currentSubLinks.map(link => (
-              <Link 
-                key={link.name}
-                to={link.path}
-                className={`flex items-center gap-2 h-full px-2 border-b-2 transition-all font-mono text-xs font-bold tracking-widest uppercase ${
-                  link.active 
-                    ? 'border-accent text-accent font-black shadow-[inset_0_-2px_0_0_var(--color-accent)]' 
-                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-strong'
-                }`}
+                <span className="text-border-strong">•</span>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-text-muted text-3xs uppercase tracking-wider">{activeRankLabel}</span>
+                  <span className="font-black text-accent border border-accent/40 bg-accent/10 px-1.5 py-0.2 shadow-xs">
+                    {activeRank}
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                onClick={handleLogout}
+                className="text-2xs font-mono font-bold uppercase tracking-wider text-text-muted hover:text-crimson hover:bg-crimson/10 border border-transparent hover:border-crimson/30 px-2.5 py-1 transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Disconnect Session"
               >
-                <link.icon size={13} className={link.active ? 'text-accent' : 'text-text-muted'} />
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          {/* Domain-specific User Actions (Desktop lg+) */}
-          <div className="hidden lg:flex items-center gap-6">
-            <div className="text-right flex items-center gap-2 border-r border-border-strong pr-6">
-              <span className="label text-text-muted">Streak</span>
-              <span className="text-sm font-bold text-text-primary font-mono">{activeStreak > 0 ? `${activeStreak}D` : '—'}</span>
+                <LogOut size={12} />
+                <span>Exit</span>
+              </button>
             </div>
+
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* TIER 2: CONTEXTUAL REALM SUB-BAR (Desktop lg+ / 36px)                     */}
+        {/* ========================================================================= */}
+        <div className="hidden lg:block bg-bg-secondary/90 backdrop-blur-md">
+          <div className="max-w-[1600px] mx-auto px-6 h-[36px] flex items-center justify-between">
             
-            <div className="flex items-center gap-2 border-r border-border-strong pr-6">
-              <span className="label text-text-muted">{activeRankLabel} Rank</span>
-              <span className="text-sm font-black text-accent font-mono border border-accent/40 bg-accent/10 px-2 py-0.5 shadow-sm">
-                {activeRank}
+            {/* Realm Breadcrumb & Views Tabs */}
+            <div className="flex items-center gap-4 h-full">
+              <span className="text-3xs font-mono uppercase tracking-widest text-text-muted font-bold whitespace-nowrap">
+                {domainBreadcrumbs[activeDomainKey]}
               </span>
+
+              <span className="text-border-strong font-mono text-xs">•</span>
+
+              <div className="flex items-center gap-1 h-full">
+                {currentSubLinks.map(link => (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => playSolenoidClick()}
+                    className={`h-full px-3 text-2xs font-mono uppercase tracking-wider flex items-center gap-1.5 border-b-2 transition-all cursor-pointer ${
+                      link.active
+                        ? 'border-accent text-accent font-bold bg-accent/5'
+                        : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border-strong'
+                    }`}
+                  >
+                    <link.icon size={12} className={link.active ? 'text-accent' : 'text-text-muted'} />
+                    <span>{link.name}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            <button 
-              onClick={handleLogout}
-              className="text-xs font-mono font-bold uppercase tracking-widest text-text-muted hover:text-accent transition-colors flex items-center gap-2"
-              title="End Session"
+            {/* Live Telemetry & Security Heartbeat */}
+            <div className="flex items-center gap-2 text-3xs font-mono uppercase tracking-widest text-text-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              <span className="hidden xl:inline">SYSTEM ACTIVE</span>
+              <span className="text-border-strong">•</span>
+              <span className="text-success font-bold">100% PRIVATE ARCHITECTURE</span>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* MOBILE & TABLET HEADER (< lg / 54px)                                      */}
+        {/* ========================================================================= */}
+        <div className="flex lg:hidden items-center justify-between px-4 h-[54px]">
+          
+          {/* Logo & Active Realm Indicator */}
+          <div className="flex items-center gap-2.5">
+            <Link 
+              to="/life" 
+              className="flex items-center gap-2 group cursor-pointer"
+              onClick={() => {
+                playSolenoidClick();
+                setMobileMenuOpen(false);
+              }}
             >
-              <LogOut size={14} /> Disconnect
-            </button>
+              <div className="w-3 h-3 bg-accent rotate-45" />
+              <span className="text-base font-black font-cinzel tracking-tight text-text-primary uppercase">
+                JARVIS
+              </span>
+            </Link>
+            <span className="text-border-strong font-mono text-xs">•</span>
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-bg-secondary border border-border-strong text-3xs font-mono uppercase font-bold text-accent shadow-xs">
+              <span>{topDomainTabs.find(t => t.active)?.name || 'World'}</span>
+              <span>•</span>
+              <span>RANK {activeRank}</span>
+            </div>
           </div>
 
-          {/* Mobile & Tablet Controls (< lg) */}
-          <div className="flex lg:hidden items-center gap-3">
+          {/* Controls: Streak & Drawer Toggle */}
+          <div className="flex items-center gap-2.5">
             {activeStreak > 0 && (
-              <div className="flex items-center gap-1 font-mono text-2xs font-bold uppercase tracking-wider px-2 py-1 bg-bg-secondary border border-border-strong">
-                <span className="text-accent font-mono">STREAK</span>
+              <div className="flex items-center gap-1 font-mono text-3xs font-bold uppercase tracking-wider px-2 py-1 bg-bg-secondary border border-border-strong shadow-xs">
+                <Flame size={11} className="text-accent" />
                 <span className="text-text-primary">{activeStreak}D</span>
               </div>
             )}
 
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 transition-colors border ${
+              onClick={() => {
+                playSolenoidClick();
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
+              className={`p-1.5 transition-colors border cursor-pointer ${
                 mobileMenuOpen 
-                  ? 'bg-accent text-bg-primary border-accent' 
+                  ? 'bg-accent text-white border-accent' 
                   : 'text-text-primary hover:bg-bg-secondary border-border-strong'
               }`}
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav-drawer"
             >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
+
         </div>
 
-        {/* Mobile Navigation Drawer & Backdrop (< lg) */}
+        {/* ========================================================================= */}
+        {/* MOBILE NAVIGATION DRAWER & BACKDROP (< lg)                                */}
+        {/* ========================================================================= */}
         {mobileMenuOpen && (
           <>
             <div 
-              className="fixed inset-0 top-16 bg-[#111111]/40 backdrop-blur-sm z-40 lg:hidden"
-              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 top-[54px] bg-[#111111]/40 backdrop-blur-sm z-40 lg:hidden"
+              onClick={() => {
+                playSolenoidClick();
+                setMobileMenuOpen(false);
+              }}
               aria-hidden="true"
             />
 
             <div 
               id="mobile-nav-drawer"
-              className="fixed top-16 left-0 right-0 max-h-[calc(100vh-4rem)] overflow-y-auto bg-bg-secondary border-b-2 border-border-strong shadow-2xl z-50 lg:hidden px-6 py-6 flex flex-col gap-6"
+              className="fixed top-[54px] left-0 right-0 max-h-[calc(100vh-54px)] overflow-y-auto bg-bg-secondary border-b-2 border-border-strong shadow-2xl z-50 lg:hidden px-5 py-5 flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-200"
             >
-              {/* 1. REALM SELECTOR */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="label text-accent">Select Realm</span>
-                  <span className="text-3xs font-mono uppercase text-text-muted">3 Worlds • 1 Character</span>
+              {/* 1. Protagonist Status Capsule */}
+              <div className="grid grid-cols-2 gap-3 p-3 bg-bg-tertiary border border-border-strong text-xs font-mono">
+                <div>
+                  <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Domain</span>
+                  <span className="text-sm font-bold text-accent flex items-center gap-1.5">
+                    <span>{topDomainTabs.find(t => t.active)?.name}</span>
+                    <span className="text-border-strong">•</span>
+                    <span>RANK {activeRank}</span>
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="text-right border-l border-border-subtle pl-3">
+                  <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Streak</span>
+                  <span className="text-sm font-bold text-text-primary">{activeStreak > 0 ? `${activeStreak} DAYS` : '0 DAYS'}</span>
+                </div>
+              </div>
+
+              {/* 2. Realm Selection Matrix (5 Realms) */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="label text-accent">Select Realm</span>
+                  <span className="text-3xs font-mono uppercase text-text-muted">3 Worlds • 1 Matrix</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {topDomainTabs.map(tab => {
                     const tabStreak = tab.name === 'Health' ? healthStreak : tab.name === 'Personal' ? personalStreak : tab.name === 'Career' ? careerStreak : 0;
                     const tabRank = tab.name === 'Health' ? healthRank : tab.name === 'Personal' ? personalRank : tab.name === 'Career' ? careerRank : null;
@@ -358,24 +471,27 @@ export function NavBar() {
                       <Link
                         key={tab.name}
                         to={tab.path}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`p-3 text-xs font-mono font-bold uppercase flex flex-col justify-between gap-2 border transition-all ${
+                        onClick={() => {
+                          playSolenoidClick();
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`p-2.5 text-xs font-mono font-bold uppercase flex flex-col justify-between gap-1.5 border transition-all cursor-pointer ${
                           tab.active 
-                            ? 'bg-accent text-white border-accent shadow-[0_2px_10px_rgba(194,89,52,0.25)]' 
+                            ? 'bg-accent text-white border-accent shadow-xs' 
                             : 'bg-bg-tertiary border-border-strong text-text-secondary hover:text-text-primary hover:border-accent'
                         }`}
                       >
                         <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <tab.icon size={14} className={tab.active ? 'text-white' : 'text-accent'} />
-                            <span className="font-sans font-bold text-sm tracking-tight">{tab.name}</span>
+                          <div className="flex items-center gap-1.5">
+                            <tab.icon size={13} className={tab.active ? 'text-white' : 'text-accent'} />
+                            <span className="font-sans font-bold text-xs tracking-tight">{tab.name}</span>
                           </div>
                           {tab.active && (
-                            <span className="w-1.5 h-1.5 bg-bg-primary" />
+                            <span className="w-1.5 h-1.5 bg-white" />
                           )}
                         </div>
-                        <div className="flex items-center justify-between text-2xs opacity-80 pt-1 border-t border-current/10">
-                          <span>{tabRank ? `RANK ${tabRank}` : 'OVERVIEW'}</span>
+                        <div className="flex items-center justify-between text-3xs opacity-80 pt-1 border-t border-current/10">
+                          <span>{tabRank ? `R:${tabRank}` : 'BASE'}</span>
                           {tabStreak > 0 && <span>{tabStreak}D</span>}
                         </div>
                       </Link>
@@ -384,9 +500,9 @@ export function NavBar() {
                 </div>
               </div>
 
-              {/* 2. ACTIVE REALM VIEWS */}
+              {/* 3. Active Realm Sub-Views */}
               <div>
-                <div className="flex items-center justify-between mb-3 border-t border-border-strong pt-4">
+                <div className="flex items-center justify-between mb-2.5 border-t border-border-strong pt-4">
                   <span className="label text-text-muted">
                     {topDomainTabs.find(t => t.active)?.name} Subsystems
                   </span>
@@ -399,15 +515,18 @@ export function NavBar() {
                     <Link
                       key={link.name}
                       to={link.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`py-3 px-4 text-xs font-mono font-bold uppercase flex items-center justify-between border transition-colors ${
+                      onClick={() => {
+                        playSolenoidClick();
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`py-2.5 px-3 text-xs font-mono font-bold uppercase flex items-center justify-between border transition-colors cursor-pointer ${
                         link.active 
                           ? 'bg-bg-tertiary text-accent border-accent' 
                           : 'bg-bg-primary/50 text-text-secondary border-border-subtle hover:text-text-primary hover:border-border-strong'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <link.icon size={15} className={link.active ? 'text-accent' : 'text-text-muted'} />
+                      <div className="flex items-center gap-2.5">
+                        <link.icon size={13} className={link.active ? 'text-accent' : 'text-text-muted'} />
                         <span className="tracking-wider">{link.name}</span>
                       </div>
                       <span className="text-2xs text-text-muted">→</span>
@@ -416,31 +535,19 @@ export function NavBar() {
                 </div>
               </div>
 
-              {/* 3. TELEMETRY & DISCONNECT */}
-              <div className="border-t border-border-strong pt-4 flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-3 p-3 bg-bg-tertiary border border-border-strong text-xs font-mono">
-                  <div>
-                    <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Rank</span>
-                    <span className="text-sm font-bold text-accent">{activeRankLabel} • {activeRank}</span>
-                  </div>
-                  <div className="text-right border-l border-border-subtle pl-3">
-                    <span className="text-3xs uppercase tracking-wider text-text-muted block">Active Streak</span>
-                    <span className="text-sm font-bold text-text-primary">{activeStreak > 0 ? `${activeStreak} DAYS` : '0 DAYS'}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end pt-1">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="btn-secondary w-full text-xs font-mono font-bold uppercase tracking-widest text-crimson hover:border-crimson flex items-center justify-center gap-2 px-3 py-2"
-                  >
-                    <LogOut size={13} /> Disconnect
-                  </button>
-                </div>
+              {/* 4. Session Control */}
+              <div className="border-t border-border-strong pt-3">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="btn-secondary w-full text-xs font-mono font-bold uppercase tracking-widest text-crimson hover:border-crimson flex items-center justify-center gap-2 px-3 py-2 cursor-pointer"
+                >
+                  <LogOut size={13} /> Disconnect Session
+                </button>
               </div>
+
             </div>
           </>
         )}
