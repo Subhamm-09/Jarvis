@@ -5,7 +5,6 @@ import {
   Target, 
   HeartPulse, 
   Brain, 
-  Trophy, 
   ChevronRight, 
   ArrowDown, 
   Layers, 
@@ -48,71 +47,8 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
         aria-hidden="true"
       />
 
-      {/* TOP ARCHITECTURAL HEADER */}
-      <header className="sticky top-0 z-40 bg-bg-primary/90 backdrop-blur-md border-b border-border-strong select-none">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 h-16 flex items-center justify-between">
-          
-          {/* Brand Monogram */}
-          <div className="flex items-center gap-4">
-            <Link to="/landing" className="flex items-center gap-3 group" onClick={() => playSolenoidClick()}>
-              <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(194,89,52,0.4)] group-hover:bg-accent-hover transition-colors rotate-45" />
-              <span className="text-xl font-black font-cinzel tracking-tighter text-text-primary uppercase">
-                JARVIS
-              </span>
-            </Link>
-            
-            <span className="hidden md:inline-flex items-center gap-2 text-3xs font-mono uppercase tracking-widest px-2.5 py-0.5 bg-bg-secondary border border-border-strong text-text-secondary">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              <span>SYSTEM V3.2 // LIFE RPG MATRIX</span>
-            </span>
-          </div>
-
-          {/* Quick Navigation Anchor Links */}
-          <nav className="hidden lg:flex items-center gap-8 font-mono text-xs uppercase tracking-wider text-text-secondary">
-            <button 
-              onClick={() => scrollToSection('act-tri-realms')} 
-              className="hover:text-accent transition-colors cursor-pointer"
-            >
-              The 3 Realms
-            </button>
-            {isAuthenticated && (
-              <Link 
-                to="/life" 
-                className="hover:text-accent transition-colors flex items-center gap-1.5"
-                onClick={() => playSolenoidClick()}
-              >
-                <span>Character Matrix</span>
-              </Link>
-            )}
-            {isAuthenticated && (
-              <Link 
-                to="/rewards" 
-                className="hover:text-accent transition-colors flex items-center gap-1.5"
-                onClick={() => playSolenoidClick()}
-              >
-                <Trophy size={13} className="text-accent" />
-                <span>Rewards Vault</span>
-              </Link>
-            )}
-          </nav>
-
-          {/* Direct CTA */}
-          <div className="flex items-center gap-3">
-            <Link 
-              to={isAuthenticated ? "/life" : "/auth"}
-              className="btn-primary text-xs font-mono font-bold uppercase tracking-widest px-4 py-2 flex items-center gap-2 shadow-xs"
-              onClick={() => playSolenoidClick()}
-            >
-              <Terminal size={13} />
-              <span>{isAuthenticated ? 'Character Matrix' : 'Awaken System'}</span>
-            </Link>
-          </div>
-
-        </div>
-      </header>
-
       {/* HERO SECTION: ASYMMETRIC STORYTELLING & ARTISTIC CENTERPIECE */}
-      <section className="relative overflow-hidden border-b border-border-strong pt-12 pb-20 sm:pt-20 sm:pb-32">
+      <section className="relative overflow-hidden border-b border-border-strong pt-16 pb-20 sm:pt-24 sm:pb-32">
         
         {/* Subtle Radial Aura */}
         <div 
@@ -129,10 +65,19 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
             {/* LEFT COLUMN: EDITORIAL PROCLAMATION (7 Cols) */}
             <div className="lg:col-span-7 flex flex-col items-start text-left z-10">
               
-              {/* Protocol Eyebrow */}
-              <div className="inline-flex items-center gap-2.5 px-3 py-1 bg-bg-secondary border border-border-strong mb-6 text-3xs font-mono uppercase tracking-widest text-accent shadow-xs animate-in fade-in duration-500">
-                <Crosshair size={12} className="text-accent animate-spin-slow" />
-                <span>LIFE GOVERNANCE ENGINE // MONARCH PROTOCOL</span>
+              {/* Brand Monogram & Eyebrow */}
+              <div className="flex flex-wrap items-center gap-3 mb-8 animate-in fade-in duration-500">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-3.5 h-3.5 bg-accent shadow-[0_0_10px_rgba(194,89,52,0.4)] rotate-45" />
+                  <span className="text-xl font-black font-cinzel tracking-tighter text-text-primary uppercase">
+                    JARVIS
+                  </span>
+                </div>
+                <span className="text-border-strong font-mono text-xs">•</span>
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-bg-secondary border border-border-strong text-3xs font-mono uppercase tracking-widest text-accent shadow-xs">
+                  <Crosshair size={11} className="text-accent animate-spin-slow" />
+                  <span>LIFE GOVERNANCE ENGINE // MONARCH PROTOCOL</span>
+                </div>
               </div>
 
               {/* Monumental Life RPG Headline */}

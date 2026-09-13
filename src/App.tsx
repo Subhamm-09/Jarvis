@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { NavBar } from './components/shared/NavBar';
 import { TactileFeedbackHUD } from './components/shared/TactileFeedbackHUD';
@@ -31,6 +31,53 @@ function RouteLoadingFallback() {
   );
 }
 
+function AppContent({ session }: { session: Session | null }) {
+  const location = useLocation();
+  const isAuthenticated = !!session;
+  const isLanding = location.pathname === '/' || location.pathname === '/landing';
+  const showNavBar = isAuthenticated && !isLanding;
+
+  return (
+    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
+      {showNavBar && <NavBar />}
+      <TactileFeedbackHUD />
+      
+      <main className={`flex-1 flex flex-col ${showNavBar ? 'pt-[60px]' : ''}`}>
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Routes>
+            {/* Public Landing & Auth Routes */}
+            <Route path="/" element={<LandingPage isAuthenticated={isAuthenticated} />} />
+            <Route path="/landing" element={<LandingPage isAuthenticated={isAuthenticated} />} />
+            <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <Navigate to="/life" />} />
+            
+            {/* Protected Routes */}
+            <Route path="/life" element={isAuthenticated ? <LifeMapPage /> : <Navigate to="/auth" />} />
+            <Route path="/life-map" element={isAuthenticated ? <LifeMapPage /> : <Navigate to="/auth" />} />
+
+            {/* Career Domain (FROZEN BASELINE) */}
+            <Route path="/dashboard" element={isAuthenticated ? <DashboardPage /> : <Navigate to="/auth" />} />
+            <Route path="/status" element={isAuthenticated ? <StatusPage /> : <Navigate to="/auth" />} />
+            <Route path="/hunt-log" element={isAuthenticated ? <HuntLogPage /> : <Navigate to="/auth" />} />
+            <Route path="/collections" element={isAuthenticated ? <CollectionsPage /> : <Navigate to="/auth" />} />
+            <Route path="/collections/:id" element={isAuthenticated ? <CollectionDetailPage /> : <Navigate to="/auth" />} />
+
+            {/* Health Domain (ISOLATED RPG DOMAIN) */}
+            <Route path="/health" element={isAuthenticated ? <HealthDashboardPage /> : <Navigate to="/auth" />} />
+
+            {/* Personal Domain (ISOLATED RPG DOMAIN) */}
+            <Route path="/personal" element={isAuthenticated ? <PersonalDashboardPage /> : <Navigate to="/auth" />} />
+
+            {/* Rewards Domain */}
+            <Route path="/rewards" element={isAuthenticated ? <RewardsPage /> : <Navigate to="/auth" />} />
+            
+            <Route path="*" element={<Navigate to="/life" />} />
+          </Routes>
+        </Suspense>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,47 +105,9 @@ function App() {
     </div>;
   }
 
-  const isAuthenticated = !!session;
-
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
-        {isAuthenticated && <NavBar />}
-        <TactileFeedbackHUD />
-        
-        <main className={`flex-1 flex flex-col ${isAuthenticated ? 'pt-[60px]' : ''}`}>
-          <Suspense fallback={<RouteLoadingFallback />}>
-            <Routes>
-              {/* Public Landing & Auth Routes */}
-              <Route path="/" element={<LandingPage isAuthenticated={isAuthenticated} />} />
-              <Route path="/landing" element={<LandingPage isAuthenticated={isAuthenticated} />} />
-              <Route path="/auth" element={!isAuthenticated ? <AuthPage /> : <Navigate to="/life" />} />
-              
-              {/* Protected Routes */}
-              <Route path="/life" element={isAuthenticated ? <LifeMapPage /> : <Navigate to="/auth" />} />
-              <Route path="/life-map" element={isAuthenticated ? <LifeMapPage /> : <Navigate to="/auth" />} />
-
-              {/* Career Domain (FROZEN BASELINE) */}
-              <Route path="/dashboard" element={isAuthenticated ? <DashboardPage /> : <Navigate to="/auth" />} />
-              <Route path="/status" element={isAuthenticated ? <StatusPage /> : <Navigate to="/auth" />} />
-              <Route path="/hunt-log" element={isAuthenticated ? <HuntLogPage /> : <Navigate to="/auth" />} />
-              <Route path="/collections" element={isAuthenticated ? <CollectionsPage /> : <Navigate to="/auth" />} />
-              <Route path="/collections/:id" element={isAuthenticated ? <CollectionDetailPage /> : <Navigate to="/auth" />} />
-
-              {/* Health Domain (ISOLATED RPG DOMAIN) */}
-              <Route path="/health" element={isAuthenticated ? <HealthDashboardPage /> : <Navigate to="/auth" />} />
-
-              {/* Personal Domain (ISOLATED RPG DOMAIN) */}
-              <Route path="/personal" element={isAuthenticated ? <PersonalDashboardPage /> : <Navigate to="/auth" />} />
-
-              {/* Rewards Domain */}
-              <Route path="/rewards" element={isAuthenticated ? <RewardsPage /> : <Navigate to="/auth" />} />
-              
-              <Route path="*" element={<Navigate to="/life" />} />
-            </Routes>
-          </Suspense>
-        </main>
-      </div>
+      <AppContent session={session} />
     </Router>
   );
 }
