@@ -68,7 +68,18 @@ export function HealthDashboardPage() {
         supabase.from('health_exp_log').select('*').eq('user_id', activeUser.id).order('awarded_at', { ascending: false }),
       ]);
 
-      if (tasksRes.data) setTasks(tasksRes.data as HealthTask[]);
+      if (tasksRes.data) {
+        setTasks(prev => {
+          // Never overwrite in-flight optimistic tasks
+          const inFlightTemps = prev.filter(t => t.id.startsWith('temp-'));
+          const dbTasks = tasksRes.data as HealthTask[];
+          const dbIds = new Set(dbTasks.map(t => t.id));
+          return [
+            ...inFlightTemps.filter(t => !dbIds.has(t.id)),
+            ...dbTasks
+          ];
+        });
+      }
       if (expRes.data) setExpLogs(expRes.data as HealthExpLog[]);
     } catch (err) {
       console.error("Health fetch error:", err);
@@ -97,12 +108,10 @@ export function HealthDashboardPage() {
   useEffect(() => {
     fetchHealthData();
 
-    const handleUpdate = () => fetchHealthData();
-    window.addEventListener('health-exp-awarded', handleUpdate);
-    window.addEventListener('health-task-created', handleUpdate);
+    const handleExp = () => fetchHealthData();
+    window.addEventListener('health-exp-awarded', handleExp);
     return () => {
-      window.removeEventListener('health-exp-awarded', handleUpdate);
-      window.removeEventListener('health-task-created', handleUpdate);
+      window.removeEventListener('health-exp-awarded', handleExp);
     };
   }, []);
 
@@ -145,10 +154,15 @@ export function HealthDashboardPage() {
   }) => {
     try {
       const activeUser = await getActiveUser();
+      if (!activeUser) {
+        alert("Session expired or user not loaded. Please log in again.");
+        return;
+      }
+
       const tempId = 'temp-' + Date.now();
       const optimisticTask: HealthTask = {
         id: tempId,
-        user_id: activeUser?.id || 'local-user',
+        user_id: activeUser.id,
         title: data.title,
         pillar: data.pillar,
         status: 'todo',
@@ -174,28 +188,43 @@ export function HealthDashboardPage() {
         icon: 'health'
       });
 
-      window.dispatchEvent(new CustomEvent('health-task-created'));
+      // 4. Supabase DB persistence
+      const { data: inserted, error } = await supabase
+        .from('health_tasks')
+        .insert({
+          user_id: activeUser.id,
+          title: data.title,
+          pillar: data.pillar,
+          priority: data.priority,
+          effort_estimate_mins: data.effort_estimate_mins,
+          metadata: { ...data.metadata, difficulty: data.difficulty },
+        })
+        .select()
+        .single();
 
-      // 4. Background DB persistence
-      if (activeUser) {
-        const { data: inserted, error } = await supabase
-          .from('health_tasks')
-          .insert({
-            user_id: activeUser.id,
-            title: data.title,
-            pillar: data.pillar,
-            priority: data.priority,
-            effort_estimate_mins: data.effort_estimate_mins,
-            metadata: { ...data.metadata, difficulty: data.difficulty },
-          })
-          .select()
-          .single();
+      if (error) {
+        console.error("Database error inserting health task:", error);
+        // Roll back the optimistic task from state
+        setTasks(prev => prev.filter(t => t.id !== tempId));
+        alert("Failed to initialize health quest: " + (error.message || "Database error"));
+        return;
+      }
 
-        if (!error && inserted) {
-          setTasks(prev => prev.map(t => t.id === tempId ? (inserted as HealthTask) : t));
-        } else if (error) {
-          console.error("Database error inserting health task:", error);
-        }
+      if (inserted) {
+        // Replace optimistic task with authoritative database record
+        setTasks(prev => {
+          const index = prev.findIndex(t => t.id === tempId);
+          if (index !== -1) {
+            const copy = [...prev];
+            copy[index] = inserted as HealthTask;
+            return copy;
+          }
+          if (prev.some(t => t.id === inserted.id)) return prev;
+          return [inserted as HealthTask, ...prev];
+        });
+
+        // Notify external subscribers (e.g. HealthTrackerPanel)
+        window.dispatchEvent(new CustomEvent('health-task-created', { detail: inserted }));
       }
     } catch (err: any) {
       console.error("handleCreateTask error:", err);
@@ -304,8 +333,15 @@ export function HealthDashboardPage() {
   });
 
   const filteredPending = filteredTasks.filter(t => t.status !== 'done');
-  const topPriority = filteredPending.length > 0 ? filteredPending[0] : null;
-  const queueTasks = filteredPending.length > 0 ? filteredPending.slice(1) : [];
+  
+  // Sort pending protocols: Priority descending (5 down to 1), then recency descending
+  const sortedPending = [...filteredPending].sort((a, b) => {
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  const topPriority = sortedPending.length > 0 ? sortedPending[0] : null;
+  const queueTasks = sortedPending;
 
   // S-Tier progress calculations
   const sTierWorkoutPct = Math.min(100, Math.round((sGate.totalWorkouts / sGate.requiredWorkouts) * 100));
@@ -599,6 +635,11 @@ export function HealthDashboardPage() {
                         <div className="w-1 h-3 bg-text-primary shrink-0" />
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
+                            {task.id === topPriority?.id && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 text-rpg-gold bg-rpg-gold/15 border border-rpg-gold/30 font-bold uppercase tracking-wider shrink-0">
+                                PRIME
+                              </span>
+                            )}
                             <span className="text-2xs font-mono uppercase font-bold text-text-muted">
                               {task.pillar}
                             </span>
@@ -628,9 +669,9 @@ export function HealthDashboardPage() {
                   );
                 })
               ) : (
-                <div className="empty-state py-8">
+                <div className="empty-state py-8 text-center">
                   <span className="text-sm font-medium text-text-secondary">
-                    {topPriority ? 'No other protocols in queue' : 'No protocols in queue'}
+                    No protocols in queue
                   </span>
                 </div>
               )}
