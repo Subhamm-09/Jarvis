@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Terminal, 
-  Shield, 
   Target, 
   HeartPulse, 
   Brain, 
@@ -12,9 +11,7 @@ import {
   Layers, 
   Zap, 
   Lock, 
-  Crosshair, 
-  Compass,
-  ArrowRight
+  Crosshair
 } from 'lucide-react';
 import { playSolenoidClick } from '../lib/mechanicalAudio';
 
@@ -23,11 +20,9 @@ interface LandingPageProps {
 }
 
 type RealmId = 'career' | 'health' | 'personal' | null;
-type PreviewTab = 'career' | 'lifemap' | 'rewards';
 
 export function LandingPage({ isAuthenticated }: LandingPageProps) {
   const [hoveredRealm, setHoveredRealm] = useState<RealmId>(null);
-  const [activePreviewTab, setActivePreviewTab] = useState<PreviewTab>('lifemap');
 
   const scrollToSection = (id: string) => {
     playSolenoidClick();
@@ -78,20 +73,17 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
               onClick={() => scrollToSection('act-tri-realms')} 
               className="hover:text-accent transition-colors cursor-pointer"
             >
-              01 // The 3 Realms
+              The 3 Realms
             </button>
-            <button 
-              onClick={() => scrollToSection('act-s-tier')} 
-              className="hover:text-accent transition-colors cursor-pointer"
-            >
-              02 // S-Tier Gate
-            </button>
-            <button 
-              onClick={() => scrollToSection('act-viewport')} 
-              className="hover:text-accent transition-colors cursor-pointer"
-            >
-              03 // Live HUD
-            </button>
+            {isAuthenticated && (
+              <Link 
+                to="/life" 
+                className="hover:text-accent transition-colors flex items-center gap-1.5"
+                onClick={() => playSolenoidClick()}
+              >
+                <span>Character Matrix</span>
+              </Link>
+            )}
             {isAuthenticated && (
               <Link 
                 to="/rewards" 
@@ -172,7 +164,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                 >
                   <div className="flex flex-col text-left">
                     <span className="text-3xs text-white/70 font-mono tracking-widest">
-                      {isAuthenticated ? 'CURRENT SESSION // ACTIVE' : 'INITIALIZE PROTOCOL // LAT: 0.00°'}
+                      {isAuthenticated ? 'CURRENT SESSION // ACTIVE' : 'INITIALIZE PROTOCOL // REALM MATRIX'}
                     </span>
                     <span className="text-sm font-black tracking-wider">
                       {isAuthenticated ? 'Enter Character Matrix' : 'Awaken The System'}
@@ -340,7 +332,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   </g>
 
                   {/* Peripheral Notation Stamps */}
-                  <text x="35" y="475" className="text-[8px] font-mono fill-text-muted">LAT: 45.12° N</text>
+                  <text x="35" y="475" className="text-[8px] font-mono fill-text-muted">AXIS // HARMONIC</text>
                   <text x="465" y="475" textAnchor="end" className="text-[8px] font-mono fill-text-muted">CORE // EQUILIBRIUM</text>
                   <text x="250" y="495" textAnchor="middle" className="text-[8px] font-mono fill-text-muted">ZERO DATA CONTAMINATION</text>
                 </svg>
@@ -368,7 +360,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
             <div>
               <div className="flex items-center gap-2 mb-2 font-mono text-3xs uppercase tracking-widest text-accent font-bold">
                 <Layers size={13} />
-                <span>ACT I // THE THREE SOVEREIGN WORLDS</span>
+                <span>SOVEREIGN ARCHITECTURE // THE THREE REALMS</span>
               </div>
               <h2 className="text-3xl sm:text-5xl font-black font-cinzel tracking-tight uppercase text-text-primary">
                 The Tri-Domain Concordat
@@ -548,341 +540,6 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   50 Books Synthesized &bull; 300+ Deep Hours &bull; Polymath Sovereign
                 </div>
               </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ACT II: THE S-TIER SOVEREIGN BARRIER (THE HUNTER EXAM) */}
-      <section id="act-s-tier" className="py-24 border-b border-border-strong bg-bg-primary">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10">
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Description (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col items-start">
-              <div className="flex items-center gap-2 mb-3 font-mono text-3xs uppercase tracking-widest text-crimson font-bold">
-                <Shield size={13} />
-                <span>ACT II // THE MONARCH BARRIER</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-5xl font-black font-cinzel tracking-tight uppercase text-text-primary mb-6">
-                The S-Tier Rejects Participation.
-              </h2>
-
-              <p className="text-sm font-sans text-text-secondary leading-relaxed mb-6">
-                Conventional apps inflate your progress through superficial streaks and trivial checkbox clicks. In JARVIS, progression slows as stakes intensify.
-              </p>
-
-              <p className="text-sm font-serif italic text-text-muted leading-relaxed mb-8">
-                The S-Tier requires breaking through five non-negotiable proof-of-work gates. If you fail even one criterion, the barrier holds. No exceptions. No pity promotions.
-              </p>
-
-              <Link
-                to={isAuthenticated ? "/status" : "/auth"}
-                onClick={() => playSolenoidClick()}
-                className="btn-secondary py-3 px-6 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2"
-              >
-                <span>Examine S-Tier Criteria</span>
-                <ArrowRight size={13} />
-              </Link>
-            </div>
-
-            {/* Right Gate Verification Simulation (7 cols) */}
-            <div className="lg:col-span-7 bg-bg-secondary border-2 border-border-strong p-8 relative overflow-hidden shadow-xs">
-              
-              {/* Header Status Strip */}
-              <div className="flex items-center justify-between border-b border-border-strong pb-4 mb-6 font-mono">
-                <div className="flex items-center gap-2 text-3xs font-bold text-accent uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-xs bg-accent animate-ping" />
-                  <span>MONARCH GATE EVALUATOR // SIMULATION</span>
-                </div>
-                <span className="text-3xs font-bold px-2 py-0.5 bg-accent/10 border border-accent/30 text-accent">
-                  GATE 4 OF 5 CLEARED
-                </span>
-              </div>
-
-              {/* 5 Objective Verification Dossier */}
-              <div className="space-y-4 font-mono mb-8">
-                
-                {/* 1 */}
-                <div className="flex items-center justify-between p-3.5 bg-bg-primary border border-border-subtle">
-                  <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 bg-success text-white flex items-center justify-center text-xs font-bold">✓</span>
-                    <div>
-                      <div className="text-xs font-bold text-text-primary uppercase">01 // LeetCode Algorithm Crucible</div>
-                      <div className="text-3xs text-text-muted">Requirement: 300 Solves (150 Med / 20 Hard)</div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-success">312 SOLVED &bull; CLEARED</span>
-                </div>
-
-                {/* 2 */}
-                <div className="flex items-center justify-between p-3.5 bg-bg-primary border border-border-subtle">
-                  <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 bg-success text-white flex items-center justify-center text-xs font-bold">✓</span>
-                    <div>
-                      <div className="text-xs font-bold text-text-primary uppercase">02 // Production Software Deployments</div>
-                      <div className="text-3xs text-text-muted">Requirement: 2+ Live Deployed Systems</div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-success">2 DEPLOYED &bull; CLEARED</span>
-                </div>
-
-                {/* 3 */}
-                <div className="flex items-center justify-between p-3.5 bg-bg-primary border border-border-subtle">
-                  <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 bg-success text-white flex items-center justify-center text-xs font-bold">✓</span>
-                    <div>
-                      <div className="text-xs font-bold text-text-primary uppercase">03 // Hackathon Combat & Podiums</div>
-                      <div className="text-3xs text-text-muted">Requirement: 8+ Entries &bull; 2+ Podium Finishes</div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-success">8 ENTRIES (2 WINS) &bull; CLEARED</span>
-                </div>
-
-                {/* 4 */}
-                <div className="flex items-center justify-between p-3.5 bg-bg-primary border border-accent/40">
-                  <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 bg-accent/20 border border-accent text-accent flex items-center justify-center text-xs font-bold">⋯</span>
-                    <div>
-                      <div className="text-xs font-bold text-text-primary uppercase">04 // Deliberate Study Endurance</div>
-                      <div className="text-3xs text-text-muted">Requirement: 300 Tracked High-Focus Hours</div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-accent">246 / 300 HRS &bull; 82%</span>
-                </div>
-
-                {/* 5 */}
-                <div className="flex items-center justify-between p-3.5 bg-bg-primary border border-border-subtle">
-                  <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 bg-success text-white flex items-center justify-center text-xs font-bold">✓</span>
-                    <div>
-                      <div className="text-xs font-bold text-text-primary uppercase">05 // Academic Clearance Verification</div>
-                      <div className="text-3xs text-text-muted">Requirement: Coursework Baseline Verified</div>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-success">VERIFIED &bull; CLEARED</span>
-                </div>
-
-              </div>
-
-              {/* Progress Text Block */}
-              <div className="pt-4 border-t border-border-strong flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
-                <div className="text-text-muted">
-                  BARRIER INTEGRITY: <span className="font-bold text-text-primary">[████████░░░░ 80%]</span>
-                </div>
-                <div className="text-3xs uppercase tracking-widest text-accent font-bold">
-                  ONE GATE REMAINING TO UNLOCK S-TIER
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ACT III: SCROLL-DRIVEN PRODUCT VIEWPORT (INTERACTIVE LIVE HUD) */}
-      <section id="act-viewport" className="py-24 border-b border-border-strong bg-bg-secondary/30">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-10">
-          
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border-strong pb-8 mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-2 font-mono text-3xs uppercase tracking-widest text-accent font-bold">
-                <Compass size={13} />
-                <span>ACT III // THE COMMAND HUD</span>
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black font-cinzel tracking-tight uppercase text-text-primary">
-                The Sovereign Viewport
-              </h2>
-            </div>
-            <p className="text-sm font-serif italic text-text-secondary max-w-md">
-              Interact with the live telemetry console. Toggle between views to experience the exact interface governing your progression.
-            </p>
-          </div>
-
-          {/* HUD Viewport Frame */}
-          <div className="border-2 border-border-strong bg-bg-primary shadow-[0_12px_48px_rgba(17,17,17,0.08)] overflow-hidden">
-            
-            {/* Viewport Top Chrome / Tab Switcher */}
-            <div className="bg-bg-secondary border-b border-border-strong px-6 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-              
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 border border-border-strong bg-accent/20 rounded-full" />
-                <span className="font-bold tracking-widest uppercase text-3xs text-text-primary">JARVIS TELEMETRY DISPLAY</span>
-              </div>
-
-              {/* Interactive Tabs */}
-              <div className="flex items-center gap-1 bg-bg-tertiary p-1 border border-border-strong">
-                <button
-                  onClick={() => { playSolenoidClick(); setActivePreviewTab('lifemap'); }}
-                  className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    activePreviewTab === 'lifemap'
-                      ? 'bg-accent text-white shadow-xs'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  Life Map Matrix
-                </button>
-                <button
-                  onClick={() => { playSolenoidClick(); setActivePreviewTab('career'); }}
-                  className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    activePreviewTab === 'career'
-                      ? 'bg-accent text-white shadow-xs'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  Career Quest HUD
-                </button>
-                <button
-                  onClick={() => { playSolenoidClick(); setActivePreviewTab('rewards'); }}
-                  className={`px-3 py-1.5 text-2xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    activePreviewTab === 'rewards'
-                      ? 'bg-accent text-white shadow-xs'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  Rewards Vault
-                </button>
-              </div>
-
-            </div>
-
-            {/* Viewport Dynamic Content Body */}
-            <div className="p-8 sm:p-12">
-              
-              {activePreviewTab === 'lifemap' && (
-                <div className="space-y-8 animate-in fade-in duration-300">
-                  
-                  {/* Hero Bar in Viewport */}
-                  <div className="p-6 bg-bg-secondary border border-border-strong flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                      <div className="text-3xs font-mono font-bold text-accent uppercase tracking-widest mb-1">
-                        PROTAGONIST MATRIX // LEVEL 14
-                      </div>
-                      <div className="text-2xl sm:text-3xl font-black font-cinzel uppercase text-text-primary">
-                        GOOD EVENING, OPERATOR &bull; <span className="text-accent">THE ARCHITECT</span>
-                      </div>
-                    </div>
-                    <div className="w-full md:w-72 flex flex-col gap-1.5">
-                      <div className="flex justify-between font-mono text-3xs font-bold">
-                        <span>XP PROGRESSION</span>
-                        <span className="text-accent">3,420 / 4,200 XP</span>
-                      </div>
-                      <div className="h-2 bg-bg-primary border border-border-strong">
-                        <div className="h-full bg-accent w-[81%]" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 6 Attribute Meters */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {[
-                      { name: 'INTELLECT', val: 91, color: 'bg-accent' },
-                      { name: 'DISCIPLINE', val: 88, color: 'bg-text-primary' },
-                      { name: 'EXECUTION', val: 84, color: 'bg-accent' },
-                      { name: 'HEALTH', val: 78, color: 'bg-success' },
-                      { name: 'CREATIVITY', val: 72, color: 'bg-[#555555]' },
-                      { name: 'SOCIAL', val: 65, color: 'bg-text-primary' },
-                    ].map(attr => (
-                      <div key={attr.name} className="p-3 bg-bg-secondary border border-border-strong font-mono">
-                        <div className="text-3xs text-text-muted uppercase mb-1">{attr.name}</div>
-                        <div className="text-xl font-black text-text-primary mb-2">{attr.val}</div>
-                        <div className="h-1 bg-bg-tertiary w-full">
-                          <div className={`h-full ${attr.color}`} style={{ width: `${attr.val}%` }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
-              )}
-
-              {activePreviewTab === 'career' && (
-                <div className="space-y-6 animate-in fade-in duration-300 font-mono">
-                  
-                  {/* Prime Directive Boss Card Preview */}
-                  <div className="p-6 bg-bg-secondary border-l-4 border-l-crimson border border-border-strong flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-3xs font-bold text-crimson uppercase tracking-widest">
-                        CRITICAL // PRIME DIRECTIVE
-                      </span>
-                      <div className="text-lg font-black font-cinzel text-text-primary uppercase">
-                        Red-Black Tree Self-Balancing Invariants
-                      </div>
-                      <span className="text-xs text-text-muted">Domain: LeetCode &bull; Spaced Repetition Due</span>
-                    </div>
-                    <span className="px-4 py-2 bg-accent text-white text-xs font-bold uppercase tracking-wider shrink-0 text-center">
-                      +150 XP &bull; EXECUTE
-                    </span>
-                  </div>
-
-                  {/* Dual Queue Tabs Preview */}
-                  <div className="flex items-center gap-4 border-b border-border-strong pb-2 text-xs">
-                    <span className="font-bold text-accent border-b-2 border-accent pb-2">Operation Queue (4)</span>
-                    <span className="text-text-muted pb-2">Revision Queue (2)</span>
-                  </div>
-
-                  {/* Quest Rows */}
-                  <div className="space-y-2">
-                    <div className="p-3 bg-bg-secondary border border-border-subtle flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xs px-1.5 py-0.5 bg-accent/15 text-accent border border-accent/30 font-bold">EPIC</span>
-                        <span className="font-bold text-text-primary">Deploy Zero-Trust RLS Policies to Staging</span>
-                      </div>
-                      <span className="text-accent font-bold">+75 XP</span>
-                    </div>
-                    <div className="p-3 bg-bg-secondary border border-border-subtle flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xs px-1.5 py-0.5 bg-bg-tertiary text-text-secondary border border-border-subtle font-bold">RARE</span>
-                        <span className="font-bold text-text-primary">Synthesize Distributed Consensus Benchmark</span>
-                      </div>
-                      <span className="text-accent font-bold">+45 XP</span>
-                    </div>
-                  </div>
-
-                </div>
-              )}
-
-              {activePreviewTab === 'rewards' && (
-                <div className="space-y-6 animate-in fade-in duration-300 font-mono">
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { name: 'THE ARCHITECT', cat: 'CAREER', desc: 'Deploy 5 Production Architectures', eq: true },
-                      { name: 'IRON VANGUARD', cat: 'HEALTH', desc: 'Sustain 30-Day Physical Protocol Cadence', eq: false },
-                      { name: 'POLYMATH SOVEREIGN', cat: 'PERSONAL', desc: 'Synthesize 25 Philosophical Treatises', eq: false },
-                    ].map(t => (
-                      <div 
-                        key={t.name}
-                        className={`p-5 border flex flex-col justify-between ${
-                          t.eq 
-                            ? 'bg-bg-secondary border-accent shadow-[0_4px_16px_rgba(194,89,52,0.15)]' 
-                            : 'bg-bg-secondary border-border-strong'
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center justify-between text-3xs font-bold uppercase mb-2">
-                            <span className="text-accent">{t.cat}</span>
-                            {t.eq && <span className="px-1.5 py-0.5 bg-accent text-white">EQUIPPED</span>}
-                          </div>
-                          <div className="text-base font-black font-cinzel text-text-primary uppercase mb-1">
-                            {t.name}
-                          </div>
-                          <div className="text-3xs text-text-muted leading-relaxed">{t.desc}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
-              )}
-
             </div>
 
           </div>
