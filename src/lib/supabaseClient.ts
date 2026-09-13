@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
 function resolveSupabaseUrl(): string {
-  const raw = (
+  let raw = (
     import.meta.env.VITE_SUPABASE_URL || 
     import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
     'https://biyujutdzuvbkeyrehqe.supabase.co'
   ).trim();
+
+  // Fix typo if project ref has swapped letters: keyerheq -> keyrehqe
+  if (raw.includes('biyujutdzuvbkeyerheq')) {
+    raw = raw.replace('biyujutdzuvbkeyerheq', 'biyujutdzuvbkeyrehqe');
+  }
 
   // If user accidentally copied the dashboard URL e.g. https://supabase.com/dashboard/project/biyujutdzuvbkeyrehqe
   if (raw.includes('supabase.com/dashboard/project/')) {
