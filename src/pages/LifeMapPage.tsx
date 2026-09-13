@@ -4,8 +4,12 @@ import {
   Compass, 
   Zap, 
   Swords, 
-  Bot
+  Bot,
+  Pencil,
+  Check,
+  X
 } from 'lucide-react';
+import { playSolenoidClick } from '../lib/mechanicalAudio';
 import { supabase } from '../lib/supabaseClient';
 import { getCareerLevel, leetcode as rankingLeetcode } from '../lib/ranking';
 import { getHealthLevel, calculateHealthAttributes, getHealthRank } from '../lib/healthRanking';
@@ -28,6 +32,9 @@ export function LifeMapPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>('PROTAGONIST');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newNameInput, setNewNameInput] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
 
   // Career Telemetry
   const [careerTasks, setCareerTasks] = useState<Task[]>([]);
@@ -84,7 +91,8 @@ export function LifeMapPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const name = user.user_metadata?.full_name || user.email?.split('@')[0]?.toUpperCase() || 'PROTAGONIST';
+      const cachedName = localStorage.getItem('jarvis_display_name');
+      const name = cachedName || user.user_metadata?.full_name || user.email?.split('@')[0]?.toUpperCase() || 'PROTAGONIST';
       setUserName(name);
 
       const [
@@ -151,6 +159,41 @@ export function LifeMapPage() {
       window.removeEventListener('personal-exp-awarded', handleUpdate);
     };
   }, []);
+
+  const handleStartEditName = () => {
+    playSolenoidClick();
+    setNewNameInput(userName);
+    setIsEditingName(true);
+  };
+
+  const handleCancelEditName = () => {
+    playSolenoidClick();
+    setIsEditingName(false);
+    setNewNameInput('');
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = newNameInput.trim().toUpperCase();
+    if (!trimmed || trimmed === userName) {
+      setIsEditingName(false);
+      return;
+    }
+    playSolenoidClick();
+    setIsSavingName(true);
+    setUserName(trimmed);
+    localStorage.setItem('jarvis_display_name', trimmed);
+
+    try {
+      await supabase.auth.updateUser({
+        data: { full_name: trimmed }
+      });
+    } catch (err) {
+      console.error('Failed to update protagonist name:', err);
+    } finally {
+      setIsSavingName(false);
+      setIsEditingName(false);
+    }
+  };
 
   // Time-aware greeting
   const hour = new Date().getHours();
@@ -289,9 +332,64 @@ export function LifeMapPage() {
               <span>JARVIS SYSTEM // PROTAGONIST CONSOLE</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display">
-              {greeting}, <span className="text-accent">{userName}</span>
-            </h1>
+            {isEditingName ? (
+              <div className="flex items-center flex-wrap gap-2 animate-in fade-in duration-200">
+                <span className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display">
+                  {greeting},
+                </span>
+                <div className="inline-flex items-center gap-1.5 border-b-2 border-accent pb-0.5 bg-bg-secondary/60 px-2 py-0.5 shadow-2xs">
+                  <input
+                    type="text"
+                    value={newNameInput}
+                    onChange={(e) => setNewNameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveName();
+                      if (e.key === 'Escape') handleCancelEditName();
+                    }}
+                    autoFocus
+                    maxLength={24}
+                    className="bg-transparent font-display font-black text-2xl sm:text-3xl md:text-4xl uppercase text-accent focus:outline-none tracking-tight w-auto min-w-[140px] max-w-[280px] sm:max-w-md"
+                    placeholder="DESIGNATION"
+                    aria-label="Protagonist designation"
+                    disabled={isSavingName}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveName}
+                    disabled={isSavingName}
+                    className="p-1 text-success hover:bg-success/15 transition-colors cursor-pointer rounded-xs"
+                    title="Confirm designation (Enter)"
+                  >
+                    <Check size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelEditName}
+                    disabled={isSavingName}
+                    className="p-1 text-text-muted hover:text-crimson hover:bg-crimson/15 transition-colors cursor-pointer rounded-xs"
+                    title="Cancel (Esc)"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-text-primary font-display flex items-center flex-wrap gap-x-3 gap-y-1">
+                <span>
+                  {greeting}, <span className="text-accent">{userName}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleStartEditName}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 text-3xs font-mono font-normal uppercase tracking-widest text-text-muted/50 hover:text-accent hover:border-accent/40 border border-transparent hover:bg-accent/5 transition-all cursor-pointer rounded-xs"
+                  title="Change protagonist designation"
+                  aria-label="Change protagonist designation"
+                >
+                  <Pencil size={11} className="transition-transform group-hover:scale-110" />
+                  <span className="hidden sm:inline">EDIT</span>
+                </button>
+              </h1>
+            )}
 
             {/* Three Realms Tier Summary Strip */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 font-mono text-xs">
